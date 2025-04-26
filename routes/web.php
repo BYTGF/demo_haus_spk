@@ -33,8 +33,11 @@ Route::middleware('guest')->group(function () {
 // Route buat user yang udah login
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'home']);
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('role:Manager');
-	Route::get('/user-management', [UserManagementController::class, 'index'])->name('user_management')->middleware('role:Manager');
+    Route::resource('dashboard', DashboardController::class)->middleware('role:Admin');
+
+	Route::resource('user-management', UserManagementController::class)->middleware('role:Admin');
+
+
     Route::get('/logout', [SessionsController::class, 'destroy']);
     Route::get('/user-profile', [InfoUserController::class, 'create']);
     Route::post('/user-profile', [InfoUserController::class, 'store']);

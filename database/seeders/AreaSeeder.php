@@ -14,11 +14,12 @@ class AreaSeeder extends Seeder
      */
     public function run(): void
     {
-        $areas = ['Jakarta', 'Bandung', 'Surabaya'];
+        $areas = [['HO','Head Office'],['JKT','Jakarta'], ['BDG', 'Bandung'], ['BOG', 'BOGOR']];
 
         foreach ($areas as $area) {
             Area::create([
-                'area_name' => $area
+                'area_code' => $area[0],
+                'area_name' => $area[1]
             ]);
         }
     }

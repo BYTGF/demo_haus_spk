@@ -17,13 +17,15 @@ class StoreSeeder extends Seeder
     {
         $areas = Area::all();
 
+        $areas = [['1','MNG','Manager'], ['2','TNB','Tanah Abang'], ['2','PLT','Pluit'], ['3','DGO','Dago'], ['3','PST','Pasteur'], ['4','CKP','Cikupa'], ['4','CAW','Ciawi']];
+
         foreach ($areas as $area) {
-            for ($i = 1; $i <= 2; $i++) { // setiap area punya 2 toko
-                Store::create([
-                    'area_id' => $area->id,
-                    'store_name' => $area->area_name . ' Store ' . $i
-                ]);
-            }
+            Store::create([
+                'area_id' => $area[0],
+                'store_code' => $area[1],
+                'store_name' => $area[2]
+            ]);
+            
         }
     }
 }

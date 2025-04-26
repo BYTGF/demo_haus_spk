@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('area_id')->constrained()->onDelete('cascade');
+            $table->string('store_code');
             $table->string('store_name');
             $table->timestamps();
         });

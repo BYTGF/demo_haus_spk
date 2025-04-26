@@ -25,12 +25,28 @@ class UserSeeder extends Seeder
 
         // contoh buat 1 user untuk setiap role
         foreach ($roles as $role) {
+            // Determine area_id and store_id based on role_id conditions
+            if ($role->id == 8) {
+                // If role_id is 7, area_id and store_id are both set to 1
+                $area_id = $areas->random()->id;
+                $store_id = $stores->random()->id;
+            } elseif ($role->id == 7) {
+                // If role_id is 6, area_id and store_id are both random
+                $area_id = $areas->random()->id;
+                $store_id = 1;
+            } else {
+                // If role_id is neither 6 nor 7, area_id is set to 1 and store_id is random
+                $area_id = 1;
+                $store_id = 1;
+            }
+
+            // Create the user with the determined area_id and store_id
             User::create([
-                'username' => strtolower($role->role_name) . '_user',
-                'password' => Hash::make('password'), // semua default password "password"
+                'username' => strtolower($role->role_name),
+                'password' => Hash::make('pass'), // default password "pass"
                 'role_id' => $role->id,
-                'area_id' => $areas->random()->id,
-                'store_id' => $stores->random()->id,
+                'area_id' => $area_id,
+                'store_id' => $store_id,
             ]);
         }
     }
