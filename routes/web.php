@@ -8,6 +8,7 @@ use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\InputFinanceController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -30,12 +31,19 @@ Route::middleware('guest')->group(function () {
     Route::post('/session', [SessionsController::class, 'store']);
 });
 
+
+
 // Route buat user yang udah login
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'home']);
-    Route::resource('dashboard', DashboardController::class)->middleware('role:Admin');
-
+    
 	Route::resource('user-management', UserManagementController::class)->middleware('role:Admin');
+
+    Route::resource('dashboard', DashboardController::class);
+
+    Route::middleware('role:Finance, Business Development Manager')->group(function () {
+        Route::resource('finance', InputFinanceController::class);  
+    }); 
 
 
     Route::get('/logout', [SessionsController::class, 'destroy']);

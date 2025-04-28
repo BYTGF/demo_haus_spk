@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Role;
 use App\Models\Area;
 use App\Models\Store;
+use App\Models\InputFinance;
 
 class User extends Authenticatable
 {
@@ -64,6 +65,11 @@ class User extends Authenticatable
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function input_finance()
+    {
+        return $this->belongsTo(InputFinance::class);
     }
     
 }

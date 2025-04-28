@@ -10,25 +10,25 @@
             <div class="col-xl-4 col-lg-5 col-md-6 d-flex flex-column mx-auto">
               <div class="card card-plain mt-8">
                 <div class="card-header pb-0 text-left bg-transparent">
-                  <h3 class="font-weight-bolder text-info text-gradient">Welcome back</h3>
-                  <p class="mb-0">Create a new acount<br></p>
+                  <h3 class="font-weight-bolder text-info text-gradient">Login</h3>
+                  {{-- <p class="mb-0">Create a new acount<br></p>
                   <p class="mb-0">OR Sign in with these credentials:</p>
                   <p class="mb-0">Email <b>admin@softui.com</b></p>
-                  <p class="mb-0">Password <b>secret</b></p>
+                  <p class="mb-0">Password <b>secret</b></p> --}}
                 </div>
                 <div class="card-body">
                   <form role="form" method="POST" action="/session">
                     @csrf
                     <label>Username</label>
                     <div class="mb-3">
-                      <input type="text" class="form-control" name="username" id="username" placeholder="Email" value="admin@softui.com" aria-label="Email" aria-describedby="email-addon">
+                      <input type="text" class="form-control" name="username" id="username" placeholder="Email" aria-label="Email" aria-describedby="email-addon">
                       @error('email')
                         <p class="text-danger text-xs mt-2">{{ $message }}</p>
                       @enderror
                     </div>
                     <label>Password</label>
                     <div class="mb-3">
-                      <input type="password" class="form-control" name="password" id="password" placeholder="Password" value="secret" aria-label="Password" aria-describedby="password-addon">
+                      <input type="password" class="form-control" name="password" id="password" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
                       @error('password')
                         <p class="text-danger text-xs mt-2">{{ $message }}</p>
                       @enderror

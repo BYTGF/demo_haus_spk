@@ -55,11 +55,19 @@
         </a>
       </li>
       <li class="nav-item pb-2">
-        <a class="nav-link {{ (Request::is('user-management') ? 'active' : '') }}" href="{{ url('user-management') }}">
+        <a class="nav-link {{ (Request::is('user-management') ? 'active' : '') }}" href="{{ route('user-management.index')}}">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <i style="font-size: 1rem;" class="fas fa-lg fa-list-ul ps-2 pe-2 text-center text-dark {{ (Request::is('user-management') ? 'text-white' : 'text-dark') }} " aria-hidden="true"></i>
             </div>
             <span class="nav-link-text ms-1">User Management</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ (Request::is('finance') ? 'active' : '') }}" href="{{ route('finance.index') }}">
+          <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="fas fa-money-bill-wave text-dark"></i>
+          </div>
+          <span class="nav-link-text ms-1">Input Finance</span>
         </a>
       </li>
       <li class="nav-item mt-2">
@@ -82,11 +90,11 @@
               </g>
             </svg>
           </div>
-          <span class="nav-link-text ms-1">Tables</span>
+          <span class="nav-link-text ms-1">Input Finance</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {{ (Request::is('billing') ? 'active' : '') }}" href="{{ url('billing') }}">
+        <a class="nav-link {{ (Request::is('billing') ? 'active' : '') }}" href="{{ url('input_bd') }}">
           <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
             <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
               <title>credit-card</title>

@@ -3,27 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+// use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Role;
-use App\Models\Area;
 use App\Models\Store;
+use App\Models\InputFinance;
 
-class UserManagementController extends Controller
+class InputFinanceController extends Controller
 {
     public function index()
     {
         try {
-            $userManagement = User::with(['role', 'area', 'store'])->latest()->get();
-            $roles = Role::all();
-            $areas = Area::all();
-            $stores = Store::all();
+            // dd(Auth::check(), Auth::user());
+            $dones = InputFinance::with('user','store')->where('status', 'selesai')->get();
+            $ongoings = InputFinance::with('user','store')->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])->get();
 
-            return view('user-management', compact('userManagement', 'roles', 'areas', 'stores'));
+            // dd($done);
+
+            return view('finance', compact('dones', 'ongoings'));
         } catch (\Exception $e) {
             // Log the error and return an error page or message
             \Log::error('Error fetching data in index: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to load user management data.');
+            return redirect()->back()->with('error', 'Failed to load finance data.');
         }
     }
 
@@ -94,5 +94,4 @@ class UserManagementController extends Controller
             return redirect()->back()->with('error', 'Failed to delete user.');
         }
     }
-
 }

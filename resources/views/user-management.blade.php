@@ -122,37 +122,47 @@
                     <form id="user-form" method="POST">
                         @csrf
                         <input type="hidden" name="_method" id="form-method" value="POST">
+                    
                         <div class="form-group">
-                            <label for="example-text-input" class="form-control-label" >Username</label>
-                            <input class="form-control" type="text" name="username" id="example-text-input">
+                            <label for="username">Username</label>
+                            <input class="form-control" type="text" name="username" id="username" placeholder="Masukkan Username">
                         </div>
-            
+                    
                         <div class="form-group">
-                            <label for="role">Role</label>
-                            <select class="form-control" id="role_create" name="role_id">
+                            <label for="role_id">Role</label>
+                            <select class="form-control" id="role_id" name="role_id">
+                                <option value="">Pilih Role</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->id }}">{{ $role->role_name }}</option>
                                 @endforeach
                             </select>
-                            </div>
+                        </div>
+                    
                         <div class="form-group">
-                            <label for="area_create">Area</label>
-                            <select class="form-control" id="area_create" name="area_id" readonly>
+                            <label for="area_id_display">Area</label>
+                            <select class="form-control" id="area_id_display" disabled>
+                                <option value="">Pilih Area</option>
                                 @foreach ($areas as $area)
                                     <option value="{{ $area->id }}">{{ $area->area_name }}</option>
                                 @endforeach
                             </select>
+                            <input type="hidden" name="area_id" id="area_id">
                         </div>
+                    
                         <div class="form-group">
-                            <label for="store_create">Store</label>
-                            <select class="form-control" id="store_create" name="store_id" readonly>
+                            <label for="store_id_display">Store</label>
+                            <select class="form-control" id="store_id_display" disabled>
+                                <option value="">Pilih Store</option>
                                 @foreach ($stores as $store)
-                                    <option value="{{ $store->id }} || {{ $area->id }}">{{ $store->store_name }}</option>
+                                    <option value="{{ $store->id }}|{{ $store->area_id }}">{{ $store->store_name }}</option>
                                 @endforeach
-                            </select> 
+                            </select>
+                            <input type="hidden" name="store_id" id="store_id">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block btn-default bg-gradient-primary btn-sm mb-0">Submit</button>
+                    
+                        <button type="submit" class="btn btn-primary btn-block btn-sm">Submit</button>
                     </form>
+                    
                 </div>
               </div>
             </div>
@@ -165,192 +175,179 @@
 
 @push('js')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = $('#modal-form');
+        const form = document.getElementById('user-form');
+        const methodField = document.getElementById('form-method');
+        const modalTitle = document.querySelector('#modal-form .card-header h3');
 
-            document.addEventListener('click', function(event) {
-                // Handle tombol edit
-                if (event.target.closest('.edit-user-btn')) {
-                    const button = event.target.closest('.edit-user-btn');
-                    const userData = JSON.parse(button.dataset.user);
-                    openEditModal(userData);
-                }
+        const usernameInput = document.getElementById('username');
+        const roleSelect = document.getElementById('role_id');
+        const areaDisplay = document.getElementById('area_id_display');
+        const areaInput = document.getElementById('area_id');
+        const storeDisplay = document.getElementById('store_id_display');
+        const storeInput = document.getElementById('store_id');
 
-                // Handle tombol delete
-                if (event.target.closest('.delete-user-btn')) {
-                    event.preventDefault(); // supaya ga reload page
-                    const button = event.target.closest('.delete-user-btn');
-                    const userId = button.dataset.id;
-                    
-                    if (confirm('Yakin mau hapus user ini?')) {
-                        deleteUser(userId);
-                    }
-                }
-            });
+        const allStoreOptions = Array.from(storeDisplay.options);
 
-            function deleteUser(id) {
-                fetch(`/user-management/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('User berhasil dihapus!');
-                        location.reload(); // refresh page setelah hapus
-                    } else {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Gagal hapus user.');
-                        });
-                    }
-                })
-                .catch(error => {
-                    alert(error.message);
-                });
-            }
+        // BUTTON: Tambah User
+        window.openCreateModal = function () {
+            form.reset();
+            form.action = '{{ route("user-management.store") }}';
+            methodField.value = 'POST';
+            modalTitle.textContent = 'Tambah User';
 
+            areaDisplay.disabled = true;
+            storeDisplay.disabled = true;
 
-            //Check for Create or Update Request
-            const modal = $('#modal-form');
-            const form = document.getElementById('user-form');
-            const methodField = document.getElementById('form-method');
-            const modalTitle = document.querySelector('#modal-form .card-header h3');
+            modal.modal('show');
+        };
 
-             // Buka Modal Buat Tambah
-            window.openCreateModal = function() {
-                form.reset();
-                form.action = '{{ route("user-management.store") }}'; // ganti sesuai route resource kamu
-                methodField.value = 'POST';
-                modalTitle.textContent = 'Tambah User';
-                $('#store_create').html('<option value="">Pilih Store</option>'); // reset store option
-                $('#area_create').prop('disabled', false);
-                $('#store_create').prop('disabled', false);
-                modal.modal('show');
-            };
+        // BUTTON: Edit User
+        window.openEditModal = function (user) {
+            form.reset();
+            form.action = '/user-management/' + user.id;
+            methodField.value = 'PUT';
+            modalTitle.textContent = 'Edit User';
 
-            // Buka Modal Buat Edit
-            window.openEditModal = function(user) {
-                form.reset();
-                form.action = '/user-management/' + user.id;
-                methodField.value = 'PUT';
-                modalTitle.textContent = 'Edit User';
+            usernameInput.value = user.username;
+            roleSelect.value = user.role_id;
+            areaInput.value = user.area_id;
+            storeInput.value = user.store_id;
 
-                // Set input value
-                document.getElementById('example-text-input').value = user.username;
-                document.getElementById('role_create').value = user.role_id;
-                document.getElementById('area_create').value = user.area_id;
-                document.getElementById('store_create').value = user.store_id;
-                document.getElementById('area_create').readonly = true;
-                document.getElementById('store_create').readonly = true;
-                // Optional: kalau role settingan disable perlu disesuaikan juga
-                // contoh kayak script validasi role tadi.
+            areaDisplay.value = user.area_id;
+            storeDisplay.value = user.store_id + '|' + user.area_id;
 
-                modal.modal('show');
-            };
+            applyRoleBehavior(user.role_id);
+            modal.modal('show');
+        };
 
-            //User interaction in Form
-
-            const roleSelect = document.getElementById('role_create');
-            const areaSelect = document.getElementById('area_create');
-            const storeSelect = document.getElementById('store_create');
-
-            // Simpan semua option store
-            const allStores = Array.from(storeSelect.options);
-
-            //Update Area and Store Field on Role Change
-            roleSelect.addEventListener('change', function () {
-                //const selectedRole = roleSelect.options[roleSelect.selectedIndex].text.toLowerCase();
-                
-                if (roleSelect.value == 7) {
-                    // Role Area: Area bisa pilih, store default 1
-                    areaSelect.readonly = false;
-                    storeSelect.innerHTML = '<option value="1">Manager</option>';
-                    storeSelect.value = 1
-                    storeSelect.readonly = true;
-                } else if (roleSelect.value == 8) {
-                    // Role Store: Area bebas pilih, Store harus sesuai area
-                    areaSelect.readonly = false;
-                    storeSelect.readonly = false;
-
-                    // Kalau user ganti area, update store
-                    areaSelect.addEventListener('change', updateStoresForArea);
-                    updateStoresForArea();
-                } else {
-                    areaSelect.innerHTML = '<option value="1">HO</option>';
-                     storeSelect.innerHTML = '<option value="1">Manager</option>';
-                    areaSelect.value = 1;
-                    storeSelect.value = 1;
-                    areaSelect.readonly = true;
-                    storeSelect.readonly = true;
-                }
-            });
-
-            //update Store Selection on Area Change
-            function updateStoresForArea() {
-                const selectedAreaId = areaSelect.value;
-
-                // Clear store options
-                storeSelect.innerHTML = '';
-
-                // Filtering store berdasarkan area_id
-                const filteredStores = allStores.filter(option => {
-                    // Misal di value store disimpan kayak "1|AreaId"
-                    const [store_id, area_id] = option.value.split('|');
-                    return area_id === selectedAreaId;
-                });
-
-                // Kalau ketemu store, render ulang option
-                filteredStores.forEach(option => {
-                    storeSelect.appendChild(option);
-                });
-
-                if (filteredStores.length === 0) {
-                    const emptyOption = document.createElement('option');
-                    emptyOption.text = 'No Store Available';
-                    emptyOption.disabled = true;
-                    storeSelect.appendChild(emptyOption);
+        // HANDLE: Delete User
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.delete-user-btn')) {
+                event.preventDefault();
+                const userId = event.target.closest('.delete-user-btn').dataset.id;
+                if (confirm('Yakin mau hapus user ini?')) {
+                    deleteUser(userId);
                 }
             }
 
-            // Validate Form
-            form.addEventListener('submit', function (e) {
-                const roleSelect = document.getElementById('role_create');
-                const areaSelect = document.getElementById('area_create');
-                const storeSelect = document.getElementById('store_create');
-
-                const selectedRole = roleSelect.options[roleSelect.selectedIndex].text.toLowerCase();
-
-                if (selectedRole === 'store') {
-                    if (!areaSelect.value) {
-                        e.preventDefault();
-                        alert('Area harus dipilih untuk role Store.');
-                        return;
-                    }
-                    if (!storeSelect.value) {
-                        e.preventDefault();
-                        alert('Store harus dipilih untuk role Store.');
-                        return;
-                    }
-                } else if (selectedRole === 'area') {
-                    if (!areaSelect.value) {
-                        e.preventDefault();
-                        alert('Area harus dipilih untuk role Area.');
-                        return;
-                    }
-                }
-
-                // Role HO ga perlu dicek karena udah auto set id 1
-
-                // reset data on modal open
-                $('#modal-form').on('hidden.bs.modal', function () {
-                    form.reset(); // Reset semua input
-                    document.getElementById('area_create').disabled = false;
-                    document.getElementById('store_create').disabled = false;
-                    $('#store_create').html('<option value="">Pilih Store</option>'); // Reset store options
-                });
-            }); 
+            if (event.target.closest('.edit-user-btn')) {
+                const userData = JSON.parse(event.target.closest('.edit-user-btn').dataset.user);
+                openEditModal(userData);
+            }
         });
-    </script>
 
+        function deleteUser(id) {
+            fetch(`/user-management/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('User berhasil dihapus!');
+                    location.reload();
+                } else {
+                    return res.json().then(data => {
+                        throw new Error(data.message || 'Gagal menghapus user.');
+                    });
+                }
+            })
+            .catch(err => alert(err.message));
+        }
+
+        // HANDLE: Role Change
+        roleSelect.addEventListener('change', function () {
+            applyRoleBehavior(this.value);
+        });
+
+        function applyRoleBehavior(roleId) {
+            if (roleId == 7) {
+                // Area Manager: Area aktif, Store disabled
+                areaDisplay.disabled = false;
+                storeDisplay.innerHTML = '<option>Manager</option>';
+                storeDisplay.disabled = true;
+                areaInput.value = 1
+            } else if (roleId == 8) {
+                // Store Manager: Area aktif, Store dinamis
+                areaDisplay.disabled = false;
+                storeDisplay.disabled = false;
+                updateStoreOptions(areaDisplay.value);
+            } else {
+                // HO
+                areaDisplay.disabled = true;
+                storeDisplay.disabled = true;
+                areaInput.value = 1
+                storeInput.value = 1
+        
+                areaDisplay.innerHTML = '<option>Head Office</option>';
+                storeDisplay.innerHTML = '<option>Manager</option>';
+            }
+        }
+
+        areaDisplay.addEventListener('change', function () {
+            areaInput.value = this.value;
+            updateStoreOptions(this.value);
+        });
+
+        storeDisplay.addEventListener('change', function () {
+            const storeId = this.value.split('|')[0];
+            storeInput.value = storeId;
+        });
+
+        function updateStoreOptions(selectedAreaId) {
+            storeDisplay.innerHTML = '';
+
+            const filtered = allStoreOptions.filter(opt => {
+                const [storeId, areaId] = opt.value.split('|');
+                return areaId === selectedAreaId;
+            });
+
+            if (filtered.length === 0) {
+                const empty = document.createElement('option');
+                empty.text = 'No Store Available';
+                empty.disabled = true;
+                storeDisplay.appendChild(empty);
+            } else {
+                filtered.forEach(opt => {
+                    storeDisplay.appendChild(opt.cloneNode(true));
+                });
+            }
+        }
+
+        // HANDLE: Form Submission Validation
+        form.addEventListener('submit', function (e) {
+            const roleName = roleSelect.options[roleSelect.selectedIndex].text.toLowerCase();
+
+            if (roleName.includes('store')) {
+                if (!areaInput.value) {
+                    e.preventDefault();
+                    alert('Pilih Area terlebih dahulu.');
+                    return;
+                }
+                if (!storeInput.value) {
+                    e.preventDefault();
+                    alert('Pilih Store terlebih dahulu.');
+                    return;
+                }
+            } else if (roleName.includes('area')) {
+                if (!areaInput.value) {
+                    e.preventDefault();
+                    alert('Pilih Area terlebih dahulu.');
+                    return;
+                }
+            }
+        });
+
+        // RESET on modal close
+        $('#modal-form').on('hidden.bs.modal', function () {
+            form.reset();
+            areaDisplay.disabled = true;
+            storeDisplay.disabled = true;
+        });
+    });
+    </script>
 @endpush

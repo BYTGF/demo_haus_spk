@@ -24,7 +24,7 @@ class SessionsController extends Controller
         {
             session()->regenerate();
             $user = Auth::user()->load(['role', 'area', 'store']);
-Auth::setUser($user);
+            Auth::setUser($user);
 
             return redirect()->route('dashboard.index')->with(['success'=>'You are logged in.']);
         }
