@@ -28,7 +28,7 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Profitabilitas</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Store</th>
-                        <th class="text-secondary opacity-7">Action</th>
+                        <th class="text-secondary opacity-7"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -40,9 +40,6 @@
                               </td>
                               <td class="align-middle text-center text-sm">          
                                   <p class="text-xs font-weight-bold mb-0">{{ $review->neraca_keuangan }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $review->arus_kas }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
                                   <p class="text-xs font-weight-bold mb-0">{{ $review->arus_kas }}</p>
@@ -118,30 +115,27 @@
                   <thead>
                     <tr>
                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Neraca Keuangan</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Arus Kas</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Profitabilitas</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Neraca Keuangan</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Arus Kas</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Profitabilitas</th>
                       <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Store</th>
+                      
                     </tr>
                   </thead>
                   <tbody>
                     
                     @foreach ($dones as $done)
                         <tr>
-                            <td>
+                            <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
                             </td>
-                            <td>            
+                            <td class="align-middle text-center text-sm">            
                                 <p class="text-xs font-weight-bold mb-0">{{ $done->neraca_keuangan }}</p>
                             </td>
-                            <td>
+                            <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ $done->arus_kas }}</p>
                             </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->arus_kas }}</p>
-                            </td>
-                            <td>
+                            <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ $done->profitabilitas }}</p>
                             </td>
                 
@@ -220,7 +214,7 @@
                                     <textarea class="form-control" name="comment_review" id="comment_review" rows="3" placeholder="Masukkan komentar review"></textarea>
                                 </div>
     
-                                @if(auth()->user()->role === 'manager')
+                                @if(auth()->user()->role === 'Admin')
                                     <div class="form-group">
                                         <label for="status">Status</label>
                                         <select class="form-control" name="status" id="status">

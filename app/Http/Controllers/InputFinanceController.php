@@ -16,7 +16,7 @@ class InputFinanceController extends Controller
             // dd(Auth::check(), Auth::user());
             $dones = InputFinance::with('user','store')->where('status', 'selesai')->get();
             $reviews = InputFinance::with('user','store')->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])->get();
-            $stores = Store::all();
+            $stores = Store::where('id', '!=', 1)->get();
             // dd($done);
 
             return view('finance', compact('dones', 'reviews','stores'));
@@ -59,8 +59,10 @@ class InputFinanceController extends Controller
                 'comment_review' => request('comment_review', 'Approved')
             ]);
 
-            return redirect()->route('finance.index')
-                ->with('success', 'Review approved successfully');
+            dd($review);
+
+            // return redirect()->route('finance.index')
+            //     ->with('success', 'Review approved successfully');
         }
 
         abort(403, 'Unauthorized action.');

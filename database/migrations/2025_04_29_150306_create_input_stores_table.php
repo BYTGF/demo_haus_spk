@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('input_finances', function (Blueprint $table) {
+        Schema::create('input_stores', function (Blueprint $table) {
             $table->id();
-            $table->integer('neraca_keuangan');
-            $table->integer('arus_kas');
-            $table->integer('profitabilitas');
+            $table->integer('aksesibilitas');
+            $table->integer('visibilitas');
+            $table->integer('lingkungan');
+            $table->integer('lalu_lintas');
+            $table->integer('area_parkir');
+            $table->integer('rating');
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
-            $table->enum('status', ['Sedang Direview', 'Butuh Revisi', 'Selesai']);
+            $table->enum('status', ['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi', 'Selesai']);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
             $table->timestamps();
@@ -30,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('input_finances');
+        Schema::dropIfExists('input_stores');
     }
 };

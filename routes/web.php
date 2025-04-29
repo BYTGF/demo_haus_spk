@@ -9,6 +9,8 @@ use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\InputFinanceController;
+use App\Http\Controllers\InputOperationalController;
+use App\Http\Controllers\InputStoreController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -49,7 +51,26 @@ Route::middleware('auth')->group(function () {
         Route::post('finance/{review}/reject', [InputFinanceController::class, 'reject'])
             ->name('finance.reject');
     });
+    
+    Route::middleware('role:Operational,Manager Business Development')->group(function () {
+        Route::resource('operational', InputOperationalController::class);  
+            // Custom workflow routes
+        Route::post('operational/{input}/approve', [InputOperationalController::class, 'approve'])
+            ->name('operational.approve');
+        Route::post('operational/{input}/reject', [InputOperationalController::class, 'reject'])
+            ->name('operational.reject');
+    });
 
+    Route::middleware('role:Area Manager,Store Manager,Manager Business Development')->group(function () {
+        Route::resource('store', InputStoreController::class);  
+            // Custom workflow routes
+        Route::post('store/{input}/approve-area', [InputStoreController::class, 'approveArea'])
+        ->name('store.approve-area');
+        Route::post('store/{input}/approve-bd', [InputStoreController::class, 'approveBd'])
+            ->name('store.approve-bd');
+        Route::post('store/{input}/reject', [InputStoreController::class, 'reject'])
+            ->name('store.reject');
+    });
 
     Route::get('/logout', [SessionsController::class, 'destroy']);
     Route::get('/user-profile', [InfoUserController::class, 'create']);
