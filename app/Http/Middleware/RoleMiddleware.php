@@ -18,22 +18,21 @@ class RoleMiddleware
     // {
     //     return $next($request);
     // }
-    public function handle($request, Closure $next, $role)
-    {
-        if (!Auth::check()) {
-            // Kalau belum login, lempar ke login page
-            return redirect()->route('login');
-        }
-
-        $user = Auth::user();
-
-        // dd($user->role->role_name);
-
-        if (!$user->role || $user->role->role_name !== $role) {
-            // Kalau user gak punya role atau role-nya salah
-            abort(403, 'Unauthorized action.');
-        }
-
-        return $next($request);
+    public function handle($request, Closure $next, ...$roles) // Collect arguments as an array
+{
+    if (!Auth::check()) {
+        // If the user is not logged in, redirect to login page
+        return redirect()->route('login');
     }
+
+    $user = Auth::user();
+
+    // Ensure the user has a role and check if their role is in the allowed list
+    if (!$user->role || !in_array($user->role->role_name, $roles)) {
+        // If the user doesn't have a valid role, throw an unauthorized error
+        abort(403, 'Unauthorized action.');
+    }
+
+    return $next($request);
+}
 }

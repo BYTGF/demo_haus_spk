@@ -41,9 +41,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('dashboard', DashboardController::class);
 
-    Route::middleware('role:Finance, Business Development Manager')->group(function () {
+    Route::middleware('role:Finance,Manager Business Development')->group(function () {
         Route::resource('finance', InputFinanceController::class);  
-    }); 
+            // Custom workflow routes
+        Route::post('finance/{review}/approve', [InputFinanceController::class, 'approve'])
+            ->name('finance.approve');
+        Route::post('finance/{review}/reject', [InputFinanceController::class, 'reject'])
+            ->name('finance.reject');
+    });
 
 
     Route::get('/logout', [SessionsController::class, 'destroy']);

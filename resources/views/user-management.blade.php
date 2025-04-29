@@ -79,20 +79,24 @@
                                             <span class="text-secondary text-xs font-weight-bold">{{ $user->created_at }}</span>
                                         </td>
                                         <td class="text-center">
-                                            <a href="#" 
+                                            <button 
                                                 class="mx-3 edit-user-btn" 
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-original-title="Edit user" 
-                                                data-user='@json($user)'>
+                                                data-user='@json($user)' 
+                                                onclick="editUser(this)">
                                                 <i class="fa-solid fa-user-pen" style="--fa-primary-color: #ffee00; --fa-secondary-color: #0c0066; --fa-secondary-opacity: 1;"></i>
-                                            </a>
-                                            <a href="#" 
+                                            </button>
+
+                                            <button 
                                                 class="mx-3 delete-user-btn" 
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-original-title="Delete user" 
-                                                data-id="{{ $user->id }}">
+                                                data-id="{{ $user->id }}" 
+                                                onclick="deleteUser(this)">
                                                 <i class="fa-solid fa-user-slash" style="--fa-primary-color: #ff0000; --fa-secondary-color: #0c0066; --fa-secondary-opacity: 1;"></i>
-                                            </a>
+                                            </button>
+
                                             
                                         </td>
                                     </tr>

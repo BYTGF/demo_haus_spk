@@ -15,11 +15,11 @@ class InputFinanceController extends Controller
         try {
             // dd(Auth::check(), Auth::user());
             $dones = InputFinance::with('user','store')->where('status', 'selesai')->get();
-            $ongoings = InputFinance::with('user','store')->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])->get();
-
+            $reviews = InputFinance::with('user','store')->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])->get();
+            $stores = Store::all();
             // dd($done);
 
-            return view('finance', compact('dones', 'ongoings'));
+            return view('finance', compact('dones', 'reviews','stores'));
         } catch (\Exception $e) {
             // Log the error and return an error page or message
             \Log::error('Error fetching data in index: ' . $e->getMessage());
@@ -29,69 +29,92 @@ class InputFinanceController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'username' => 'required|unique:Users,username'
+        if (auth()->user()->role->role_name === 'Finance') {
+            $validated = $request->validate([
+                'neraca_keuangan' => 'required|integer|between:1,5',
+                'arus_kas' => 'required|integer|between:1,5',
+                'profitabilitas' => 'required|integer|between:1,5',
+                'comment_input' => 'required|string',
+                'store_id' => 'required|exists:stores,id',
             ]);
 
-        User::create([
-            'username' => $request->username,
-            'password' => Hash::make('Sueger'),
-            'role_id' => $request->role_id,
-            'area_id' => $request->area_id,
-            'store_id' => $request->store_id,
+            $validated['status'] = 'Sedang Direview';
+            $validated['user_id'] = auth()->id();
+
+            InputFinance::create($validated);
+
+            return redirect()->route('finance.index')
+                ->with('success', 'Review submitted for approval');
+        }
+
+        abort(403, 'Unauthorized action.');
+    
+    }
+
+    public function approve(InputFinance $review)
+    {
+        if (auth()->user()->role->role_name === 'Manager Business Development') {
+            $review->update([
+                'status' => 'Selesai',
+                'comment_review' => request('comment_review', 'Approved')
+            ]);
+
+            return redirect()->route('finance.index')
+                ->with('success', 'Review approved successfully');
+        }
+
+        abort(403, 'Unauthorized action.');
+    }
+
+    // FinanceController.php
+    public function reject($id)
+    {
+        $review = InputFinance::findOrFail($id);
+        
+        request()->validate([
+            'comment_review' => 'required|string'
         ]);
 
-        return redirect()->back()->with('success', 'Created New User.');
-        } catch (\Exception $e) {
-            \Log::error('Error in store: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to add user.');
-        }
+        $review->update([
+            'status' => 'Butuh Revisi',
+            'comment_review' => request('comment_review')
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     public function update(Request $request, $id)
     {
-        try {
-            $user = User::findOrFail($id);
-
-            $request->validate([
-                'username' => 'required|unique:users,username,' . ($user->id ?? ''),
-                'password' => 'nullable|min:6',
-                'role_id' => 'required|exists:roles,id',
-                'area_id' => 'required|exists:areas,id',
+        if (auth()->user()->role === 'Finance') {
+            $financialReview = InputFinance::findOrFail($id);
+            $validated = $request->validate([
+                'neraca_keuangan' => 'required|integer|between:1,5',
+                'arus_kas' => 'required|integer|between:1,5',
+                'profitabilitas' => 'required|integer|between:1,5',
+                'comment_input' => 'nullable|string',
+                'comment_review' => 'required_if:status,Sedang Direview,Butuh Revisi|string|nullable',
+                'status' => 'required|in:Sedang Direview,Butuh Revisi,Selesai',
                 'store_id' => 'required|exists:stores,id',
             ]);
-
-            $data = [
-                'username' => $request->username,
-                'role_id' => $request->role_id,
-                'area_id' => $request->area_id,
-                'store_id' => $request->store_id,
-            ];
-
-            if ($request->password) {
-                $data['password'] = Hash::make($request->password);
-            }
-
-            $user->update($data);
-
-            return redirect()->back()->with('success', 'User berhasil diupdate!');
-        } catch (\Exception $e) {
-            \Log::error('Error in update: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update user.');
+        
+            $financialReview->update($validated);
+        
+            return redirect()->route('finance.index')->with('success', 'Financial review updated successfully.');
         }
+
+        abort(403, 'Unauthorized action.');
     }
 
     public function destroy($id)
     {
-        try {
-            $users = User::findOrFail($id);
-            $users->delete();
+        // try {
+        //     $inputFinance = InputFinance::findOrFail($id);
+        //     $inputFinance->delete();
 
-            return redirect()->back()->with('success', 'User berhasil dihapus.');
-        } catch (\Exception $e) {
-            \Log::error('Error in destroy: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete user.');
-        }
+        //     return redirect()->back()->with('success', 'User berhasil dihapus.');
+        // } catch (\Exception $e) {
+        //     \Log::error('Error in destroy: ' . $e->getMessage());
+        //     return redirect()->back()->with('error', 'Failed to delete user.');
+        // }
     }
 }
