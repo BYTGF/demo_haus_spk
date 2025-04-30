@@ -26,10 +26,10 @@ class SessionsController extends Controller
             $user = Auth::user()->load(['role', 'area', 'store']);
             Auth::setUser($user);
 
-            return redirect()->route('dashboard.index')->with(['success'=>'You are logged in.']);
+            // Redirect directly to dashboard, not home
+            return redirect()->route('home')->with(['success'=>'You are logged in.']);
         }
         else{
-
             return back()->withErrors(['username'=>'Username or password invalid.']);
         }
     }

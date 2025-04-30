@@ -8,6 +8,10 @@ class HomeController extends Controller
 {
     public function home()
     {
-        return redirect('dashboard');
+        // Check if user is authenticated
+        if (auth()->check()) {
+            return redirect()->route('dashboard.index');
+        }
+        return redirect('/login');
     }
 }

@@ -140,17 +140,26 @@
     </div>
   </div> --}}
   <div class="row mt-4">
-    <div class="col-lg-5 mb-lg-0 mb-4">
+    <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Sales overview</h6>
+          <p class="text-sm">
+            <i class="fa fa-arrow-up text-success"></i>
+            <span class="font-weight-bold">4% more</span> in 2021
+          </p>
+        </div>
         <div class="card-body p-3">
-          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+          {{-- bar chart --}}
+          <div class="bg-gradient-dark border-radius-lg mb-3">
             <div class="chart">
-              <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
+              <canvas id="chart-bars" class="chart-canvas" height="200"></canvas>
             </div>
           </div>
-          <h6 class="ms-2 mt-4 mb-0"> Active Users </h6>
-          <p class="text-sm ms-2"> (<span class="font-weight-bolder">+23%</span>) than last week </p>
-          <div class="container border-radius-lg">
+          {{-- <h6 class="ms-2 mt-4 mb-0"> Active Users </h6>
+          <p class="text-sm ms-2"> (<span class="font-weight-bolder">+23%</span>) than last week </p> --}}
+
+          {{-- <div class="container border-radius-lg">
             <div class="row">
               <div class="col-3 py-3 ps-0">
                 <div class="d-flex mb-2">
@@ -252,11 +261,12 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> --}}
         </div>
       </div>
     </div>
-    <div class="col-lg-7">
+    {{-- Line Chart --}}
+    <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
           <h6>Sales overview</h6>
@@ -265,14 +275,32 @@
             <span class="font-weight-bold">4% more</span> in 2021
           </p>
         </div>
-        <div class="card-body p-3">
+        <div class="card-body p-4">
           <div class="chart">
-            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+            <canvas id="chart-line" class="chart-canvas" height="200"></canvas>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <div class="card mb-3">
+    <div class="card-body p-3">
+      <div class="chart">
+        <canvas id="pie-chart-operational" class="chart-canvas" height="200px"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body p-3">
+      <div class="chart">
+        <canvas id="pie-chart-finance" class="chart-canvas" height="200px"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  {{-- Table --}}
   <div class="row my-4">
     <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
       <div class="card">
@@ -436,9 +464,9 @@
 @push('dashboard')
   <script>
     window.onload = function() {
-      var ctx = document.getElementById("chart-bars").getContext("2d");
+      var ctxBar = document.getElementById("chart-bars").getContext("2d");
 
-      new Chart(ctx, {
+      new Chart(ctxBar, {
         type: "bar",
         data: {
           labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -503,21 +531,21 @@
       });
 
 
-      var ctx2 = document.getElementById("chart-line").getContext("2d");
+      var ctxLine = document.getElementById("chart-line").getContext("2d");
 
-      var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
+      var gradientStroke1 = ctxLine.createLinearGradient(0, 230, 0, 50);
 
       gradientStroke1.addColorStop(1, 'rgba(203,12,159,0.2)');
       gradientStroke1.addColorStop(0.2, 'rgba(72,72,176,0.0)');
       gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)'); //purple colors
 
-      var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
+      var gradientStroke2 = ctxLine.createLinearGradient(0, 230, 0, 50);
 
       gradientStroke2.addColorStop(1, 'rgba(20,23,39,0.2)');
       gradientStroke2.addColorStop(0.2, 'rgba(72,72,176,0.0)');
       gradientStroke2.addColorStop(0, 'rgba(20,23,39,0)'); //purple colors
 
-      new Chart(ctx2, {
+      new Chart(ctxLine, {
         type: "line",
         data: {
           labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -603,6 +631,78 @@
             },
           },
         },
+      });
+
+      @php
+          $statusOperationals = $inputOperationals->groupBy('status')->map->count();
+          $statusFinances = $inputFinances->groupBy('status')->map->count();
+      @endphp
+
+      var pieOperational = document.getElementById("pie-chart-operational").getContext("2d");
+
+      new Chart(pieOperational, {
+        type: 'pie',
+        data: {
+          labels: {!! json_encode($statusOperationals->keys()) !!}, // label: ['Sedang Direview', 'Butuh Revisi', 'Selesai']
+          datasets: [{
+            data: {!! json_encode($statusOperationals->values()) !!}, // data: [5, 2, 7] (contoh)
+            backgroundColor: [
+              'rgba(255, 206, 86, 0.7)', // Sedang Direview
+              'rgba(255, 99, 132, 0.7)', // Butuh Revisi
+              'rgba(75, 192, 192, 0.7)'  // Selesai
+            ],
+            borderColor: [
+              'rgba(255, 206, 86, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+         
+      
+
+      var pieFinances = document.getElementById("pie-chart-finance").getContext("2d");
+
+      new Chart(pieFinances, {
+        type: 'pie',
+        data: {
+          labels: {!! json_encode($statusFinances->keys()) !!}, // label: ['Sedang Direview', 'Butuh Revisi', 'Selesai']
+          datasets: [{
+            data: {!! json_encode($statusFinances->values()) !!}, // data: [5, 2, 7] (contoh)
+            backgroundColor: [
+              'rgba(255, 206, 86, 0.7)', // Sedang Direview
+              'rgba(255, 99, 132, 0.7)', // Butuh Revisi
+              'rgba(75, 192, 192, 0.7)'  // Selesai
+            ],
+            borderColor: [
+              'rgba(255, 206, 86, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
       });
     }
   </script>

@@ -37,11 +37,9 @@ Route::middleware('guest')->group(function () {
 
 // Route buat user yang udah login
 Route::middleware('auth')->group(function () {
-    Route::get('/', [HomeController::class, 'home']);
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
     
 	Route::resource('user-management', UserManagementController::class)->middleware('role:Admin');
-
-    Route::resource('dashboard', DashboardController::class);
 
     Route::middleware('role:Finance,Manager Business Development')->group(function () {
         Route::resource('finance', InputFinanceController::class);  

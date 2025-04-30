@@ -16,10 +16,10 @@ class DashboardController extends Controller
     {
         try {
             $user = auth()->user();
-            $inputFinance = InputFinance::with(['user', 'store'])->latest()->get();
-            $inputOperational = InputOperational::with(['user', 'store'])->latest()->get();
+            $inputFinances = InputFinance::with(['user', 'store'])->latest()->get();
+            $inputOperationals = InputOperational::with(['user', 'store'])->latest()->get();
 
-            $inputStore = InputStore::with('user', 'store')
+            $inputStores = InputStore::with('user', 'store')
             ->when($user->role->role_name === 'Area Manager', function ($query) use ($user) {
                 // Manager lihat semua store dalam area-nya
                 $query->whereHas('store', function ($storeQuery) use ($user) {
@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->get();
     
     
-            return view('dashboard', compact('inputFinance', 'inputOperational', 'inputStore'));
+            return view('dashboard', compact('inputFinances', 'inputOperationals', 'inputStores'));
             
         } catch (\Exception $e) {
             \Log::error('Dashboard Error: ' . $e->getMessage());

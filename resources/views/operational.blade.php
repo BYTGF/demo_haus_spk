@@ -78,13 +78,25 @@
                                   <!-- Staff: Only show "Revise" if status is "Butuh Revisi" -->
                                     @if (auth()->user()->role->role_name === 'Operational')
                                         @if($input->status === 'Butuh Revisi')
-                                            <a href="{{ route('operational.edit', $input) }}" 
-                                              class="btn btn-sm btn-warning">
+                                            <button class="btn btn-sm btn-warning" 
+                                            onclick="openEditOperationalInputModal({
+                                                id: {{ $input->id }},
+                                                gaji_upah: {{ $input->gaji_upah }},
+                                                sewa: {{ $input->sewa }},
+                                                utilitas: {{ $input->utilitas }},
+                                                perlengkapan: {{ $input->perlengkapan }},
+                                                lain_lain: {{ $input->lain_lain }},
+                                                rating: {{ $input->rating }},
+                                                comment_input: `{{ addslashes($input->comment_input) }}`,
+                                                comment_review: `{{ addslashes($input->comment_review) }}`,
+                                                store_id: {{ $input->store_id }},
+                                                status: `{{ $input->status }}`
+                                            })">
                                                 <i class="fas fa-edit"></i> Revise
-                                            </a>
+                                            </button>
                                         @endif
                                     @endif
-                        
+                            
                                     <!-- Manager: Show Approve/Reject only if status is "Sedang Direview" -->
                                     @if (auth()->user()->role->role_name === 'Manager Business Development')
                                         @if($input->status === 'Sedang Direview')
@@ -194,7 +206,7 @@
                             <form id="operational-input-form" method="POST">
                                 @csrf
                                 <input type="hidden" name="_method" id="form-method" value="POST">
-                                <input type="hidden" name="input_id" id="input_id">
+                                <input type="hidden" name="id" id="input_id">
                                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
     
                                 <div class="row">
@@ -218,54 +230,57 @@
                                     </div>
                                 </div>
                                 
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="perlengkapan">Perlengkapan</label>
-                                            <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="perlengkapan">Perlengkapan</label>
+                                                <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="lain_lain">Lain-lain</label>
-                                            <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="lain_lain">Lain-lain</label>
+                                                <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="rating">Rating</label>
-                                            <select class="form-control" name="rating" id="rating" required>
-                                                <option value="">Pilih Nilai</option>
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    <option value="{{ $i }}">{{ $i }}</option>
-                                                @endfor
-                                            </select>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="rating">Rating</label>
+                                                <select class="form-control" name="rating" id="rating" required>
+                                                    <option value="">Pilih Nilai</option>
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}</option>
+                                                    @endfor
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
     
+                                <!-- Comment input field -->
                                 <div class="form-group">
                                     <label for="comment_input">Komentar Input</label>
                                     <textarea class="form-control" name="comment_input" id="comment_input" rows="3" placeholder="Masukkan komentar" required></textarea>
                                 </div>
     
-                                <div class="form-group" id="comment-review-group" style="display: none;">
-                                    <label for="comment_review">Komentar Review</label>
-                                    <textarea class="form-control" name="comment_review" id="comment_review" rows="3" placeholder="Masukkan komentar review"></textarea>
-                                </div>
+                                <!-- Only show comment review field for managers -->
+                                {{-- @if(auth()->user()->role->role_name === 'Manager Business Development') --}}
+                                    <div class="form-group" id="comment-review-group">
+                                        <label for="comment_review">Komentar Review</label>
+                                        <textarea class="form-control" name="comment_review" id="comment_review" rows="3" placeholder="Masukkan komentar review"></textarea>
+                                    </div>
     
-                                @if(auth()->user()->role->role_name === 'Manager Business Development')
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="status">Status</label>
                                         <select class="form-control" name="status" id="status">
                                             <option value="Sedang Direview">Sedang Direview</option>
                                             <option value="Butuh Revisi">Butuh Revisi</option>
                                             <option value="Selesai">Selesai</option>
                                         </select>
-                                    </div>
-                                @else
+                                    </div> --}}
+                                {{-- @if --}}
                                     <input type="hidden" name="status" value="Sedang Direview">
-                                @endif
+                                {{-- @endif --}}
     
                                 <div class="form-group">
                                     <label for="store_id">Store</label>
@@ -339,9 +354,12 @@
             form.action = '{{ route("operational.store") }}';
             methodField.value = 'POST';
             modalTitle.textContent = 'Create Operational Input';
+            document.getElementById('store_id').value = '';
             
-            // Hide comment review field by default
-            commentReviewGroup.style.display = 'none';
+            // Hide comment review field for operational users
+            if (document.getElementById('comment-review-group')) {
+                document.getElementById('comment-review-group').style.display = 'none';
+            }
             
             modal.modal('show');
         };
@@ -352,20 +370,25 @@
             form.action = `/operational/${input.id}`;
             methodField.value = 'PUT';
             modalTitle.textContent = 'Edit Operational Input';
-            inputIdField.value = input.id;
-    
-            // Fill form with input data
-            document.getElementById('gaji_upah').value = input.gaji_upah;
-            document.getElementById('sewa').value = input.sewa;
-            document.getElementById('utilitas').value = input.utilitas;
-            document.getElementById('perlengkapan').value = input.perlengkapan;
-            document.getElementById('lain_lain').value = input.lain_lain;
-            document.getElementById('rating').value = input.rating;
-            document.getElementById('comment_input').value = input.comment_input;
-            document.getElementById('comment_review').value = input.comment_review;
-            document.getElementById('store_id').value = input.store_id;
-    
-            // Handle status field (for managers)
+            
+            // Safely set values only if elements exist
+            const setValueIfExists = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+            };
+
+            setValueIfExists('input_id', input.id);
+            setValueIfExists('gaji_upah', input.gaji_upah);
+            setValueIfExists('sewa', input.sewa);
+            setValueIfExists('utilitas', input.utilitas);
+            setValueIfExists('perlengkapan', input.perlengkapan);
+            setValueIfExists('lain_lain', input.lain_lain);
+            setValueIfExists('rating', input.rating);
+            setValueIfExists('comment_input', input.comment_input);
+            setValueIfExists('comment_review', input.comment_review);
+            setValueIfExists('store_id', input.store_id);
+
+            // Handle status field if it exists
             if (statusField) {
                 statusField.value = input.status;
                 handleStatusChange(input.status);
@@ -382,10 +405,13 @@
         }
     
         function handleStatusChange(status) {
-            if (status === 'Sedang Direview' || status === 'Butuh Revisi') {
-                commentReviewGroup.style.display = 'block';
-            } else {
-                commentReviewGroup.style.display = 'none';
+            const commentReviewGroup = document.getElementById('comment-review-group');
+            if (commentReviewGroup) {
+                if (status === 'Sedang Direview' || status === 'Butuh Revisi') {
+                    commentReviewGroup.style.display = 'block';
+                } else {
+                    commentReviewGroup.style.display = 'none';
+                }
             }
         }
     
@@ -406,43 +432,43 @@
     
         // For managers to reject
         document.querySelectorAll('.reject-btn').forEach(button => {
-          button.addEventListener('click', function() {
-              currentInputId = this.getAttribute('data-input-id');
-              document.getElementById('rejectForm').action = `/operational/${currentInputId}/reject`;
-          });
-      });
+            button.addEventListener('click', function() {
+                currentInputId = this.getAttribute('data-input-id');
+                document.getElementById('rejectForm').action = `/operational/${currentInputId}/reject`;
+            });
+        });
       
 
       // Handle confirm rejection
-      document.getElementById('confirmRejectBtn').addEventListener('click', function() {
-          const form = document.getElementById('rejectForm');
-          const formData = new FormData(form);
-          
-          fetch(form.action, {
-              method: 'POST',
-              body: formData,
-              headers: {
-                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                  'Accept': 'application/json'
-              }
-          })
-          .then(response => {
-              if (response.ok) {
-                  return response.json();
-              }
-              throw new Error('Network response was not ok');
-          })
-          .then(data => {
-              if (data.success) {
-                  $('#rejectModal').modal('hide');
-                  location.reload();
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('Error rejecting input');
-          });
-      });
+        document.getElementById('confirmRejectBtn').addEventListener('click', function() {
+            const form = document.getElementById('rejectForm');
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#rejectModal').modal('hide');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error rejecting input');
+            });
+        });
     
         // Form validation
         form.addEventListener('submit', function(e) {
