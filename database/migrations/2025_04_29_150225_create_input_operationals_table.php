@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('input_operationals', function (Blueprint $table) {
             $table->id();
+            $table->date('period');
             $table->integer('gaji_upah');
             $table->integer('sewa');
             $table->integer('utilitas');
             $table->integer('perlengkapan');
             $table->integer('lain_lain');
             $table->integer('total');
-            $table->integer('rating');
+            $table->integer('rating')->nullable();;
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
             $table->enum('status', ['Sedang Direview', 'Butuh Revisi', 'Selesai']);

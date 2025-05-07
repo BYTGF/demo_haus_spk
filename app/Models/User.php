@@ -67,9 +67,24 @@ class User extends Authenticatable
         return $this->belongsTo(Store::class);
     }
 
-    public function input_finance()
+    public function finances()
     {
-        return $this->belongsTo(InputFinance::class);
+        return $this->hasMany(InputFinance::class);
+    }
+
+    public function operationals()
+    {
+        return $this->hasMany(InputOperational::class);
+    }
+
+    public function stores()
+    {
+        return $this->hasMany(InputStore::class);
+    }
+
+    public function bds()
+    {
+        return $this->hasMany(InputBDS::class);
     }
     
 }

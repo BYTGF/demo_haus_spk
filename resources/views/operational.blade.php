@@ -22,16 +22,17 @@
                 <table class="table align-items-center mb-0">
                     <thead>
                       <tr>
-                          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gaji & Upah</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Sewa</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Utilitas</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sewa</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Utilitas</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
+                        {{-- <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th> --}}
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                        <th class="text-secondary opacity-7"></th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -39,29 +40,32 @@
                       @foreach ($inputs as $input)
                           <tr>
                             <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">{{ $input->period->format('M Y') }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
                                   <p class="text-xs font-weight-bold mb-0">{{ $input->store->store_name }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">          
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->gaji_upah }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->gaji_upah) }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->sewa }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->sewa) }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->utilitas }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->utilitas) }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->perlengkapan }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->perlengkapan) }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->lain_lain }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->lain_lain) }}</p>
                               </td>
                               <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->total }}</p>
+                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total) }}</p>
                               </td>
-                              <td class="align-middle text-center text-sm">
+                              {{-- <td class="align-middle text-center text-sm">
                                   <p class="text-xs font-weight-bold mb-0">{{ $input->rating }}</p>
-                              </td>
+                              </td> --}}
                   
                                 <td class="align-middle text-center text-sm">
                                     @if ($input->status === 'Selesai')
@@ -78,7 +82,7 @@
                                   <!-- Staff: Only show "Revise" if status is "Butuh Revisi" -->
                                     @if (auth()->user()->role->role_name === 'Operational')
                                         @if($input->status === 'Butuh Revisi')
-                                            <button class="btn btn-sm btn-warning" 
+                                            <button class="btn btn-xs btn-warning px-3 py-2" 
                                             onclick="openEditOperationalInputModal({
                                                 id: {{ $input->id }},
                                                 gaji_upah: {{ $input->gaji_upah }},
@@ -89,10 +93,9 @@
                                                 rating: {{ $input->rating }},
                                                 comment_input: `{{ addslashes($input->comment_input) }}`,
                                                 comment_review: `{{ addslashes($input->comment_review) }}`,
-                                                store_id: {{ $input->store_id }},
                                                 status: `{{ $input->status }}`
                                             })">
-                                                <i class="fas fa-edit"></i> Revise
+                                                <i class="fas fa-edit"></i>
                                             </button>
                                         @endif
                                     @endif
@@ -100,9 +103,9 @@
                                     <!-- Manager: Show Approve/Reject only if status is "Sedang Direview" -->
                                     @if (auth()->user()->role->role_name === 'Manager Business Development')
                                         @if($input->status === 'Sedang Direview')
-                                            <button class="btn btn-sm btn-success" 
+                                            <button class="btn btn-xs btn-success px-3 py-2" 
                                                     onclick="document.getElementById('approve-form-{{ $input->id }}').submit()">
-                                                <i class="fas fa-check"></i> Approve
+                                                <i class="fas fa-check"></i>
                                             </button>
                                             <form id="approve-form-{{ $input->id }}" 
                                                   action="{{ route('operational.approve', $input) }}" 
@@ -110,11 +113,11 @@
                                                 @csrf
                                             </form>
                         
-                                            <button class="btn btn-sm btn-danger reject-btn" 
+                                            <button class="btn btn-xs btn-danger reject-btn px-3 py-2" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#rejectModal"
                                                     data-input-id="{{ $input->id }}">
-                                                <i class="fas fa-times"></i> Reject
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         @endif
                                     @endif
@@ -122,7 +125,11 @@
                             </tr>
                       @endforeach
                     </tbody>
-                  </table>
+                </table>
+                  <div class="d-flex justify-content-center mt-3">
+                    {{ $inputs->links('pagination::bootstrap-5') }}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -140,61 +147,67 @@
                 <table class="table align-items-center mb-0">
                   <thead>
                     <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gaji & Upah</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Sewa</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Utilitas</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gaji & Upah</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sewa</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Utilitas</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
                     
                     @foreach ($dones as $done)
                         <tr>
-                            <td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->period->format('M Y') }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
                             </td>
-                            <td>            
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->gaji_upah }}</p>
+                            <td class="align-middle text-center text-sm">            
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->gaji_upah) }}</p>
                             </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->sewa }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->utilitas }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->perlengkapan }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->lain_lain }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->total }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->rating }}</p>
-                            </td>
-                
                             <td class="align-middle text-center text-sm">
-                                <span class="badge badge-sm bg-gradient-success">{{ $done->status }}</span>
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->sewa) }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->utilitas) }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->perlengkapan) }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->lain_lain) }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->total) }}</p>
+                            </td>
+                            <td class="align-middle text-center text-sm">
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->rating }}</p>
                             </td>
                         </tr>
                     @endforeach
                   </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $dones->links('pagination::bootstrap-5') }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    
 
       {{-- Modal --}}
-      <div class="modal fade" id="operational-input-modal" tabindex="-1" role="dialog" aria-labelledby="operational-input-modal" aria-hidden="true">
+      
+    
+    <!-- Reject Modal (for managers) -->
+    <div class="modal fade" id="operational-input-modal" tabindex="-1" role="dialog" aria-labelledby="operational-input-modal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-body p-0">
@@ -208,93 +221,137 @@
                                 <input type="hidden" name="_method" id="form-method" value="POST">
                                 <input type="hidden" name="id" id="input_id">
                                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-    
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="gaji_upah">Gaji & Upah</label>
-                                            <input type="number" class="form-control" name="gaji_upah" id="gaji_upah" required>
-                                        </div>
+                                <input type="hidden" name="status" value="Sedang Direview">
+                            
+                                <!-- Section 1: Fixed Costs -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Biaya Tetap</h6>
+                                        <small class="text-muted">Biaya operasional yang jumlahnya relatif tetap setiap periode</small>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="sewa">Sewa</label>
-                                            <input type="number" class="form-control" name="sewa" id="sewa" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="utilitas">Utilitas</label>
-                                            <input type="number" class="form-control" name="utilitas" id="utilitas" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="perlengkapan">Perlengkapan</label>
-                                                <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="gaji_upah">
+                                                        Gaji & Upah
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Total gaji karyawan termasuk tunjangan dan bonus"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control" name="gaji_upah" id="gaji_upah" required>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="lain_lain">Lain-lain</label>
-                                                <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="rating">Rating</label>
-                                                <select class="form-control" name="rating" id="rating" required>
-                                                    <option value="">Pilih Nilai</option>
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                    @endfor
-                                                </select>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="sewa">
+                                                        Sewa
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Biaya sewa lokasi/tempat usaha"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control" name="sewa" id="sewa" required>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-    
-                                <!-- Comment input field -->
-                                <div class="form-group">
-                                    <label for="comment_input">Komentar Input</label>
-                                    <textarea class="form-control" name="comment_input" id="comment_input" rows="3" placeholder="Masukkan komentar" required></textarea>
-                                </div>
-    
-                                <!-- Only show comment review field for managers -->
-                                {{-- @if(auth()->user()->role->role_name === 'Manager Business Development') --}}
-                                    <div class="form-group" id="comment-review-group">
-                                        <label for="comment_review">Komentar Review</label>
-                                        <textarea class="form-control" name="comment_review" id="comment_review" rows="3" placeholder="Masukkan komentar review"></textarea>
+                            
+                                <!-- Section 2: Variable Costs -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Biaya Variabel</h6>
+                                        <small class="text-muted">Biaya operasional yang jumlahnya bervariasi sesuai volume kegiatan</small>
                                     </div>
-    
-                                    {{-- <div class="form-group">
-                                        <label for="status">Status</label>
-                                        <select class="form-control" name="status" id="status">
-                                            <option value="Sedang Direview">Sedang Direview</option>
-                                            <option value="Butuh Revisi">Butuh Revisi</option>
-                                            <option value="Selesai">Selesai</option>
-                                        </select>
-                                    </div> --}}
-                                {{-- @if --}}
-                                    <input type="hidden" name="status" value="Sedang Direview">
-                                {{-- @endif --}}
-    
-                                <div class="form-group">
-                                    <label for="store_id">Store</label>
-                                    <select class="form-control" name="store_id" id="store_id" required>
-                                        <option value="">Pilih Store</option>
-                                        @foreach($stores as $store)
-                                            <option value="{{ $store->id }}">{{ $store->store_name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="utilitas">
+                                                        Utilitas
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Biaya listrik, air, gas, telepon, internet"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control" name="utilitas" id="utilitas" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="perlengkapan">
+                                                        Perlengkapan
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Biaya alat tulis, bahan habis pakai, dll"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="lain_lain">
+                                                        Lain-lain
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Biaya operasional lain yang tidak termasuk kategori di atas"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-    
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            
+                                <!-- Section 3: Total -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Total Biaya Operasional</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="total">
+                                                        Total
+                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                           title="Jumlah total semua biaya operasional"></i>
+                                                    </label>
+                                                    <input type="number" class="form-control bg-light" name="total" id="total" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <!-- Comments Section -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Komentar</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group mb-3">
+                                            <label for="comment_input">
+                                                Komentar Input
+                                                <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                   title="Berikan penjelasan tambahan tentang data yang diinput"></i>
+                                            </label>
+                                            <textarea class="form-control" name="comment_input" id="comment_input" rows="2"></textarea>
+                                        </div>
+                                        
+                                        <div class="form-group" id="comment-review-group">
+                                            <label for="comment_review">
+                                                Komentar Review
+                                                <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                   title="Komentar dari reviewer (jika ada)"></i>
+                                            </label>
+                                            <textarea class="form-control" name="comment_review" id="comment_review" rows="2"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <!-- Form Buttons -->
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-save me-2"></i> Submit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i> Close
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -303,31 +360,29 @@
             </div>
         </div>
     </div>
-    
-    <!-- Reject Modal (for managers) -->
     <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <form id="rejectForm" method="POST">
-                  @csrf
-                  <div class="modal-header">
-                      <h5 class="modal-title">Reject Input</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                      <div class="form-group">
-                          <label>Reason for rejection:</label>
-                          <textarea name="comment_review" class="form-control" required></textarea>
-                      </div>
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="button" class="btn btn-danger" id="confirmRejectBtn">Confirm Reject</button>
-                  </div>
-              </form>
-          </div>
-      </div>
-  </div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="rejectForm" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Input</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Reason for rejection:</label>
+                            <textarea name="comment_review" class="form-control" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmRejectBtn">Confirm Reject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
   </main>
   
@@ -336,6 +391,32 @@
   @push('js')
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const calculateTotal = () => {
+            const gaji_upah = parseFloat(document.getElementById('gaji_upah')?.value) || 0;
+            const sewa = parseFloat(document.getElementById('sewa')?.value) || 0;
+            const utilitas = parseFloat(document.getElementById('utilitas')?.value) || 0;
+            const perlengkapan = parseFloat(document.getElementById('perlengkapan')?.value) || 0;
+            const lain_lain = parseFloat(document.getElementById('lain_lain')?.value) || 0;
+
+            const total = gaji_upah + sewa + utilitas + perlengkapan + lain_lain;
+            document.getElementById('total').value = total.toFixed(2);
+        };
+
+        // Add event listeners AFTER function is defined
+        const amountFields = ['gaji_upah', 'sewa', 'utilitas', 'perlengkapan', 'lain_lain'];
+        amountFields.forEach(field => {
+            document.getElementById(field)?.addEventListener('change', calculateTotal);
+        });
+
+        // Initial calculation AFTER function is defined
+        calculateTotal();
+
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
         const modal = $('#operational-input-modal');
         const form = document.getElementById('operational-input-form');
         const rejectForm = document.getElementById('rejectForm');
@@ -354,7 +435,6 @@
             form.action = '{{ route("operational.store") }}';
             methodField.value = 'POST';
             modalTitle.textContent = 'Create Operational Input';
-            document.getElementById('store_id').value = '';
             
             // Hide comment review field for operational users
             if (document.getElementById('comment-review-group')) {
@@ -386,12 +466,15 @@
             setValueIfExists('rating', input.rating);
             setValueIfExists('comment_input', input.comment_input);
             setValueIfExists('comment_review', input.comment_review);
-            setValueIfExists('store_id', input.store_id);
 
             // Handle status field if it exists
             if (statusField) {
                 statusField.value = input.status;
                 handleStatusChange(input.status);
+            }
+
+            if (document.getElementById('comment-review-group')) {
+                document.getElementById('comment-review-group').style.display = 'block';
             }
     
             modal.modal('show');
@@ -416,19 +499,7 @@
         }
     
         // Calculate total when any of the amount fields change
-        const amountFields = ['gaji_upah', 'sewa', 'utilitas', 'perlengkapan', 'lain_lain'];
-        amountFields.forEach(field => {
-            document.getElementById(field)?.addEventListener('change', calculateTotal);
-        });
         
-        function calculateTotal() {
-            let total = 0;
-            amountFields.forEach(field => {
-                const value = parseFloat(document.getElementById(field).value) || 0;
-                total += value;
-            });
-            // If you want to display the total somewhere, you can add it here
-        }
     
         // For managers to reject
         document.querySelectorAll('.reject-btn').forEach(button => {
@@ -470,25 +541,6 @@
             });
         });
     
-        // Form validation
-        form.addEventListener('submit', function(e) {
-            // Get all required elements
-            const statusField = document.getElementById('status');
-            const commentReviewField = document.getElementById('comment_review');
-            
-            // Determine if validation is needed
-            const isManager = @json(auth()->user()->role->role_name === 'Manager Business Development');
-            const status = statusField ? statusField.value : 'Sedang Direview';
-            const needsComment = isManager && (status === 'Sedang Direview' || status === 'Butuh Revisi');
-            
-            // Validate only if required
-            if (needsComment && (!commentReviewField || !commentReviewField.value.trim())) {
-                e.preventDefault();
-                alert('Komentar review diperlukan untuk status ini');
-                commentReviewField?.focus();
-                return;
-            }
-        });
     
         // Reset on modal close
         modal.on('hidden.bs.modal', function () {

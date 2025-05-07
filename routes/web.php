@@ -28,6 +28,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Route buat guest (belum login)
+
+Route::get('/', function () {
+    return auth()->check() ? redirect('/dashboard') : redirect('/login');
+});
+
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [SessionsController::class, 'create'])->name('login');
     Route::post('/session', [SessionsController::class, 'store']);
@@ -37,7 +43,12 @@ Route::middleware('guest')->group(function () {
 
 // Route buat user yang udah login
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('home');
+    // Change the home route to something specific
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('api')->group(function () {
+        Route::get('/dashboard/data', [DashboardController::class, 'getChartData']);
+    });
     
 	Route::resource('user-management', UserManagementController::class)->middleware('role:Admin');
 
@@ -59,6 +70,15 @@ Route::middleware('auth')->group(function () {
             ->name('operational.reject');
     });
 
+    Route::middleware('role:Business Development Staff,Manager Business Development')->group(function () {
+        Route::resource('BD', InputBDController::class);  
+            // Custom workflow routes
+        Route::post('BD/{input}/approve', [InputBDController::class, 'approve'])
+            ->name('BD.approve');
+        Route::post('BD/{input}/reject', [InputBDController::class, 'reject'])
+            ->name('BD.reject');
+    });
+
     Route::middleware('role:Area Manager,Store Manager,Manager Business Development')->group(function () {
         Route::resource('store', InputStoreController::class);  
             // Custom workflow routes
@@ -73,10 +93,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/logout', [SessionsController::class, 'destroy']);
     Route::get('/user-profile', [InfoUserController::class, 'create']);
     Route::post('/user-profile', [InfoUserController::class, 'store']);
-
-    // Ini contoh kalau mau aktifin route tambahan
-    // Route::get('billing', function () { return view('billing'); })->name('billing');
-    // dst...
 });
 
 

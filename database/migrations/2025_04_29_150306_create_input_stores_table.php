@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('input_stores', function (Blueprint $table) {
             $table->id();
+            $table->date('period');
             $table->integer('aksesibilitas');
             $table->integer('visibilitas');
             $table->integer('lingkungan');

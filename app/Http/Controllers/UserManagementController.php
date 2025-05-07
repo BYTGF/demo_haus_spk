@@ -17,7 +17,7 @@ class UserManagementController extends Controller
             $userManagement = User::with(['role', 'area', 'store'])->latest()->get();
             $roles = Role::all();
             $areas = Area::all();
-            $stores = Store::all();
+             $stores = Store::where('id', '!=', 1)->get();
 
             return view('user-management', compact('userManagement', 'roles', 'areas', 'stores'));
         } catch (\Exception $e) {

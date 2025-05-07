@@ -14,16 +14,16 @@ class InputStoreController extends Controller
         try {
             $dones = InputStore::with('user', 'store')
                 ->where('status', 'Selesai')
-                ->get();
+                ->paginate(10, ['*'], 'dones_page');
             
             // Show inputs that are either in review or need revision
             $inputs = InputStore::with('user', 'store')
                 ->whereIn('status', ['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi'])
-                ->get();
+                ->paginate(10, ['*'], 'inputs_page');
                 
-            $stores = Store::all();
+            // $stores = Store::all();
 
-            return view('store', compact('dones', 'inputs', 'stores'));
+            return view('store', compact('dones', 'inputs'));
         } catch (\Exception $e) {
             \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to load store input data.');
@@ -41,10 +41,11 @@ class InputStoreController extends Controller
                 'area_parkir' => 'required|integer|between:1,5',
                 'rating' => 'required|integer|between:1,5',
                 'comment_input' => 'required|string',
-                'store_id' => 'required|exists:stores,id',
             ]);
 
+            $validated['period'] = now()->year;
             $validated['status'] = 'Sedang Direview Manager Area';
+            $validated['store_id'] = auth()->store_id();;
             $validated['user_id'] = auth()->id();
 
             InputStore::create($validated);

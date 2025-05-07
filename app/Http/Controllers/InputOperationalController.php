@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 // use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Store;
@@ -16,17 +17,28 @@ class InputOperationalController extends Controller
     public function index()
     {
         try {
+            $user = auth()->user();
             $dones = InputOperational::with('user', 'store')
-                ->where('status', 'Selesai')
-                ->get();
+            ->when($user->role->role_name === 'Operational', function ($query) use ($user) {
+                // Staff Finance cuma lihat store miliknya sendiri
+                $query->where('store_id', $user->store_id);
+            })
+            ->where('status', 'Selesai')
+            ->latest()
+            ->paginate(10, ['*'], 'dones_page');
             
             $inputs = InputOperational::with('user', 'store')
-                ->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])
-                ->get();
+            ->when($user->role->role_name === 'Operational', function ($query) use ($user) {
+                // Staff Finance cuma lihat store miliknya sendiri
+                $query->where('store_id', $user->store_id);
+            })
+            ->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])
+            ->latest()
+            ->paginate(10, ['*'], 'inputs_page');
                 
-            $stores = Store::where('id', '!=', 1)->get();
+            // $stores = Store::where('id', '!=', 1)->get();
 
-            return view('operational', compact('dones', 'inputs', 'stores'));
+            return view('operational', compact('dones', 'inputs'));
         } catch (\Exception $e) {
             \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to load operational data.');
@@ -35,16 +47,17 @@ class InputOperationalController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role->role_name === 'Operational') {
+
+        if (auth()->user()->role->role_name == 'Operational') {
+
             $validated = $request->validate([
                 'gaji_upah' => 'required|integer|min:0',
                 'sewa' => 'required|integer|min:0',
                 'utilitas' => 'required|integer|min:0',
                 'perlengkapan' => 'required|integer|min:0',
                 'lain_lain' => 'required|integer|min:0',
-                'rating' => 'required|integer|between:1,5',
-                'comment_input' => 'required|string',
-                'store_id' => 'required|exists:stores,id',
+                // 'rating' => 'required|integer|between:1,5',
+                // 'comment_input' => 'required|string',
             ]);
 
             // Calculate total
@@ -55,7 +68,9 @@ class InputOperationalController extends Controller
                 $validated['perlengkapan'] + 
                 $validated['lain_lain'];
 
+            $validated['period'] = now()->format('Y-m-d');
             $validated['status'] = 'Sedang Direview';
+            $validated['store_id'] = auth()->user()->store_id;
             $validated['user_id'] = auth()->id();
 
             InputOperational::create($validated);

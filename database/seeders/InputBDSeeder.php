@@ -5,30 +5,28 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\InputStore;
+use App\Models\InputBD;
 
-class InputStoreSeeder extends Seeder
+class InputBDSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $users = User::where('store_id', '!=', 1)->get();
+        $users = User::where('store_id', '!=', 1)->get();;
 
         foreach ($users as $user) {
             for ($i = 0; $i < 10; $i++) {
-                InputStore::create([
+                InputBD::create([
                     'period' => now()->subMonths(rand(1, 12))->format('Y-m-d'),
-                    'aksesibilitas' => rand(1, 5),
-                    'visibilitas' => rand(1, 5),
-                    'lingkungan' => rand(1, 5),
-                    'lalu_lintas' => rand(1, 5),
-                    'area_parkir' => rand(1, 5),
+                    'direct_competition' => rand(1, 5),
+                    'substitute_competition' => rand(1, 5),
+                    'indirect_competition' => rand(1, 5),
                     'rating' => rand(1, 5),
                     'comment_input' => 'Komentar input ke-' . ($i + 1),
                     'comment_review' => 'Komentar review ke-' . ($i + 1),
-                    'status' => collect(['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi', 'Selesai'])->random(),
+                    'status' => collect(['Selesai', 'Sedang Direview', 'Butuh Revisi'])->random(),
                     'user_id' => $user->id,
                     'store_id' => $user->store_id,
                 ]);

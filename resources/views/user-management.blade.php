@@ -20,7 +20,7 @@
                         <div>
                             <h5 class="mb-0">All Users</h5>
                         </div>
-                        <button type="button" class="btn btn-block btn-default bg-gradient-primary btn-sm mb-0" onclick="openCreateModal()" >+&nbsp; New User</button>
+                        <button type="button" class="btn btn-block btn-default bg-gradient-primary btn-sm mb-0" onclick="window.openCreateModal()">+&nbsp; New User</button>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2">
@@ -84,7 +84,7 @@
                                                 data-bs-toggle="tooltip" 
                                                 data-bs-original-title="Edit user" 
                                                 data-user='@json($user)' 
-                                                onclick="editUser(this)">
+                                                onclick="window.editUser(this)">
                                                 <i class="fa-solid fa-user-pen" style="--fa-primary-color: #ffee00; --fa-secondary-color: #0c0066; --fa-secondary-opacity: 1;"></i>
                                             </button>
 
@@ -226,6 +226,11 @@
             modal.modal('show');
         };
 
+        window.editUser = function(button) {
+            const userData = JSON.parse(button.dataset.user);
+            window.openEditModal(userData);
+        };
+
         // HANDLE: Delete User
         document.addEventListener('click', function(event) {
             if (event.target.closest('.delete-user-btn')) {
@@ -275,7 +280,7 @@
                 storeDisplay.innerHTML = '<option>Manager</option>';
                 storeDisplay.disabled = true;
                 areaInput.value = 1
-            } else if (roleId == 8) {
+            } else if (roleId == 8 || roleId == 5 || roleId == 6) {
                 // Store Manager: Area aktif, Store dinamis
                 areaDisplay.disabled = false;
                 storeDisplay.disabled = false;

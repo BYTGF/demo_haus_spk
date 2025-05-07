@@ -11,20 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('input_finances', function (Blueprint $table) {
+        Schema::create('input_b_d_s', function (Blueprint $table) {
             $table->id();
             $table->date('period');
-            $table->integer('penjualan');
-            $table->integer('pendapatan_lain');
-            $table->integer('total_pendapatan');
-            $table->integer('total_hpp');
-            $table->integer('laba_kotor');
-            $table->integer('biaya_operasional');
-            $table->integer('laba_sebelum_pajak');
-            $table->integer('laba_bersih');
-            $table->integer('gross_profit_margin');
-            $table->integer('net_profit_margin');
-            $table->integer('rating')->nullable();
+            $table->integer('direct_competition');
+            $table->integer('substitute_competition');
+            $table->integer('indirect_competition');
+            $table->integer('rating')->nullable();;
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
             $table->enum('status', ['Sedang Direview', 'Butuh Revisi', 'Selesai']);
@@ -39,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('input_finances');
+        Schema::dropIfExists('input_b_d_s');
     }
 };

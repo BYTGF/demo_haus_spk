@@ -139,7 +139,22 @@
       </div>
     </div>
   </div> --}}
-  <div class="row mt-4">
+  @if(auth()->user()->role->role_name === 'Manager Business Development')
+      <form id="storeFilterForm" method="GET" class="form-inline">
+          <div class="form-group mr-2">
+              <select name="store_filter" id="storeFilter" class="form-control form-control-sm select2">
+                  <option value="all">All Stores</option>
+                  @foreach($stores as $id => $store_name)
+                      <option value="{{ $id }}" {{ $storeFilter == $id ? 'selected' : '' }}>
+                          {{ $store_name }}
+                      </option>
+                  @endforeach
+              </select>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+      </form>
+  @endif
+  {{-- <div class="row mt-4">
     <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
@@ -266,7 +281,7 @@
       </div>
     </div>
     {{-- Line Chart --}}
-    <div class="col-lg-6 mb-lg-0 mb-4">
+    {{-- <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
           <h6>Sales overview</h6>
@@ -282,7 +297,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> --}}
   <div class="card mb-3">
     <div class="card-body p-3">
       <div class="chart">
@@ -297,6 +312,38 @@
         <canvas id="pie-chart-finance" class="chart-canvas" height="200px"></canvas>
       </div>
     </div>
+  </div>
+
+  {{-- Piechart Operational --}}
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5>Operational Expenses</h5>
+    </div>
+    <div class="card-body">
+        @if($inputOperationals->isNotEmpty())
+            @if($storeFilter !== 'all')
+            <div class="status-display mb-3">
+                <span class="badge 
+                    @if($inputOperationals->first()->status === 'Sedang Direview') bg-warning
+                    @elseif($inputOperationals->first()->status === 'Butuh Revisi') bg-danger
+                    @elseif($inputOperationals->first()->status === 'Selesai') bg-success
+                    @endif">
+                        {{ $inputOperationals->first()->status }}
+                </span>
+            </div>
+            @endif
+    
+            <h3>Total : Rp. {{ number_format($inputOperationals->first()->total ?? 0, 0, ',', '.') }}</h3>
+            <div class="position-relative" style="height: 400px;">
+                <canvas id="pieOperational"></canvas>
+            </div>          
+        @else
+            <div class="alert alert-info">
+                Belum ada data operational yang diinput.
+            </div>
+        @endif
+    </div>
+  
   </div>
 
 
@@ -463,248 +510,313 @@
 
 @push('dashboard')
   <script>
-    window.onload = function() {
-      var ctxBar = document.getElementById("chart-bars").getContext("2d");
-
-      new Chart(ctxBar, {
-        type: "bar",
-        data: {
-          labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          datasets: [{
-            label: "Sales",
-            tension: 0.4,
-            borderWidth: 0,
-            borderRadius: 4,
-            borderSkipped: false,
-            backgroundColor: "#fff",
-            data: [450, 200, 100, 220, 500, 100, 400, 230, 500],
-            maxBarThickness: 6
-          }, ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false,
-            }
-          },
-          interaction: {
-            intersect: false,
-            mode: 'index',
-          },
-          scales: {
-            y: {
-              grid: {
-                drawBorder: false,
-                display: false,
-                drawOnChartArea: false,
-                drawTicks: false,
-              },
-              ticks: {
-                suggestedMin: 0,
-                suggestedMax: 500,
-                beginAtZero: true,
-                padding: 15,
-                font: {
-                  size: 14,
-                  family: "Open Sans",
-                  style: 'normal',
-                  lineHeight: 2
-                },
-                color: "#fff"
-              },
-            },
-            x: {
-              grid: {
-                drawBorder: false,
-                display: false,
-                drawOnChartArea: false,
-                drawTicks: false
-              },
-              ticks: {
-                display: false
-              },
-            },
-          },
-        },
+    $(document).ready(function() {
+      $('#storeFilter').select2({
+        placeholder: "Pilih store...",
+        allowClear: true
       });
+    });
 
+    let operationalChart;
 
-      var ctxLine = document.getElementById("chart-line").getContext("2d");
+    function renderOperationalChart(data, labels) {
+        const ctx = document.getElementById('pieOperational').getContext('2d');
 
-      var gradientStroke1 = ctxLine.createLinearGradient(0, 230, 0, 50);
-
-      gradientStroke1.addColorStop(1, 'rgba(203,12,159,0.2)');
-      gradientStroke1.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-      gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)'); //purple colors
-
-      var gradientStroke2 = ctxLine.createLinearGradient(0, 230, 0, 50);
-
-      gradientStroke2.addColorStop(1, 'rgba(20,23,39,0.2)');
-      gradientStroke2.addColorStop(0.2, 'rgba(72,72,176,0.0)');
-      gradientStroke2.addColorStop(0, 'rgba(20,23,39,0)'); //purple colors
-
-      new Chart(ctxLine, {
-        type: "line",
-        data: {
-          labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          datasets: [{
-              label: "Mobile apps",
-              tension: 0.4,
-              borderWidth: 0,
-              pointRadius: 0,
-              borderColor: "#cb0c9f",
-              borderWidth: 3,
-              backgroundColor: gradientStroke1,
-              fill: true,
-              data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-              maxBarThickness: 6
-
-            },
-            {
-              label: "Websites",
-              tension: 0.4,
-              borderWidth: 0,
-              pointRadius: 0,
-              borderColor: "#3A416F",
-              borderWidth: 3,
-              backgroundColor: gradientStroke2,
-              fill: true,
-              data: [30, 90, 40, 140, 290, 290, 340, 230, 400],
-              maxBarThickness: 6
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false,
-            }
-          },
-          interaction: {
-            intersect: false,
-            mode: 'index',
-          },
-          scales: {
-            y: {
-              grid: {
-                drawBorder: false,
-                display: true,
-                drawOnChartArea: true,
-                drawTicks: false,
-                borderDash: [5, 5]
-              },
-              ticks: {
-                display: true,
-                padding: 10,
-                color: '#b2b9bf',
-                font: {
-                  size: 11,
-                  family: "Open Sans",
-                  style: 'normal',
-                  lineHeight: 2
-                },
-              }
-            },
-            x: {
-              grid: {
-                drawBorder: false,
-                display: false,
-                drawOnChartArea: false,
-                drawTicks: false,
-                borderDash: [5, 5]
-              },
-              ticks: {
-                display: true,
-                color: '#b2b9bf',
-                padding: 20,
-                font: {
-                  size: 11,
-                  family: "Open Sans",
-                  style: 'normal',
-                  lineHeight: 2
-                },
-              }
-            },
-          },
-        },
-      });
-
-      @php
-          $statusOperationals = $inputOperationals->groupBy('status')->map->count();
-          $statusFinances = $inputFinances->groupBy('status')->map->count();
-      @endphp
-
-      var pieOperational = document.getElementById("pie-chart-operational").getContext("2d");
-
-      new Chart(pieOperational, {
-        type: 'pie',
-        data: {
-          labels: {!! json_encode($statusOperationals->keys()) !!}, // label: ['Sedang Direview', 'Butuh Revisi', 'Selesai']
-          datasets: [{
-            data: {!! json_encode($statusOperationals->values()) !!}, // data: [5, 2, 7] (contoh)
-            backgroundColor: [
-              'rgba(255, 206, 86, 0.7)', // Sedang Direview
-              'rgba(255, 99, 132, 0.7)', // Butuh Revisi
-              'rgba(75, 192, 192, 0.7)'  // Selesai
-            ],
-            borderColor: [
-              'rgba(255, 206, 86, 1)',
-              'rgba(255, 99, 132, 1)',
-              'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
+        // Hapus chart sebelumnya (jika ada)
+        if (operationalChart) {
+            operationalChart.destroy();
         }
-      });
 
-         
+        operationalChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: Rp${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Panggil saat data tersedia
+    document.addEventListener('DOMContentLoaded', function () {
+        const data = {!! json_encode(array_values($operationalData)) !!};
+        const labels = {!! json_encode(array_keys($operationalData)) !!};
+        renderOperationalChart(data, labels);
+
+        document.getElementById('storeFilter')?.addEventListener('change', function() {
+            fetch(`/dashboard/data?store_filter=${this.value}`)
+                .then(response => response.json())
+                .then(data => {
+                    operationalChart.data.labels = Object.keys(data);
+                    operationalChart.data.datasets[0].data = Object.values(data);
+                    operationalChart.update();
+                });
+        });   
+
+    });
+
+    // window.onload = function() {
+    //   var ctxBar = document.getElementById("chart-bars").getContext("2d");
+
+    //   new Chart(ctxBar, {
+    //     type: "bar",
+    //     data: {
+    //       labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    //       datasets: [{
+    //         label: "Sales",
+    //         tension: 0.4,
+    //         borderWidth: 0,
+    //         borderRadius: 4,
+    //         borderSkipped: false,
+    //         backgroundColor: "#fff",
+    //         data: [450, 200, 100, 220, 500, 100, 400, 230, 500],
+    //         maxBarThickness: 6
+    //       }, ],
+    //     },
+    //     options: {
+    //       responsive: true,
+    //       maintainAspectRatio: false,
+    //       plugins: {
+    //         legend: {
+    //           display: false,
+    //         }
+    //       },
+    //       interaction: {
+    //         intersect: false,
+    //         mode: 'index',
+    //       },
+    //       scales: {
+    //         y: {
+    //           grid: {
+    //             drawBorder: false,
+    //             display: false,
+    //             drawOnChartArea: false,
+    //             drawTicks: false,
+    //           },
+    //           ticks: {
+    //             suggestedMin: 0,
+    //             suggestedMax: 500,
+    //             beginAtZero: true,
+    //             padding: 15,
+    //             font: {
+    //               size: 14,
+    //               family: "Open Sans",
+    //               style: 'normal',
+    //               lineHeight: 2
+    //             },
+    //             color: "#fff"
+    //           },
+    //         },
+    //         x: {
+    //           grid: {
+    //             drawBorder: false,
+    //             display: false,
+    //             drawOnChartArea: false,
+    //             drawTicks: false
+    //           },
+    //           ticks: {
+    //             display: false
+    //           },
+    //         },
+    //       },
+    //     },
+    //   });
+
+
+    //   var ctxLine = document.getElementById("chart-line").getContext("2d");
+
+    //   var gradientStroke1 = ctxLine.createLinearGradient(0, 230, 0, 50);
+
+    //   gradientStroke1.addColorStop(1, 'rgba(203,12,159,0.2)');
+    //   gradientStroke1.addColorStop(0.2, 'rgba(72,72,176,0.0)');
+    //   gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)'); //purple colors
+
+    //   var gradientStroke2 = ctxLine.createLinearGradient(0, 230, 0, 50);
+
+    //   gradientStroke2.addColorStop(1, 'rgba(20,23,39,0.2)');
+    //   gradientStroke2.addColorStop(0.2, 'rgba(72,72,176,0.0)');
+    //   gradientStroke2.addColorStop(0, 'rgba(20,23,39,0)'); //purple colors
+
+    //   new Chart(ctxLine, {
+    //     type: "line",
+    //     data: {
+    //       labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    //       datasets: [{
+    //           label: "Mobile apps",
+    //           tension: 0.4,
+    //           borderWidth: 0,
+    //           pointRadius: 0,
+    //           borderColor: "#cb0c9f",
+    //           borderWidth: 3,
+    //           backgroundColor: gradientStroke1,
+    //           fill: true,
+    //           data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
+    //           maxBarThickness: 6
+
+    //         },
+    //         {
+    //           label: "Websites",
+    //           tension: 0.4,
+    //           borderWidth: 0,
+    //           pointRadius: 0,
+    //           borderColor: "#3A416F",
+    //           borderWidth: 3,
+    //           backgroundColor: gradientStroke2,
+    //           fill: true,
+    //           data: [30, 90, 40, 140, 290, 290, 340, 230, 400],
+    //           maxBarThickness: 6
+    //         },
+    //       ],
+    //     },
+    //     options: {
+    //       responsive: true,
+    //       maintainAspectRatio: false,
+    //       plugins: {
+    //         legend: {
+    //           display: false,
+    //         }
+    //       },
+    //       interaction: {
+    //         intersect: false,
+    //         mode: 'index',
+    //       },
+    //       scales: {
+    //         y: {
+    //           grid: {
+    //             drawBorder: false,
+    //             display: true,
+    //             drawOnChartArea: true,
+    //             drawTicks: false,
+    //             borderDash: [5, 5]
+    //           },
+    //           ticks: {
+    //             display: true,
+    //             padding: 10,
+    //             color: '#b2b9bf',
+    //             font: {
+    //               size: 11,
+    //               family: "Open Sans",
+    //               style: 'normal',
+    //               lineHeight: 2
+    //             },
+    //           }
+    //         },
+    //         x: {
+    //           grid: {
+    //             drawBorder: false,
+    //             display: false,
+    //             drawOnChartArea: false,
+    //             drawTicks: false,
+    //             borderDash: [5, 5]
+    //           },
+    //           ticks: {
+    //             display: true,
+    //             color: '#b2b9bf',
+    //             padding: 20,
+    //             font: {
+    //               size: 11,
+    //               family: "Open Sans",
+    //               style: 'normal',
+    //               lineHeight: 2
+    //             },
+    //           }
+    //         },
+    //       },
+    //     },
+    //   });
+
+    //   @php
+    //       $statusOperationals = $inputOperationals->groupBy('status')->map->count();
+    //       $statusFinances = $inputFinances->groupBy('status')->map->count();
+          
+    //   @endphp
+
+    //   var pieOperational = document.getElementById("pie-chart-operational").getContext("2d");
+
+    //   new Chart(pieOperational, {
+    //     type: 'pie',
+    //     data: {
+
+    //         backgroundColor: [
+    //           'rgba(255, 206, 86, 0.7)', // Sedang Direview
+    //           'rgba(255, 99, 132, 0.7)', // Butuh Revisi
+    //           'rgba(75, 192, 192, 0.7)'  // Selesai
+    //         ],
+    //         borderColor: [
+    //           'rgba(255, 206, 86, 1)',
+    //           'rgba(255, 99, 132, 1)',
+    //           'rgba(75, 192, 192, 1)'
+    //         ],
+    //         borderWidth: 1
+    //       }]
+    //     },
+    //     options: {
+    //       responsive: true,
+    //       maintainAspectRatio: false,
+    //       plugins: {
+    //         legend: {
+    //           position: 'bottom'
+    //         }
+    //       }
+    //     }
+    //   });
+
       
 
-      var pieFinances = document.getElementById("pie-chart-finance").getContext("2d");
+    // // For AJAX implementation (optional)
+          
 
-      new Chart(pieFinances, {
-        type: 'pie',
-        data: {
-          labels: {!! json_encode($statusFinances->keys()) !!}, // label: ['Sedang Direview', 'Butuh Revisi', 'Selesai']
-          datasets: [{
-            data: {!! json_encode($statusFinances->values()) !!}, // data: [5, 2, 7] (contoh)
-            backgroundColor: [
-              'rgba(255, 206, 86, 0.7)', // Sedang Direview
-              'rgba(255, 99, 132, 0.7)', // Butuh Revisi
-              'rgba(75, 192, 192, 0.7)'  // Selesai
-            ],
-            borderColor: [
-              'rgba(255, 206, 86, 1)',
-              'rgba(255, 99, 132, 1)',
-              'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-    }
+    //   var pieFinances = document.getElementById("pie-chart-finance").getContext("2d");
+
+    //   new Chart(pieFinances, {
+    //     type: 'pie',
+    //     data: {
+    //     
+    //         backgroundColor: [
+    //           'rgba(255, 206, 86, 0.7)', // Sedang Direview
+    //           'rgba(255, 99, 132, 0.7)', // Butuh Revisi
+    //           'rgba(75, 192, 192, 0.7)'  // Selesai
+    //         ],
+    //         borderColor: [
+    //           'rgba(255, 206, 86, 1)',
+    //           'rgba(255, 99, 132, 1)',
+    //           'rgba(75, 192, 192, 1)'
+    //         ],
+    //         borderWidth: 1
+    //       }]
+    //     },
+    //     options: {
+    //       responsive: true,
+    //       maintainAspectRatio: false,
+    //       plugins: {
+    //         legend: {
+    //           position: 'bottom'
+    //         }
+    //       }
+    //     }
+    //   });
+    // }
   </script>
 @endpush
 

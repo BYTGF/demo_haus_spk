@@ -11,7 +11,16 @@ class InputFinance extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['arus_kas', 'profitabilitas', 'neraca_keuangan', 'comment_input', 'comment_review', 'status', 'user_id', 'store_id'];
+    protected $casts = [
+        'period' => 'date',
+    ];
+    
+    protected $fillable = [
+        'period', 'penjualan', 'pendapatan_lain', 'total_pendapatan',
+        'total_hpp', 'laba_kotor', 'biaya_operasional', 'laba_sebelum_pajak',
+        'laba_bersih', 'gross_profit_margin', 'net_profit_margin', 'rating',
+        'comment_input', 'comment_review', 'status', 'user_id', 'store_id'
+    ];
 
     public function user()
     {

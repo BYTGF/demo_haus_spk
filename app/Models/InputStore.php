@@ -11,8 +11,16 @@ class InputStore extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['aksesibilitas', 'visibilitas', 'lingkungan', 'lalu_lintas', 'area_parkir', 'rating','comment_input', 'comment_review', 'status', 'user_id', 'store_id'];
-    
+    protected $casts = [
+        'period' => 'date',
+    ];
+
+    protected $fillable = [
+        'period', 'aksesibilitas', 'visibilitas', 'lingkungan', 'lalu_lintas',
+        'area_parkir', 'rating', 'comment_input', 'comment_review',
+        'status', 'user_id', 'store_id'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

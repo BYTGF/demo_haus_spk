@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Store;
 
-class InputOperational extends Model
+class InputBD extends Model
 {
     use HasFactory;
 
@@ -15,10 +15,11 @@ class InputOperational extends Model
         'period' => 'date',
     ];
 
+
     protected $fillable = [
-        'period', 'gaji_upah', 'sewa', 'utilitas', 'perlengkapan',
-        'lain_lain', 'total', 'rating', 'comment_input', 'comment_review',
-        'status', 'user_id', 'store_id'
+        'period','direct_competition', 'substitute_competition', 'indirect_competition',
+        'rating', 'comment_input', 'comment_review', 'status',
+        'user_id', 'store_id'
     ];
 
     public function user()

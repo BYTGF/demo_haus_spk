@@ -4,80 +4,126 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Store;
 use App\Models\InputFinance;
+use App\Models\InputOperational;
 
 class InputFinanceController extends Controller
 {
     public function index()
     {
         try {
-            // dd(Auth::check(), Auth::user());
-            $dones = InputFinance::with('user','store')->where('status', 'selesai')->get();
-            $reviews = InputFinance::with('user','store')->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])->get();
-            $stores = Store::where('id', '!=', 1)->get();
-            // dd($done);
+            $user = auth()->user();
+            $dones = InputFinance::with('user', 'store')
+            ->when($user->role->role_name === 'Finance', function ($query) use ($user) {
+                // Staff Finance cuma lihat store miliknya sendiri
+                $query->where('store_id', $user->store_id);
+            })
+            ->where('status', 'Selesai')
+            ->latest()
+            ->paginate(10, ['*'], 'dones_page');
+            
+            $inputs = InputFinance::with('user', 'store')
+            ->when($user->role->role_name === 'Finance', function ($query) use ($user) {
+                // Staff Finance cuma lihat store miliknya sendiri
+                $query->where('store_id', $user->store_id);
+            })
+            ->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])
+            ->latest()
+            ->paginate(10, ['*'], 'inputs_page');
+                
+            // $stores = Store::where('id', '!=', 1)->get();
 
-            return view('finance', compact('dones', 'reviews','stores'));
+            return view('finance', compact('dones', 'inputs'));
         } catch (\Exception $e) {
-            // Log the error and return an error page or message
             \Log::error('Error fetching data in index: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to load finance data.');
+            return redirect()->back()->with('error', 'Failed to load operational data.');
         }
     }
 
     public function store(Request $request)
     {
+        Log::info('This is an info log message.1');
         if (auth()->user()->role->role_name === 'Finance') {
             $validated = $request->validate([
-                'neraca_keuangan' => 'required|integer|between:1,5',
-                'arus_kas' => 'required|integer|between:1,5',
-                'profitabilitas' => 'required|integer|between:1,5',
-                'comment_input' => 'required|string',
-                'store_id' => 'required|exists:stores,id',
+                // 'period' => 'required|date',
+                'penjualan' => 'required|numeric|min:0',
+                'pendapatan_lain' => 'required|numeric|min:0',
+                'total_hpp' => 'required|numeric|min:0',
+                // 'store_id' => 'required|exists:stores,id',
+                // 'comment_input' => 'nullable|string',
             ]);
 
-            $validated['status'] = 'Sedang Direview';
-            $validated['user_id'] = auth()->id();
+            Log::info('This is an info log message.2');
+            // Calculate derived fields
+            $validated['total_pendapatan'] = $validated['penjualan'] + $validated['pendapatan_lain'];
+            $validated['laba_kotor'] = $validated['total_pendapatan'] - $validated['total_hpp'];
+            
+            // Get operational costs from the selected store
+            $operational = InputOperational::where('store_id', auth()->user()->store_id)
+            ->latest()
+            ->first();
 
+            if (!$operational) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['operational' => 'Data biaya operasional belum tersedia. Harap input terlebih dahulu.']);
+            }
+                    
+            $validated['biaya_operasional'] = $operational->total ?? 0;
+            $validated['laba_sebelum_pajak'] = $validated['laba_kotor'] - $validated['biaya_operasional'];
+            $validated['laba_bersih'] = $validated['laba_sebelum_pajak'];
+            
+            // Calculate margins
+            $validated['gross_profit_margin'] = $validated['penjualan'] > 0 
+                ? ($validated['laba_kotor'] / $validated['penjualan']) * 100 
+                : 0;
+                
+            $validated['net_profit_margin'] = $validated['penjualan'] > 0 
+                ? ($validated['laba_bersih'] / $validated['penjualan']) * 100 
+                : 0;
+            
+                Log::info('This is an info log message.3');
+            $validated['user_id'] = auth()->id();
+            $validated['period'] = now()->format('Y-m-d');
+            $validated['store_id'] = auth()->user()->store_id;
+            $validated['status'] = 'Sedang Direview';
+            Log::info('This is an info log message.4');
             InputFinance::create($validated);
 
             return redirect()->route('finance.index')
-                ->with('success', 'Review submitted for approval');
+                ->with('success', 'Finance input submitted for approval');
         }
 
         abort(403, 'Unauthorized action.');
-    
     }
 
-    public function approve(InputFinance $review)
+    public function approve(InputFinance $finance)
     {
         if (auth()->user()->role->role_name === 'Manager Business Development') {
-            $review->update([
+            $finance->update([
                 'status' => 'Selesai',
-                'comment_review' => request('comment_review', 'Approved')
+                'comment_review' => request('comment_review', 'Approved by Manager')
             ]);
 
-            dd($review);
-
-            // return redirect()->route('finance.index')
-            //     ->with('success', 'Review approved successfully');
+            return redirect()->route('finance.index')
+                ->with('success', 'Finance input approved successfully');
         }
 
         abort(403, 'Unauthorized action.');
     }
 
-    // FinanceController.php
     public function reject($id)
     {
-        $review = InputFinance::findOrFail($id);
+        $finance = InputFinance::findOrFail($id);
         
         request()->validate([
             'comment_review' => 'required|string'
         ]);
 
-        $review->update([
+        $finance->update([
             'status' => 'Butuh Revisi',
             'comment_review' => request('comment_review')
         ]);
@@ -87,36 +133,47 @@ class InputFinanceController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role === 'Finance') {
-            $financialReview = InputFinance::findOrFail($id);
+        if (auth()->user()->role->role_name === 'Finance') {
+            $finance = InputFinance::findOrFail($id);
+            
             $validated = $request->validate([
-                'neraca_keuangan' => 'required|integer|between:1,5',
-                'arus_kas' => 'required|integer|between:1,5',
-                'profitabilitas' => 'required|integer|between:1,5',
-                'comment_input' => 'nullable|string',
-                'comment_review' => 'required_if:status,Sedang Direview,Butuh Revisi|string|nullable',
-                'status' => 'required|in:Sedang Direview,Butuh Revisi,Selesai',
+                'period' => 'required|date',
+                'penjualan' => 'required|numeric|min:0',
+                'pendapatan_lain' => 'required|numeric|min:0',
+                'total_hpp' => 'required|numeric|min:0',
                 'store_id' => 'required|exists:stores,id',
+                'comment_input' => 'nullable|string',
+                'comment_review' => 'nullable|string',
             ]);
-        
-            $financialReview->update($validated);
-        
-            return redirect()->route('finance.index')->with('success', 'Financial review updated successfully.');
+
+            // Recalculate all derived fields
+            $validated['total_pendapatan'] = $validated['penjualan'] + $validated['pendapatan_lain'];
+            $validated['laba_kotor'] = $validated['total_pendapatan'] - $validated['total_hpp'];
+            
+            $operational = InputOperational::where('store_id', $validated['store_id'])
+                ->latest()
+                ->first();
+                
+            $validated['biaya_operasional'] = $operational->total ?? 0;
+            $validated['laba_sebelum_pajak'] = $validated['laba_kotor'] - $validated['biaya_operasional'];
+            $validated['laba_bersih'] = $validated['laba_sebelum_pajak'];
+            
+            $validated['gross_profit_margin'] = $validated['penjualan'] > 0 
+                ? ($validated['laba_kotor'] / $validated['penjualan']) * 100 
+                : 0;
+                
+            $validated['net_profit_margin'] = $validated['penjualan'] > 0 
+                ? ($validated['laba_bersih'] / $validated['penjualan']) * 100 
+                : 0;
+            
+            $validated['status'] = 'Sedang Direview'; // Reset status when updated
+
+            $finance->update($validated);
+
+            return redirect()->route('finance.index')
+                ->with('success', 'Finance input updated successfully');
         }
 
         abort(403, 'Unauthorized action.');
-    }
-
-    public function destroy($id)
-    {
-        // try {
-        //     $inputFinance = InputFinance::findOrFail($id);
-        //     $inputFinance->delete();
-
-        //     return redirect()->back()->with('success', 'User berhasil dihapus.');
-        // } catch (\Exception $e) {
-        //     \Log::error('Error in destroy: ' . $e->getMessage());
-        //     return redirect()->back()->with('error', 'Failed to delete user.');
-        // }
     }
 }

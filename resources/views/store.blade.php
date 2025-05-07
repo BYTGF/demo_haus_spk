@@ -21,6 +21,7 @@
                             <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksesibilitas</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibilitas</th>
@@ -35,6 +36,9 @@
                                 <tbody>
                                     @foreach ($inputs as $input)
                                         <tr>
+                                            <td class="align-middle text-center text-sm">          
+                                                <p class="text-xs font-weight-bold mb-0">{{ $input->period }}</p>
+                                            </td>
                                             <td class="align-middle text-center text-sm">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $input->store->store_name }}</p>
                                             </td>
@@ -101,7 +105,7 @@
                                                     @endif
                                                 @endif
 
-                                                @if (auth()->user()->role->role_name === 'Manager Business Development ')
+                                                @if (auth()->user()->role->role_name === 'Manager Business Development')
                                                     @if($input->status === 'Sedang Direview Manager BD')
                                                         <button class="btn btn-sm btn-success" 
                                                                 onclick="document.getElementById('approve-form-{{ $input->id }}').submit()">
@@ -127,6 +131,9 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $inputs->links('pagination::bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,6 +151,7 @@
                             <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksesibilitas</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibilitas</th>
@@ -157,6 +165,9 @@
                                 <tbody>
                                     @foreach ($dones as $done)
                                         <tr>
+                                            <td>            
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->period }}</p>
+                                            </td>
                                             <td>
                                                 <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
                                             </td>
@@ -185,6 +196,9 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $dones->links('pagination::bootstrap-5') }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,16 +316,6 @@
                                         <input type="hidden" name="status" value="Sedang Direview">
                                     @endif
         
-                                    <div class="form-group">
-                                        <label for="store_id">Store</label>
-                                        <select class="form-control" name="store_id" id="store_id" required>
-                                            <option value="">Pilih Store</option>
-                                            @foreach($stores as $store)
-                                                <option value="{{ $store->id }}">{{ $store->store_name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-        
                                     <div class="text-center">
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -398,7 +402,6 @@
             document.getElementById('rating').value = input.rating;
             document.getElementById('comment_input').value = input.comment_input;
             document.getElementById('comment_review').value = input.comment_review;
-            document.getElementById('store_id').value = input.store_id;
     
             // Handle status field (for managers)
             if (statusField) {

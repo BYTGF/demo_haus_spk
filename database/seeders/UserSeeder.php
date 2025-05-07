@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
         // contoh buat 1 user untuk setiap role
         foreach ($roles as $role) {
             // Determine area_id and store_id based on role_id conditions
-            if ($role->id == 8) {
+            if ($role->id == 8 || $role->id == 5 || $role->id == 6) {
                 // If role_id is 7, area_id and store_id are both set to 1
                 $area_id = $areas->random()->id;
                 $store_id = $stores->random()->id;
