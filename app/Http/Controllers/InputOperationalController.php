@@ -57,9 +57,19 @@ class InputOperationalController extends Controller
                 'perlengkapan' => 'required|integer|min:0',
                 'lain_lain' => 'required|integer|min:0',
                 // 'rating' => 'required|integer|between:1,5',
-                // 'comment_input' => 'required|string',
+                'comment_input' => 'nullable|string',
             ]);
 
+            $exists = InputFinance::
+                where('store_id', $request->store_id)
+                ->where('period', $request->period)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()
+                    ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
+                    ->withInput();
+            }
             // Calculate total
             $validated['total'] = 
                 $validated['gaji_upah'] + 

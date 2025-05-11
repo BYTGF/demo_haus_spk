@@ -30,6 +30,7 @@ return new class extends Migration
             $table->enum('status', ['Sedang Direview', 'Butuh Revisi', 'Selesai']);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
+            $table->unique(['store_id', 'period'], 'unique_user_store_period');
             $table->timestamps();
         });
     }

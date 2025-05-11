@@ -548,5 +548,10 @@
             commentReviewGroup.style.display = 'none';
         });
     });
+    @if(session('error'))
+        <script>
+            alert("{{ session('error') }}");
+        </script>
+    @endif
     </script>
 @endpush

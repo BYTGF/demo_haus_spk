@@ -11,6 +11,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\InputFinanceController;
 use App\Http\Controllers\InputOperationalController;
 use App\Http\Controllers\InputStoreController;
+use App\Http\Controllers\InputBDController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -45,6 +46,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Change the home route to something specific
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/completion-data', [DashboardController::class, 'getCompletionData'])
+     ->name('dashboard.completion-data');
 
     Route::prefix('api')->group(function () {
         Route::get('/dashboard/data', [DashboardController::class, 'getChartData']);
@@ -71,12 +74,12 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:Business Development Staff,Manager Business Development')->group(function () {
-        Route::resource('BD', InputBDController::class);  
+        Route::resource('bd', InputBDController::class);  
             // Custom workflow routes
-        Route::post('BD/{input}/approve', [InputBDController::class, 'approve'])
-            ->name('BD.approve');
-        Route::post('BD/{input}/reject', [InputBDController::class, 'reject'])
-            ->name('BD.reject');
+        Route::post('bd/{input}/approve', [InputBDController::class, 'approve'])
+            ->name('bd.approve');
+        Route::post('bd/{input}/reject', [InputBDController::class, 'reject'])
+            ->name('bd.reject');
     });
 
     Route::middleware('role:Area Manager,Store Manager,Manager Business Development')->group(function () {

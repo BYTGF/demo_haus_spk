@@ -517,7 +517,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initial calculation
-    
+    @if(session('error'))
+        <script>
+            alert("{{ session('error') }}");
+        </script>
+    @endif
 });
 </script>
 @endpush

@@ -45,7 +45,6 @@ class InputFinanceController extends Controller
 
     public function store(Request $request)
     {
-        Log::info('This is an info log message.1');
         if (auth()->user()->role->role_name === 'Finance') {
             $validated = $request->validate([
                 // 'period' => 'required|date',
@@ -53,10 +52,19 @@ class InputFinanceController extends Controller
                 'pendapatan_lain' => 'required|numeric|min:0',
                 'total_hpp' => 'required|numeric|min:0',
                 // 'store_id' => 'required|exists:stores,id',
-                // 'comment_input' => 'nullable|string',
+                'comment_input' => 'nullable|string',
             ]);
 
-            Log::info('This is an info log message.2');
+            $exists = InputFinance::where('store_id', $request->store_id)
+                ->where('period', $request->period)
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()
+                    ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
+                    ->withInput();
+            }
+
             // Calculate derived fields
             $validated['total_pendapatan'] = $validated['penjualan'] + $validated['pendapatan_lain'];
             $validated['laba_kotor'] = $validated['total_pendapatan'] - $validated['total_hpp'];
@@ -85,12 +93,12 @@ class InputFinanceController extends Controller
                 ? ($validated['laba_bersih'] / $validated['penjualan']) * 100 
                 : 0;
             
-                Log::info('This is an info log message.3');
+            
             $validated['user_id'] = auth()->id();
             $validated['period'] = now()->format('Y-m-d');
             $validated['store_id'] = auth()->user()->store_id;
             $validated['status'] = 'Sedang Direview';
-            Log::info('This is an info log message.4');
+
             InputFinance::create($validated);
 
             return redirect()->route('finance.index')

@@ -13,6 +13,7 @@ class InputStore extends Model
 
     protected $casts = [
         'period' => 'date',
+        'lingkungan' => 'array',
     ];
 
     protected $fillable = [
@@ -26,8 +27,4 @@ class InputStore extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function store()
-    {
-        return $this->belongsTo(Store::class);
-    }
 }

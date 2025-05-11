@@ -11,6 +11,9 @@ use App\Models\Role;
 use App\Models\Area;
 use App\Models\Store;
 use App\Models\InputFinance;
+use App\Models\InputOperational;
+use App\Models\InputBD;
+use App\Models\InputStore;
 
 class User extends Authenticatable
 {
@@ -86,5 +89,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(InputBDS::class);
     }
+
+    public function hasRole(...$roles)
+    {
+        return $this->role && in_array($this->role->role_name, $roles);
+    }
+
     
 }
