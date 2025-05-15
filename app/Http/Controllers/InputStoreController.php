@@ -46,41 +46,41 @@ class InputStoreController extends Controller
     }
 
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
         if (auth()->user()->role->role_name === 'Store Staff') {
-            $validated = $request->validate([
-                'period' => 'required|date',
-                'aksesibilitas' => 'required|integer|between:1,4',
-                'visibilitas' => 'required|integer|between:1,4',
-                'lingkungan' => 'required|array',
-                'lingkungan.*' => 'integer|between:1,3',
-                'lalu_lintas' => 'required|integer|between:1,4',
-                'parkir_mobil' => 'required|integer|min:0',
-                'parkir_motor' => 'required|integer|min:0',
-                'comment_input' => 'nullable|string',
-            ]);
+            try {
+                $validated = $request->validate([
+                    'period' => 'required|date',
+                    'aksesibilitas' => 'required|integer|between:1,4',
+                    'visibilitas' => 'required|integer|between:1,4',
+                    'lingkungan' => 'required|array',
+                    'lingkungan.*' => 'integer|between:1,3',
+                    'lalu_lintas' => 'required|integer|between:1,4',
+                    'parkir_mobil' => 'required|integer|min:0',
+                    'parkir_motor' => 'required|integer|min:0',
+                    'comment_input' => 'nullable|string',
+                ]);
 
-            $exists = InputFinance::where('store_id', $request->store_id)
-                ->where('period', $request->period)
-                ->exists();
+                $exists = InputStore::where('store_id', $request->store_id)
+                    ->where('period', $request->period)
+                    ->exists();
 
-            if ($exists) {
-                return redirect()->back()
-                    ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
-                    ->withInput();
+                if ($exists) {
+                    return redirect()->back()->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])->withInput();
+                }
+
+                $validated['user_id'] = auth()->id();
+                $validated['status'] = 'Sedang Direview Manager Area';
+                $validated['period'] = now()->format('Y-m-d');
+                $validated['store_id'] = auth()->user()->store_id;
+
+                InputStore::create($validated);
+
+                return redirect()->route('store.index')->with('success', 'Store evaluation submitted for area manager review');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.']);
             }
-
-            
-            $validated['user_id'] = auth()->id();
-            $validated['status'] = 'Sedang Direview Manager Area';
-            $validated['period'] = now()->format('Y-m-d');
-            $validated['store_id'] = auth()->user()->store_id;
-
-            InputStore::create($validated);
-
-            return redirect()->route('store.index')
-                ->with('success', 'Store evaluation submitted for area manager review');
         }
 
         abort(403, 'Unauthorized action.');
@@ -89,13 +89,16 @@ class InputStoreController extends Controller
     public function approveArea(InputStore $input)
     {
         if (auth()->user()->role->role_name === 'Area Manager') {
-            $input->update([
-                'status' => 'Sedang Direview Manager BD',
-                'comment_review' => request('comment_review', 'Approved by Area Manager')
-            ]);
+            try {
+                $input->update([
+                    'status' => 'Sedang Direview Manager BD',
+                    'comment_review' => request('comment_review', 'Approved by Area Manager')
+                ]);
 
-            return redirect()->route('store.index')
-                ->with('success', 'Store evaluation approved and forwarded to Business Development Manager');
+                return redirect()->route('store.index')->with('success', 'Store evaluation approved and forwarded to Business Development Manager');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menyetujui data.']);
+            }
         }
 
         abort(403, 'Unauthorized action.');
@@ -104,13 +107,16 @@ class InputStoreController extends Controller
     public function approveBd(InputStore $input)
     {
         if (auth()->user()->role->role_name === 'Business Development Manager') {
-            $input->update([
-                'status' => 'Selesai',
-                'comment_review' => request('comment_review', 'Approved by Business Development Manager')
-            ]);
+            try {
+                $input->update([
+                    'status' => 'Selesai',
+                    'comment_review' => request('comment_review', 'Approved by Business Development Manager')
+                ]);
 
-            return redirect()->route('store.index')
-                ->with('success', 'Store evaluation approved successfully');
+                return redirect()->route('store.index')->with('success', 'Store evaluation approved successfully');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Gagal menyetujui evaluasi.']);
+            }
         }
 
         abort(403, 'Unauthorized action.');
@@ -118,56 +124,62 @@ class InputStoreController extends Controller
 
     public function reject($id)
     {
-        $input = InputStore::findOrFail($id);
-        
-        request()->validate([
-            'comment_review' => 'required|string'
-        ]);
+        try {
+            $input = InputStore::findOrFail($id);
 
-        $approvalLevel = request('approval_level');
-        $commentPrefix = $approvalLevel === 'area' 
-            ? '(Rejected by Area Manager) ' 
-            : '(Rejected by Business Development Manager) ';
+            request()->validate([
+                'comment_review' => 'required|string'
+            ]);
 
-        $input->update([
-            'status' => 'Butuh Revisi',
-            'comment_review' => $commentPrefix . request('comment_review')
-        ]);
+            $approvalLevel = request('approval_level');
+            $commentPrefix = $approvalLevel === 'area' 
+                ? '(Rejected by Area Manager) ' 
+                : '(Rejected by Business Development Manager) ';
 
-        return response()->json(['success' => true]);
+            $input->update([
+                'status' => 'Butuh Revisi',
+                'comment_review' => $commentPrefix . request('comment_review')
+            ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menolak data.']);
+        }
     }
 
     public function update(Request $request, $id)
     {
         if (auth()->user()->role->role_name === 'Store Manager') {
-            $storeInput = InputStore::findOrFail($id);
-            
-            $validated = $request->validate([
-                'period' => 'required|date',
-                'aksesibilitas' => 'required|integer|between:1,4',
-                'visibilitas' => 'required|integer|between:1,4',
-                'lingkungan' => 'required|array',
-                'lingkungan.*' => 'integer|between:1,3',
-                'lalu_lintas' => 'required|integer|between:1,4',
-                'parkir_mobil' => 'required|integer|min:0',
-                'parkir_motor' => 'required|integer|min:0',
-                'rating' => 'required|integer|between:1,5',
-                'store_id' => 'required|exists:stores,id',
-                'comment_input' => 'nullable|string',
-                'comment_review' => 'nullable|string',
-            ]);
+            try {
+                $storeInput = InputStore::findOrFail($id);
 
-            // Convert lingkungan array to comma-separated string
-            $validated['lingkungan'] = implode(',', $validated['lingkungan']);
-            
-            $validated['status'] = 'Sedang Direview Manager Area'; // Reset status when updated
+                $validated = $request->validate([
+                    'period' => 'required|date',
+                    'aksesibilitas' => 'required|integer|between:1,4',
+                    'visibilitas' => 'required|integer|between:1,4',
+                    'lingkungan' => 'required|array',
+                    'lingkungan.*' => 'integer|between:1,3',
+                    'lalu_lintas' => 'required|integer|between:1,4',
+                    'parkir_mobil' => 'required|integer|min:0',
+                    'parkir_motor' => 'required|integer|min:0',
+                    'rating' => 'required|integer|between:1,5',
+                    'store_id' => 'required|exists:stores,id',
+                    'comment_input' => 'nullable|string',
+                    'comment_review' => 'nullable|string',
+                ]);
 
-            $storeInput->update($validated);
+                $validated['lingkungan'] = implode(',', $validated['lingkungan']);
+                $validated['status'] = 'Sedang Direview Manager Area';
 
-            return redirect()->route('store.index')
-                ->with('success', 'Store evaluation updated and resubmitted for review');
+                $storeInput->update($validated);
+
+                return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Gagal update data store.']);
+            }
         }
 
         abort(403, 'Unauthorized action.');
     }
+
 }

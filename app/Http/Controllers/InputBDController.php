@@ -63,99 +63,109 @@ class InputBDController extends Controller
      */
     public function store(Request $request)
     {
-        if (auth()->user()->role->role_name == 'Business Development') {
-            $validated = $request->validate([
-                'store_id' => 'required|exists:stores,id',
-                'direct_competition' => 'required|integer|min:0',
-                'substitute_competition' => 'required|integer|min:0',
-                'indirect_competition' => 'required|integer|min:0',
-                'comment_input' => 'nullable|string',
-            ]);
+        try {
+            if (auth()->user()->role->role_name == 'Business Development') {
+                $validated = $request->validate([
+                    'period' => 'required|date',
+                    'store_id' => 'required|exists:stores,id',
+                    'direct_competition' => 'required|integer|min:0',
+                    'substitute_competition' => 'required|integer|min:0',
+                    'indirect_competition' => 'required|integer|min:0',
+                    'comment_input' => 'nullable|string',
+                ]);
 
-            $validated['period'] = now()->format('Y-m-d');
-            $validated['status'] = 'Sedang Direview';
-            $validated['user_id'] = auth()->id();
+                $validated['status'] = 'Sedang Direview';
+                $validated['user_id'] = auth()->id();
 
-            $exists = InputBD::where('store_id', $request->store_id)
-                ->where('period', $request->period)
-                ->exists();
+                $exists = InputBD::where('store_id', $request->store_id)
+                    ->where('period', $request->period)
+                    ->exists();
 
-            if ($exists) {
-                return redirect()->back()
-                    ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
-                    ->withInput();
+                if ($exists) {
+                    return redirect()->back()
+                        ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
+                        ->withInput();
+                }
+
+                InputBD::create($validated);
+
+                return redirect()->route('bd.index')
+                    ->with('success', 'Input business development berhasil dikirim untuk direview.');
             }
 
-            InputBD::create($validated);
-
-            return redirect()->route('bd.index')
-                ->with('success', 'Business development input submitted for approval');
+            abort(403, 'Unauthorized action.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
-
-        abort(403, 'Unauthorized action.');
     }
 
-    /**
-     * Approve the specified resource.
-     */
     public function approve(InputBD $input)
     {
-        if (auth()->user()->role->role_name === 'Manager Business Development') {
-            $input->update([
-                'status' => 'Selesai',
-                'rating' => request('rating', null),
-                'comment_review' => request('comment_review', 'Approved')
-            ]);
+        try {
+            if (auth()->user()->role->role_name === 'Manager Business Development') {
+                $input->update([
+                    'status' => 'Selesai',
+                    'rating' => request('rating', null),
+                    'comment_review' => request('comment_review', 'Approved')
+                ]);
 
-            return redirect()->route('bd.index')
-                ->with('success', 'Business development input approved successfully');
+                return redirect()->route('bd.index')
+                    ->with('success', 'Input berhasil di-approve.');
+            }
+
+            abort(403, 'Unauthorized action.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal approve data: ' . $e->getMessage());
         }
-
-        abort(403, 'Unauthorized action.');
     }
 
-    /**
-     * Reject the specified resource.
-     */
     public function reject($id)
     {
-        $input = InputBD::findOrFail($id);
-        
-        request()->validate([
-            'comment_review' => 'required|string'
-        ]);
+        try {
+            $input = InputBD::findOrFail($id);
 
-        $input->update([
-            'status' => 'Butuh Revisi',
-            'comment_review' => request('comment_review')
-        ]);
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        if (auth()->user()->role->role_name == 'Business Development Staff') {
-            $bdInput = InputBD::findOrFail($id);
-            
-            $validated = $request->validate([
-                'direct_competition' => 'required|integer|min:0',
-                'substitute_competition' => 'required|integer|min:0',
-                'indirect_competition' => 'required|integer|min:0',
-                'comment_input' => 'required|string',
-                'comment_review' => 'nullable|string',
+            request()->validate([
+                'comment_review' => 'required|string'
             ]);
 
-            $bdInput->update($validated);
+            $input->update([
+                'status' => 'Butuh Revisi',
+                'comment_review' => request('comment_review')
+            ]);
 
-            return redirect()->route('bd.index')
-                ->with('success', 'Business development input updated successfully.');
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menolak data: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        abort(403, 'Unauthorized action.');
+    public function update(Request $request, $id)
+    {
+        try {
+            if (auth()->user()->role->role_name == 'Business Development Staff') {
+                $bdInput = InputBD::findOrFail($id);
+
+                $validated = $request->validate([
+                    'direct_competition' => 'required|integer|min:0',
+                    'substitute_competition' => 'required|integer|min:0',
+                    'indirect_competition' => 'required|integer|min:0',
+                    'comment_input' => 'required|string',
+                    'comment_review' => 'nullable|string',
+                ]);
+
+                $bdInput->update($validated);
+
+                return redirect()->route('bd.index')
+                    ->with('success', 'Input business development berhasil diupdate.');
+            }
+
+            abort(403, 'Unauthorized action.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal update data: ' . $e->getMessage());
+        }
     }
 
     /**

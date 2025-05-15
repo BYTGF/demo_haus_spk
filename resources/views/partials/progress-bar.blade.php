@@ -4,7 +4,7 @@
         @elseif($percentage >= 50) bg-primary
         @else bg-warning @endif" 
         role="progressbar" 
-        style="width: {{ $percentage }}%"
+        style="width: {{ $percentage }}%; height:20px"
         aria-valuenow="{{ $percentage }}" 
         aria-valuemin="0" 
         aria-valuemax="100">

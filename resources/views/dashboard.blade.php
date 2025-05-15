@@ -32,6 +32,14 @@
       </div>
     </div>
     <div class="row">
+      <div class="col-12">
+        @include('layouts.dashboard.store')
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        @include('layouts.dashboard.finance')
+      </div>
       <div class="col-8">
         @include('layouts.dashboard.operational')
       </div>

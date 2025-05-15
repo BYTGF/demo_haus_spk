@@ -91,6 +91,13 @@ class DashboardController extends Controller
                 $storeFilter = $user->store_id; // Force to their store
             }
 
+            $financeMetrics = null;
+            
+            // Only fetch store metrics if both store and period are selected
+            if ($storeFilter !== 'all' && $periodFilter !== 'all') {
+                $financeMetrics = $this->getFinanceMetrics($storeFilter, $periodFilter);
+            }
+
             //Store
             // For Business Development Manager - can see all or filter by store
             $inputStores = collect(); 
@@ -111,6 +118,13 @@ class DashboardController extends Controller
                     ->whereYear('period', substr($periodFilter, 0, 4)))
                     ->get();
                 $storeFilter = $user->store_id; // Force to their store
+            }
+
+            $storeMetrics = null;
+            
+            // Only fetch store metrics if both store and period are selected
+            if ($storeFilter !== 'all' && $periodFilter !== 'all') {
+                $storeMetrics = $this->getStoreMetrics($storeFilter, $periodFilter);
             }
 
             //BD
@@ -164,7 +178,7 @@ class DashboardController extends Controller
                 ];
             }
             
-            return view('dashboard', compact('inputFinances', 'inputOperationals', 'inputStores', 'inputbds','operationalData', 'stores', 'storeFilter', 'periodFilter', 'availablePeriods', 'completionData'));
+            return view('dashboard', compact('inputFinances', 'inputOperationals', 'inputStores', 'inputbds','operationalData', 'stores', 'storeFilter', 'periodFilter', 'availablePeriods', 'completionData', 'storeMetrics', 'financeMetrics'));
             
         } catch (\Exception $e) {
             \Log::error('Dashboard Error: ' . $e->getMessage());
@@ -256,10 +270,10 @@ class DashboardController extends Controller
         $data = [];
         foreach ($stores as $store) {
             $completed = 0;
-            $completed += $store->finance_inputs_count > 0 ? 1 : 0;
-            $completed += $store->operational_inputs_count > 0 ? 1 : 0;
-            $completed += $store->store_inputs_count > 0 ? 1 : 0;
-            $completed += $store->bd_inputs_count > 0 ? 1 : 0;
+            $completed += $store->finances_count > 0 ? 1 : 0;
+            $completed += $store->operationals_count > 0 ? 1 : 0;
+            $completed += $store->stores_count > 0 ? 1 : 0;
+            $completed += $store->bds_count > 0 ? 1 : 0;
             
             $percentage = ($completed / 4) * 100;
 
@@ -280,5 +294,89 @@ class DashboardController extends Controller
             "recordsFiltered" => $totalRecords,
             "data" => $data
         ]);
+    }
+
+    protected function getStoreMetrics($storeId, $period)
+    {
+        $storeData = InputStore::where('store_id', $storeId)
+            ->whereYear('period', substr($period, 0, 4))
+            ->whereMonth('period', substr($period, 5, 2))
+            ->first();
+
+        if (!$storeData) {
+            return null;
+        }
+
+        // Normalize all metrics to a 0-100 scale for progress bars
+        return [
+            'store_name' => Store::find($storeId)->store_name,
+            'period' => $period,
+            'metrics' => [
+                'Accessibility' => [
+                    'value' => $storeData->aksesibilitas,
+                    'max' => 10,
+                    'description' => 'Store accessibility score'
+                ],
+                'Visibility' => [
+                    'value' => $storeData->visibilitas,
+                    'max' => 10,
+                    'description' => 'Store visibility score'
+                ],
+                'Traffic Flow' => [
+                    'value' => $storeData->lalu_lintas,
+                    'max' => 10,
+                    'description' => 'Traffic flow rating'
+                ],
+                'Vehicle Density' => [
+                    'value' => $storeData->kepadatan_kendaraan,
+                    'max' => 10,
+                    'description' => 'Vehicle density rating'
+                ],
+                'Car Parking' => [
+                    'value' => $storeData->parkir_mobil,
+                    'max' => 100, // Assuming max 100 parking spots
+                    'description' => 'Car parking capacity'
+                ],
+                'Motor Parking' => [
+                    'value' => $storeData->parkir_motor,
+                    'max' => 100, // Assuming max 100 parking spots
+                    'description' => 'Motorcycle parking capacity'
+                ],
+                'Overall Rating' => [
+                    'value' => $storeData->rating ?? 0,
+                    'max' => 10,
+                    'description' => 'Overall store rating'
+                ]
+            ],
+            'status' => $storeData->status,
+            'comment' => $storeData->comment_input
+        ];
+    }
+
+    // Add this method to your DashboardController
+    protected function getFinanceMetrics($storeId, $period)
+    {
+        $financeData = InputFinance::where('store_id', $storeId)
+            ->whereYear('period', substr($period, 0, 4))
+            ->whereMonth('period', substr($period, 5, 2))
+            ->first();
+
+        if (!$financeData) {
+            return null;
+        }
+
+        return [
+            'store_name' => Store::find($storeId)->store_name,
+            'period' => $period,
+            'metrics' => [
+                'Gross Profit Margin' => $financeData->gross_profit_margin,
+                'Net Profit Margin' => $financeData->net_profit_margin,
+                'Sales' => $financeData->penjualan / 1000, // Scale down for chart
+                'Operational Costs' => $financeData->biaya_operasional / 1000,
+                'Net Profit' => $financeData->laba_bersih / 1000
+            ],
+            'status' => $financeData->status,
+            'comment' => $financeData->comment_input
+        ];
     }
 }

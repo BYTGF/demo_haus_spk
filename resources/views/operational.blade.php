@@ -222,6 +222,23 @@
                                 <input type="hidden" name="id" id="input_id">
                                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                                 <input type="hidden" name="status" value="Sedang Direview">
+
+                                <!-- Section 1: Basic Info -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Basic Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="period">Period</label>
+                                                    <input type="month" class="form-control" name="period" id="period" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             
                                 <!-- Section 1: Fixed Costs -->
                                 <div class="card mb-3">

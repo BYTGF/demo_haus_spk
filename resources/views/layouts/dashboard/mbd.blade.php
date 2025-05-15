@@ -19,7 +19,7 @@
                         <th>Store Name</th>
                         <th width="40%">Completion</th>
                         <th>Status</th>
-                        <th width="5%">Actions</th>
+                        {{-- <th width="5%">Actions</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -30,13 +30,11 @@
     </div>
 </div>
 
-@push('scripts')
 <!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<!-- DataTables JS -->
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
+<!-- DataTables JS -->
+
+@push("scripts")
 <script>
 $(document).ready(function() {
     // Initialize DataTable
@@ -67,28 +65,28 @@ $(document).ready(function() {
                     return '<span class="badge bg-warning text-dark">In Progress</span>';
                 }
             },
-            {
-                data: null,
-                render: function(data, type, row) {
-                    return `
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/stores/${row.DT_RowId.replace('row_','')}">
-                                <i class="fas fa-eye me-2"></i>View Details
-                            </a></li>
-                            <li><a class="dropdown-item" href="#">
-                                <i class="fas fa-download me-2"></i>Export
-                            </a></li>
-                        </ul>
-                    </div>`;
-                },
-                orderable: false,
-                searchable: false
-            }
+            // {
+            //     data: null,
+            //     render: function(data, type, row) {
+            //         return `
+            //         <div class="dropdown">
+            //             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+            //                     type="button" data-bs-toggle="dropdown">
+            //                 <i class="fas fa-ellipsis-v"></i>
+            //             </button>
+            //             <ul class="dropdown-menu">
+            //                 <li><a class="dropdown-item" href="/stores/${row.DT_RowId.replace('row_','')}">
+            //                     <i class="fas fa-eye me-2"></i>View Details
+            //                 </a></li>
+            //                 <li><a class="dropdown-item" href="#">
+            //                     <i class="fas fa-download me-2"></i>Export
+            //                 </a></li>
+            //             </ul>
+            //         </div>`;
+            //     },
+            //     orderable: false,
+            //     searchable: false
+            // }
         ],
         order: [[0, 'asc']], // Default sort by store name
         pageLength: 25,

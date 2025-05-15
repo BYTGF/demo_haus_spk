@@ -47,46 +47,37 @@ class InputOperationalController extends Controller
 
     public function store(Request $request)
     {
-
         if (auth()->user()->role->role_name == 'Operational') {
+            try {
+                $validated = $request->validate([
+                    'gaji_upah' => 'required|integer|min:0',
+                    'sewa' => 'required|integer|min:0',
+                    'utilitas' => 'required|integer|min:0',
+                    'perlengkapan' => 'required|integer|min:0',
+                    'lain_lain' => 'required|integer|min:0',
+                    'comment_input' => 'nullable|string',
+                ]);
 
-            $validated = $request->validate([
-                'gaji_upah' => 'required|integer|min:0',
-                'sewa' => 'required|integer|min:0',
-                'utilitas' => 'required|integer|min:0',
-                'perlengkapan' => 'required|integer|min:0',
-                'lain_lain' => 'required|integer|min:0',
-                // 'rating' => 'required|integer|between:1,5',
-                'comment_input' => 'nullable|string',
-            ]);
+                $exists = InputOperational::where('store_id', $request->store_id)
+                    ->where('period', $request->period)
+                    ->exists();
 
-            $exists = InputFinance::
-                where('store_id', $request->store_id)
-                ->where('period', $request->period)
-                ->exists();
+                if ($exists) {
+                    return redirect()->back()->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])->withInput();
+                }
 
-            if ($exists) {
-                return redirect()->back()
-                    ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
-                    ->withInput();
+                $validated['total'] = $validated['gaji_upah'] + $validated['sewa'] + $validated['utilitas'] + $validated['perlengkapan'] + $validated['lain_lain'];
+                $validated['period'] = now()->format('Y-m-d');
+                $validated['status'] = 'Sedang Direview';
+                $validated['store_id'] = auth()->user()->store_id;
+                $validated['user_id'] = auth()->id();
+
+                InputOperational::create($validated);
+
+                return redirect()->route('operational.index')->with('success', 'Operational input submitted for approval');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.']);
             }
-            // Calculate total
-            $validated['total'] = 
-                $validated['gaji_upah'] + 
-                $validated['sewa'] + 
-                $validated['utilitas'] + 
-                $validated['perlengkapan'] + 
-                $validated['lain_lain'];
-
-            $validated['period'] = now()->format('Y-m-d');
-            $validated['status'] = 'Sedang Direview';
-            $validated['store_id'] = auth()->user()->store_id;
-            $validated['user_id'] = auth()->id();
-
-            InputOperational::create($validated);
-
-            return redirect()->route('operational.index')
-                ->with('success', 'Operational input submitted for approval');
         }
 
         abort(403, 'Unauthorized action.');
@@ -95,15 +86,16 @@ class InputOperationalController extends Controller
     public function approve(InputOperational $input)
     {
         if (auth()->user()->role->role_name === 'Manager Business Development') {
-            $input->update([
-                'status' => 'Selesai',
-                'comment_review' => request('comment_review', 'Approved')
-            ]);
+            try {
+                $input->update([
+                    'status' => 'Selesai',
+                    'comment_review' => request('comment_review', 'Approved')
+                ]);
 
-            
-
-            return redirect()->route('operational.index')
-                ->with('success', 'Operational input approved successfully');
+                return redirect()->route('operational.index')->with('success', 'Operational input approved successfully');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Gagal menyetujui data.']);
+            }
         }
 
         abort(403, 'Unauthorized action.');
@@ -111,53 +103,56 @@ class InputOperationalController extends Controller
 
     public function reject($id)
     {
-        $input = InputOperational::findOrFail($id);
-        
-        request()->validate([
-            'comment_review' => 'required|string'
-        ]);
+        try {
+            $input = InputOperational::findOrFail($id);
 
-        $input->update([
-            'status' => 'Butuh Revisi',
-            'comment_review' => request('comment_review')
-        ]);
+            request()->validate([
+                'comment_review' => 'required|string'
+            ]);
 
-        return response()->json(['success' => true]);
+            $input->update([
+                'status' => 'Butuh Revisi',
+                'comment_review' => request('comment_review')
+            ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menolak data.']);
+        }
     }
 
     public function update(Request $request, $id)
     {
         if (auth()->user()->role->role_name == 'Operational') {
-            $operationalInput = InputOperational::findOrFail($id);
-            
-            $validated = $request->validate([
-                'gaji_upah' => 'required|integer|min:0',
-                'sewa' => 'required|integer|min:0',
-                'utilitas' => 'required|integer|min:0',
-                'perlengkapan' => 'required|integer|min:0',
-                'lain_lain' => 'required|integer|min:0',
-                'rating' => 'required|integer|between:1,5',
-                'comment_input' => 'required|string',
-                'comment_review' => 'nullable|string',
-                'store_id' => 'required|exists:stores,id',
-            ]);
+            try {
+                $operationalInput = InputOperational::findOrFail($id);
 
-            // Calculate total
-            $validated['total'] = 
-                $validated['gaji_upah'] + 
-                $validated['sewa'] + 
-                $validated['utilitas'] + 
-                $validated['perlengkapan'] + 
-                $validated['lain_lain'];
+                $validated = $request->validate([
+                    'period' => 'required|date',
+                    'gaji_upah' => 'required|integer|min:0',
+                    'sewa' => 'required|integer|min:0',
+                    'utilitas' => 'required|integer|min:0',
+                    'perlengkapan' => 'required|integer|min:0',
+                    'lain_lain' => 'required|integer|min:0',
+                    'rating' => 'required|integer|between:1,5',
+                    'comment_input' => 'required|string',
+                    'comment_review' => 'nullable|string',
+                    'store_id' => 'required|exists:stores,id',
+                ]);
 
-            $operationalInput->update($validated);
+                $validated['total'] = $validated['gaji_upah'] + $validated['sewa'] + $validated['utilitas'] + $validated['perlengkapan'] + $validated['lain_lain'];
 
-            return redirect()->route('operational.index')
-                ->with('success', 'Operational input updated successfully.');
+                $operationalInput->update($validated);
+
+                return redirect()->route('operational.index')->with('success', 'Operational input updated successfully.');
+            } catch (\Exception $e) {
+                return redirect()->back()->withErrors(['error' => 'Gagal update data operational.']);
+            }
         }
 
         abort(403, 'Unauthorized action.');
     }
+
     /**
      * Remove the specified resource from storage.
      */

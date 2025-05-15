@@ -191,7 +191,7 @@
                                 <input type="hidden" name="status" value="Sedang Direview Manager Area">
 
                                 <!-- Section 1: Basic Info -->
-                                {{-- <div class="card mb-3">
+                                <div class="card mb-3">
                                     <div class="card-header bg-light">
                                         <h6 class="mb-0">Basic Information</h6>
                                     </div>
@@ -205,7 +205,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
 
                                 <!-- Section 2: Location Evaluation -->
                                 <div class="card mb-3">
