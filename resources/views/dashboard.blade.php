@@ -1,5 +1,30 @@
 @extends('layouts.user_type.auth')
 
+@php
+    $activeComponents = 0;
+
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Finance') {
+        $activeComponents++;
+    }
+
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Operational') {
+        $activeComponents++;
+    }
+
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Business Development Staff') {
+        $activeComponents++;
+    }
+
+    // Tentuin col-nya berdasarkan jumlah komponen aktif
+    $colClass = match($activeComponents) {
+        1 => 'col-12',
+        2 => 'col-6',
+        3 => 'col-4',
+        default => 'col-12'
+    };
+@endphp
+
+
 @section('content')
     @if(auth()->user()->role->role_name === 'Manager Business Development')
      @include('layouts.dashboard.mbd')
@@ -31,22 +56,33 @@
         </form>
       </div>
     </div>
+    @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Area Manager' || auth()->user()->role->role_name === 'Store Manager')
     <div class="row">
       <div class="col-12">
         @include('layouts.dashboard.store')
       </div>
     </div>
+    @endif
     <div class="row">
-      <div class="col-12">
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Finance')
+      <div class="{{ $colClass }}">
         @include('layouts.dashboard.finance')
       </div>
-      <div class="col-8">
+      @endif
+
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Operational')
+      <div class="{{ $colClass }}">
         @include('layouts.dashboard.operational')
       </div>
-      <div class="col-4">
+      @endif
+
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Business Development Staff')
+      <div class="{{ $colClass }}">
         @include('layouts.dashboard.bd')
       </div>
+      @endif
     </div>
+
     
     
 

@@ -354,29 +354,33 @@ class DashboardController extends Controller
     }
 
     // Add this method to your DashboardController
-    protected function getFinanceMetrics($storeId, $period)
+    protected function getFinanceMetrics($storeId, $periodFilter)
     {
-        $financeData = InputFinance::where('store_id', $storeId)
-            ->whereYear('period', substr($period, 0, 4))
-            ->whereMonth('period', substr($period, 5, 2))
-            ->first();
+        $query = InputFinance::where('store_id', $storeId)
+            ->with('store')
+            ->orderBy('period');
+        
+        if ($periodFilter !== 'all') {
+            $query->whereYear('period', substr($periodFilter, 0, 4))
+                ->whereMonth('period', substr($periodFilter, 5, 2));
+        } else {
+            // Get data for last 6 periods if no specific period selected
+            $query->limit(6);
+        }
 
-        if (!$financeData) {
+        $financeData = $query->get();
+
+        if ($financeData->isEmpty()) {
             return null;
         }
 
         return [
-            'store_name' => Store::find($storeId)->store_name,
-            'period' => $period,
-            'metrics' => [
-                'Gross Profit Margin' => $financeData->gross_profit_margin,
-                'Net Profit Margin' => $financeData->net_profit_margin,
-                'Sales' => $financeData->penjualan / 1000, // Scale down for chart
-                'Operational Costs' => $financeData->biaya_operasional / 1000,
-                'Net Profit' => $financeData->laba_bersih / 1000
-            ],
-            'status' => $financeData->status,
-            'comment' => $financeData->comment_input
+            'store_name' => $financeData->first()->store->store_name,
+            'periods' => $financeData->map(fn($item) => $item->period->format('M Y')),
+            'gross_margins' => $financeData->pluck('gross_profit_margin'),
+            'net_margins' => $financeData->pluck('net_profit_margin'),
+            'status' => $financeData->first()->status,
+            'comment' => $financeData->first()->comment_input
         ];
     }
 }

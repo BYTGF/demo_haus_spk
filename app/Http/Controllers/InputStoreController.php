@@ -48,7 +48,7 @@ class InputStoreController extends Controller
 
    public function store(Request $request)
     {
-        if (auth()->user()->role->role_name === 'Store Staff') {
+        if (auth()->user()->role->role_name === 'Store Manager') {
             try {
                 $validated = $request->validate([
                     'period' => 'required|date',

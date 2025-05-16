@@ -1,108 +1,95 @@
 @if($financeMetrics)
-<div class="card mt-4">
-    <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Profitability Analysis ({{ $financeMetrics['period'] }})</h4>
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center p-3">
+        <h4>Income Report</h4>
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-8">
-                <canvas id="profitRadarChart" height="300"></canvas>
+            <div class="col-md-6">
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="profitBarChart"></canvas>
+                </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="mb-3">
-                    <h5>Key Metrics</h5>
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Gross Profit Margin
-                            <span class="badge bg-primary rounded-pill">{{ $financeMetrics['metrics']['Gross Profit Margin'] }}%</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Net Profit Margin
-                            <span class="badge bg-info rounded-pill">{{ $financeMetrics['metrics']['Net Profit Margin'] }}%</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Sales
-                            <span class="badge bg-success rounded-pill">@money($financeMetrics['metrics']['Sales'] * 1000)</span>
-                        </li>
-                    </ul>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fs-6">Gross Profit:</span>
+                        <strong class="text-primary">{{ $financeMetrics['gross_margins']->last() }}%</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Net Profit:</span>
+                        <strong class="text-info">{{ $financeMetrics['net_margins']->last() }}%</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Difference:</span>
+                        <strong>{{ $financeMetrics['gross_margins']->last() - $financeMetrics['net_margins']->last() }}%</strong>
+                    </div>
                 </div>
-                @if($financeMetrics['comment'])
-                <div class="alert alert-info">
-                    <strong>Comments:</strong> {{ $financeMetrics['comment'] }}
-                </div>
-                @endif
             </div>
         </div>
     </div>
 </div>
 
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('profitRadarChart').getContext('2d');
-        const financeMetrics = @json($financeMetrics['metrics']);
+        const ctx = document.getElementById('profitBarChart').getContext('2d');
+        const financeMetrics = @json($financeMetrics);
         
-        // Prepare data for radar chart (focusing on the two margins)
-        const radarData = {
-            labels: ['Gross Profit Margin', 'Net Profit Margin', 'Sales (in thousands)', 'Operational Costs (in thousands)', 'Net Profit (in thousands)'],
-            datasets: [{
-                label: 'Financial Metrics',
-                data: [
-                    financeMetrics['Gross Profit Margin'],
-                    financeMetrics['Net Profit Margin'],
-                    financeMetrics['Sales'],
-                    financeMetrics['Operational Costs'],
-                    financeMetrics['Net Profit']
-                ],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
-            }]
-        };
-
         new Chart(ctx, {
-            type: 'radar',
-            data: radarData,
+            type: 'bar',
+            data: {
+                labels: financeMetrics.periods,
+                datasets: [
+                    {
+                        label: 'Gross Profit Margin %',
+                        data: financeMetrics.gross_margins,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Net Profit Margin %',
+                        data: financeMetrics.net_margins,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'bottom',
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.r !== null) {
-                                    // Format differently for percentages vs monetary values
-                                    if (context.label.includes('Margin')) {
-                                        label += context.parsed.r + '%';
-                                    } else {
-                                        label += 'Rp' + (context.parsed.r * 1000).toLocaleString();
-                                    }
-                                }
-                                return label;
+                                return `${context.dataset.label}: ${context.raw}%`;
                             }
                         }
                     }
                 },
                 scales: {
-                    r: {
-                        angleLines: {
-                            display: true
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
                         },
-                        suggestedMin: 0,
                         ticks: {
                             callback: function(value) {
-                                // Don't add units to scale numbers
-                                return value;
+                                return value + '%';
                             }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Period'
                         }
                     }
                 }
@@ -110,5 +97,5 @@
         });
     });
 </script>
-
+@endpush
 @endif
