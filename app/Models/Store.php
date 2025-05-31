@@ -15,7 +15,7 @@ class Store extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['area_id', 'store_name'];
+    protected $fillable = ['area_id', 'store_name', 'is_active'];
 
     public function area()
     {

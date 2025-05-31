@@ -12,6 +12,7 @@ use App\Http\Controllers\InputFinanceController;
 use App\Http\Controllers\InputOperationalController;
 use App\Http\Controllers\InputStoreController;
 use App\Http\Controllers\InputBDController;
+use App\Http\Controllers\StoreReviewController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -92,6 +93,12 @@ Route::middleware('auth')->group(function () {
         Route::post('store/{input}/reject', [InputStoreController::class, 'reject'])
             ->name('store.reject');
     });
+
+    Route::middleware('role:C-Level')->group(function () {
+        Route::get('review-store', [StoreReviewController::class, 'index'])->name('review-store.index');
+        Route::post('review-store/{store}', [StoreReviewController::class, 'update'])->name('review-store.update');
+    });
+
 
     Route::get('/logout', [SessionsController::class, 'destroy']);
     Route::get('/user-profile', [InfoUserController::class, 'create']);

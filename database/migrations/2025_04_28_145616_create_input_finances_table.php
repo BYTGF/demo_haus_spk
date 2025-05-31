@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('rating')->nullable();
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->enum('status', ['Sedang Direview', 'Butuh Revisi', 'Selesai']);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('store_id')->constrained()->onDelete('cascade');

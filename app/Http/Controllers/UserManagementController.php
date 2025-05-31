@@ -14,10 +14,10 @@ class UserManagementController extends Controller
     public function index()
     {
         try {
-            $userManagement = User::with(['role', 'area', 'store'])->latest()->get();
+            $userManagement = User::with(['role', 'area', 'store'])->latest()->paginate(10, ['*'], 'dones');
             $roles = Role::all();
             $areas = Area::all();
-             $stores = Store::where('id', '!=', 1)->get();
+            $stores = Store::where('id', '!=', 1)->where('is_active', true)->get();
 
             return view('user-management', compact('userManagement', 'roles', 'areas', 'stores'));
         } catch (\Exception $e) {

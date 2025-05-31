@@ -107,6 +107,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-center mt-3">
+                            {{ $userManagement->links('pagination::bootstrap-5') }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -179,6 +182,8 @@
 
 @push('js')
     <script>
+
+    let allStoreOptions = [];
     document.addEventListener('DOMContentLoaded', function () {
         const modal = $('#modal-form');
         const form = document.getElementById('user-form');
@@ -191,8 +196,11 @@
         const areaInput = document.getElementById('area_id');
         const storeDisplay = document.getElementById('store_id_display');
         const storeInput = document.getElementById('store_id');
+        const originalAreaOptions = areaDisplay.innerHTML;
+        const originalStoreOptions = storeDisplay.innerHTML;
 
-        const allStoreOptions = Array.from(storeDisplay.options);
+
+        allStoreOptions = Array.from(document.getElementById('store_id_display').options);
 
         // BUTTON: Tambah User
         window.openCreateModal = function () {
@@ -274,28 +282,36 @@
         });
 
         function applyRoleBehavior(roleId) {
-            if (roleId == 7) {
-                // Area Manager: Area aktif, Store disabled
-                areaDisplay.disabled = false;
-                storeDisplay.innerHTML = '<option>Manager</option>';
-                storeDisplay.disabled = true;
-                areaInput.value = 1
-            } else if (roleId == 8 || roleId == 5 || roleId == 6) {
-                // Store Manager: Area aktif, Store dinamis
-                areaDisplay.disabled = false;
-                storeDisplay.disabled = false;
-                updateStoreOptions(areaDisplay.value);
-            } else {
-                // HO
-                areaDisplay.disabled = true;
-                storeDisplay.disabled = true;
-                areaInput.value = 1
-                storeInput.value = 1
-        
-                areaDisplay.innerHTML = '<option>Head Office</option>';
-                storeDisplay.innerHTML = '<option>Manager</option>';
-            }
+        if (roleId == 7) {
+            // Area Manager
+            areaDisplay.innerHTML = originalAreaOptions; // restore opsinya
+            areaDisplay.removeAttribute('disabled');
+            areaInput.value = 1;
+
+            storeDisplay.innerHTML = '<option>Manager</option>';
+            storeDisplay.disabled = true;
+        } else if (roleId == 8 || roleId == 5 || roleId == 6) {
+            // Store Manager
+            areaDisplay.innerHTML = originalAreaOptions;
+            areaDisplay.removeAttribute('disabled');
+            storeDisplay.disabled = false;
+            areaDisplay.innerHTML = originalAreaOptions;
+            areaDisplay.value = areaDisplay.options[0]?.value ?? ''; // set ke value pertama yg tersedia
+            areaInput.value = areaDisplay.value;
+            updateStoreOptions(areaDisplay.value);
+
+        } else {
+            // HO
+            areaDisplay.innerHTML = '<option selected>Head Office</option>';
+            areaDisplay.disabled = true;
+            areaInput.value = 1;
+
+            storeDisplay.innerHTML = '<option selected>Manager</option>';
+            storeDisplay.disabled = true;
+            storeInput.value = 1;
         }
+    }
+
 
         areaDisplay.addEventListener('change', function () {
             areaInput.value = this.value;

@@ -19,7 +19,7 @@ class InputFinanceController extends Controller
             $dones = InputFinance::with('user', 'store')
             ->when($user->role->role_name === 'Finance', function ($query) use ($user) {
                 // Staff Finance cuma lihat store miliknya sendiri
-                $query->where('store_id', $user->store_id);
+                $query->where('store_id', $user->store_id)->where('is_active', true);
             })
             ->where('status', 'Selesai')
             ->latest()
@@ -28,7 +28,7 @@ class InputFinanceController extends Controller
             $inputs = InputFinance::with('user', 'store')
             ->when($user->role->role_name === 'Finance', function ($query) use ($user) {
                 // Staff Finance cuma lihat store miliknya sendiri
-                $query->where('store_id', $user->store_id);
+                $query->where('store_id', $user->store_id)->where('is_active', true);
             })
             ->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])
             ->latest()

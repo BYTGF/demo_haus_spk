@@ -17,7 +17,7 @@ class InputOperational extends Model
 
     protected $fillable = [
         'period', 'gaji_upah', 'sewa', 'utilitas', 'perlengkapan',
-        'lain_lain', 'total', 'rating', 'comment_input', 'comment_review',
+        'lain_lain', 'total', 'rating', 'is_active','comment_input', 'comment_review',
         'status', 'user_id', 'store_id'
     ];
 

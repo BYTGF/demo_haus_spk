@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('area_id')->constrained()->onDelete('cascade');
             $table->string('store_code');
             $table->string('store_name');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

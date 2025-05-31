@@ -6,6 +6,41 @@
       @if($inputbds->isNotEmpty())
         @php
             $latest = $inputbds->first(); // Ambil data terbaru
+            if ($latest->direct_competition == 0) {
+                $direct_competition = 1;
+            }elseif ($latest->direct_competition > 0 && $latest->direct_competition <= 5) {
+                $direct_competition = 2;
+            }elseif ($latest->direct_competition > 5 && $latest->direct_competition <= 10) {
+                $direct_competition = 3;
+            }elseif ($latest->direct_competition > 10 && $latest->direct_competition <= 15) {
+                $direct_competition = 4;
+            }else {
+                $direct_competition = 5;
+            }
+
+            if ($latest->indirect_competition == 0) {
+                $indirect_competition = 1;
+            }elseif ($latest->indirect_competition > 0 && $latest->indirect_competition <= 5) {
+                $indirect_competition = 2;
+            }elseif ($latest->indirect_competition > 5 && $latest->indirect_competition <= 10) {
+                $indirect_competition = 3;
+            }elseif ($latest->indirect_competition > 10 && $latest->indirect_competition <= 15) {
+                $indirect_competition = 4;
+            }else {
+                $indirect_competition = 5;
+            }
+
+            if ($latest->substitute_competition == 0) {
+                $substitute_competition = 1;
+            }elseif ($latest->substitute_competition > 0 && $latest->substitute_competition <= 5) {
+                $substitute_competition = 2;
+            }elseif ($latest->substitute_competition > 5 && $latest->substitute_competition <= 10) {
+                $substitute_competition = 3;
+            }elseif ($latest->substitute_competition > 10 && $latest->substitute_competition <= 15) {
+                $substitute_competition = 4;
+            }else {
+                $substitute_competition = 5;
+            }
         @endphp
 
         @if($storeFilter !== 'all')
@@ -22,21 +57,21 @@
 
         <div class="direct-compete m-3">
             <h6>Direct Competition</h6>
-            @for($i = 0; $i < $latest->direct_competition; $i++)
+            @for($i = 0; $i < $direct_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #ff3d3d;"></i>
             @endfor
         </div>
 
         <div class="indirect-compete m-3">
             <h6>Indirect Competition</h6>
-            @for($i = 0; $i < $latest->indirect_competition; $i++)
+            @for($i = 0; $i < $indirect_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #3d7dff;"></i>
             @endfor
         </div>
 
         <div class="subsit-compete m-3">
             <h6>Substitute Competition</h6>
-            @for($i = 0; $i < $latest->substitute_competition; $i++)
+            @for($i = 0; $i < $substitute_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #3dff74;"></i>
             @endfor
         </div>

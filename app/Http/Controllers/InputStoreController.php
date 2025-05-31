@@ -16,10 +16,10 @@ class InputStoreController extends Controller
 
             $dones = InputStore::with('user', 'store')
                 ->when($user->role->role_name === 'Store Manager', function ($query) use ($user) {
-                    $query->where('store_id', $user->store_id);
+                    $query->where('store_id', $user->store_id)->where('is_active', true);
                 })
                 ->when($user->role->role_name === 'Area Manager', function ($query) use ($user) {
-                    $storeIds = Store::where('area_id', $user->area_id)->pluck('id');
+                    $storeIds = Store::where('area_id', $user->area_id)->where('is_active', true)->pluck('id');
                     $query->whereIn('store_id', $storeIds);
                 })
                 ->where('status', 'Selesai')

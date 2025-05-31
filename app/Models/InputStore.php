@@ -18,7 +18,7 @@ class InputStore extends Model
 
     protected $fillable = [
         'period', 'aksesibilitas', 'visibilitas', 'lingkungan', 'lalu_lintas',
-        'area_parkir', 'rating', 'comment_input', 'comment_review',
+        'area_parkir', 'rating', 'comment_input', 'comment_review','is_active',
         'status', 'user_id', 'store_id'
     ];
 

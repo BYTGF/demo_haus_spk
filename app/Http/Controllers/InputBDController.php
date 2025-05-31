@@ -17,11 +17,11 @@ class InputBDController extends Controller
     {
         try {
             $user = auth()->user();
-            $stores = Store::all(); // Get all stores for the dropdown
+            $stores = Store::where('id', '!=', 1)->where('is_active', true)->get(); // Get all stores for the dropdown
             
             $dones = InputBD::with('user', 'store')
                 ->when($user->role->role_name === 'Business Development', function ($query) use ($user) {
-                    $query->where('user_id', $user->id); // Filter by user instead of store
+                    $query->where('user_id', $user->id)->where('is_active', true); // Filter by user instead of store
                 })
                 ->where('status', 'Selesai')
                 ->latest()
@@ -29,7 +29,7 @@ class InputBDController extends Controller
             
             $inputs = InputBD::with('user', 'store')
                 ->when($user->role->role_name === 'Business Development', function ($query) use ($user) {
-                    $query->where('user_id', $user->id); // Filter by user instead of store
+                    $query->where('user_id', $user->id)->where('is_active', true); // Filter by user instead of store
                 })
                 ->whereIn('status', ['Sedang Direview', 'Butuh Revisi'])
                 ->latest()

@@ -18,7 +18,7 @@ class InputBD extends Model
 
     protected $fillable = [
         'period','direct_competition', 'substitute_competition', 'indirect_competition',
-        'rating', 'comment_input', 'comment_review', 'status',
+        'rating', 'is_active','comment_input', 'comment_review', 'status',
         'user_id', 'store_id'
     ];
 
