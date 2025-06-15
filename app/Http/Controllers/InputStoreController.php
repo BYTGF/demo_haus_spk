@@ -53,7 +53,7 @@ class InputStoreController extends Controller
                 $validated = $request->validate([
                     'period' => 'required|date',
                     'aksesibilitas' => 'required|integer|between:1,4',
-                    'visibilitas' => 'required|integer|between:1,4',
+                    'visibilitas' => 'required|integer',
                     'lingkungan' => 'required|array',
                     'lingkungan.*' => 'integer|between:1,3',
                     'lalu_lintas' => 'required|integer|between:1,4',
@@ -71,6 +71,17 @@ class InputStoreController extends Controller
                 }
 
                 $validated['user_id'] = auth()->id();
+                if($validated['visibilitas'] < 20){
+                    $validated['visibilitas'] = 1;
+                }else if($validated['visibilitas'] > 20 && $validated['visibilitas'] <= 40){
+                    $validated['visibilitas'] = 2;
+                }else if($validated['visibilitas'] > 40 && $validated['visibilitas'] <= 60){
+                    $validated['visibilitas'] = 3;
+                }else if($validated['visibilitas'] > 60 && $validated['visibilitas'] <= 80){
+                    $validated['visibilitas'] = 4;
+                }else if($validated['visibilitas'] > 80){
+                    $validated['visibilitas'] = 5;
+                }
                 $validated['status'] = 'Sedang Direview Manager Area';
                 $validated['period'] = now()->format('Y-m-d');
                 $validated['store_id'] = auth()->user()->store_id;
@@ -79,6 +90,7 @@ class InputStoreController extends Controller
 
                 return redirect()->route('store.index')->with('success', 'Store evaluation submitted for area manager review');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.']);
             }
         }
@@ -115,6 +127,7 @@ class InputStoreController extends Controller
 
                 return redirect()->route('store.index')->with('success', 'Store evaluation approved successfully');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Gagal menyetujui evaluasi.']);
             }
         }
@@ -143,6 +156,7 @@ class InputStoreController extends Controller
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menolak data.']);
         }
     }
@@ -174,6 +188,7 @@ class InputStoreController extends Controller
 
                 return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Gagal update data store.']);
             }
         }

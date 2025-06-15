@@ -76,6 +76,7 @@ class InputOperationalController extends Controller
 
                 return redirect()->route('operational.index')->with('success', 'Operational input submitted for approval');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.']);
             }
         }
@@ -94,6 +95,7 @@ class InputOperationalController extends Controller
 
                 return redirect()->route('operational.index')->with('success', 'Operational input approved successfully');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Gagal menyetujui data.']);
             }
         }
@@ -117,6 +119,7 @@ class InputOperationalController extends Controller
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menolak data.']);
         }
     }
@@ -145,6 +148,7 @@ class InputOperationalController extends Controller
 
                 return redirect()->route('operational.index')->with('success', 'Operational input updated successfully.');
             } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['error' => 'Gagal update data operational.']);
             }
         }

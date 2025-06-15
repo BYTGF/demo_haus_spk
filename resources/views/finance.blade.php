@@ -407,8 +407,108 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Fungsi untuk mengambil data operasional
+    const fetchOperationalData = async (period) => {
+        try {
+            // Pastikan period tidak kosong
+            if (!period) {
+                return {
+                    success: false,
+                    message: 'Periode belum dipilih'
+                };
+            }
 
-  const calculateFinanceMetrics = () => {
+            // Dapatkan store_id dari user yang login
+            const storeId = {{ auth()->user()->store_id }};
+            
+            // Debug: log nilai yang akan dikirim
+            console.log('Mengambil data operasional untuk:', {
+                period: period,
+                store_id: storeId
+            });
+
+            const response = await fetch(`/finance/get-operational-data?period=${period}&store_id=${storeId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            // Debug: log response
+            console.log('Response dari server:', response);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Gagal mengambil data operasional');
+            }
+
+            const data = await response.json();
+            // Debug: log data yang diterima
+            console.log('Data operasional:', data);
+            return data;
+
+        } catch (error) {
+            console.error('Error dalam fetchOperationalData:', error);
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    };
+
+    // Event listener untuk perubahan periode
+    document.getElementById('period').addEventListener('change', async function() {
+        const periodInput = this;
+        const period = periodInput.value;
+        const operationalField = document.getElementById('biaya_operasional');
+        
+        // Debug: log nilai period yang dipilih
+        console.log('Period berubah:', period);
+
+        // Reset nilai jika period kosong
+        if (!period) {
+            operationalField.value = 0;
+            calculateFinanceMetrics();
+            return;
+        }
+
+        // Tampilkan loading state
+        operationalField.disabled = true;
+        
+        try {
+            // Debug: sebelum fetch
+            console.log('Mengambil data untuk periode:', period);
+            
+            const operationalData = await fetchOperationalData(period);
+            
+            // Debug: setelah fetch
+            console.log('Hasil pengambilan data:', operationalData);
+
+            if (operationalData.success) {
+                operationalField.value = operationalData.data.biaya_operasional;
+                // Debug: log nilai yang di-set
+                console.log('Meng-set biaya operasional ke:', operationalData.data.biaya_operasional);
+            } else {
+                operationalField.value = 0;
+                if (operationalData.message) {
+                    alert(operationalData.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error dalam event listener:', error);
+            operationalField.value = 0;
+            alert('Gagal memuat data operasional: ' + error.message);
+        } finally {
+            operationalField.disabled = false;
+            calculateFinanceMetrics();
+            // Debug: log setelah perhitungan
+            console.log('Perhitungan terupdate dengan biaya operasional:', operationalField.value);
+        }
+    });
+
+    // Fungsi utama untuk menghitung metrik keuangan
+    const calculateFinanceMetrics = () => {
         // Revenue calculations
         const penjualan = parseFloat(document.getElementById('penjualan').value) || 0;
         const pendapatan_lain = parseFloat(document.getElementById('pendapatan_lain').value) || 0;
@@ -438,12 +538,46 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('net_profit_margin').value = net_profit_margin.toFixed(2);
     };
 
-    // Add event listeners to all input fields
-    ['penjualan', 'pendapatan_lain', 'total_hpp'].forEach(id => {
-        document.getElementById(id).addEventListener('input', calculateFinanceMetrics);
+    // Event listener untuk perubahan periode
+    document.getElementById('period').addEventListener('change', async function() {
+        const period = this.value;
+        if (!period) return;
+        
+        const operationalData = await fetchOperationalData(period);
+        
+        if (operationalData && operationalData.success) {
+            document.getElementById('biaya_operasional').value = operationalData.data.biaya_operasional;
+            calculateFinanceMetrics();
+        } else {
+            document.getElementById('biaya_operasional').value = 0;
+            calculateFinanceMetrics();
+            if (operationalData && operationalData.message) {
+                alert(operationalData.message);
+            }
+        }
     });
 
-    calculateFinanceMetrics();
+    document.getElementById('total_hpp').addEventListener('change', async function() {
+        const gprof = this.value;
+        
+        const operationalData = await fetchOperationalData(period);
+        
+        if (operationalData && operationalData.success) {
+            document.getElementById('biaya_operasional').value = operationalData.data.biaya_operasional;
+            calculateFinanceMetrics();
+        } else {
+            document.getElementById('biaya_operasional').value = 0;
+            calculateFinanceMetrics();
+            if (operationalData && operationalData.message) {
+                alert(operationalData.message);
+            }
+        }
+    });
+
+    // Add event listeners to all input fields
+    ['penjualan', 'pendapatan_lain', 'total_hpp', 'biaya_operasional'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calculateFinanceMetrics);
+    });
 
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -461,12 +595,17 @@ document.addEventListener('DOMContentLoaded', function() {
         form.action = '{{ route("finance.store") }}';
         document.getElementById('form-method').value = 'POST';
         document.getElementById('modal-title').textContent = 'Create Finance Input';
+        
         // Hide comment review field for operational users
         if (document.getElementById('comment-review-group')) {
-                document.getElementById('comment-review-group').style.display = 'none';
-            }
+            document.getElementById('comment-review-group').style.display = 'none';
+        }
+        
+        // Reset biaya operasional
+        document.getElementById('biaya_operasional').value = 0;
+        calculateFinanceMetrics();
             
-            modal.modal('show');
+        modal.modal('show');
     };
 
     window.openEditFinanceInputModal = function(input) {
@@ -480,14 +619,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('penjualan').value = input.penjualan;
         document.getElementById('pendapatan_lain').value = input.pendapatan_lain;
         document.getElementById('total_hpp').value = input.total_hpp;
-        // document.getElementById('period').value = input.period.substring(0, 7); // Format as YYYY-MM
+        document.getElementById('biaya_operasional').value = input.biaya_operasional;
         document.getElementById('comment_input').value = input.comment_input;
         document.getElementById('comment_review').value = input.comment_review;
+        
+        // Format period as YYYY-MM if needed
+        if (input.period) {
+            document.getElementById('period').value = input.period.substring(0, 7);
+        }
         
         // Trigger calculations
         calculateFinanceMetrics();
         
-        $('#finance-input-modal').modal('show');
+        modal.modal('show');
     };
 
     // Reject functionality
@@ -529,10 +673,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initial calculation
+    calculateFinanceMetrics();
+    
     @if(session('error'))
-        <script>
-            alert("{{ session('error') }}");
-        </script>
+        alert("{{ session('error') }}");
     @endif
 });
 </script>

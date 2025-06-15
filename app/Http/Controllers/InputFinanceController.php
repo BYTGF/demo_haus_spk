@@ -101,9 +101,48 @@ class InputFinanceController extends Controller
 
             abort(403, 'Unauthorized action.');
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
+
+    public function getOperationalData(Request $request)
+{
+    try {
+        // Validasi input
+        $request->validate([
+            'period' => 'required|date_format:Y-m', // Format dari input month (YYYY-MM)
+            'store_id' => 'required|exists:stores,id'
+        ]);
+
+        // Konversi period dari YYYY-MM ke YYYY-MM-DD (format database)
+        $periodInDB = $request->period . '-15'; // Menjadi 2025-06-01
+
+        $operational = InputOperational::where('store_id', $request->store_id)
+            ->where('period', $periodInDB)
+            ->first();
+
+        if (!$operational) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data operasional tidak ditemukan untuk periode ' . $request->period
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'biaya_operasional' => $operational->total
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     public function approve(InputFinance $finance)
     {
@@ -120,6 +159,7 @@ class InputFinanceController extends Controller
 
             abort(403, 'Unauthorized action.');
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal approve data: ' . $e->getMessage());
         }
     }
@@ -140,6 +180,7 @@ class InputFinanceController extends Controller
 
             return response()->json(['success' => true]);
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menolak data: ' . $e->getMessage()
@@ -189,6 +230,7 @@ class InputFinanceController extends Controller
 
             abort(403, 'Unauthorized action.');
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal update data: ' . $e->getMessage());
         }
     }

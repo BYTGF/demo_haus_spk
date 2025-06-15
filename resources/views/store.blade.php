@@ -234,22 +234,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Visibility</label>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="visibilitas" id="visibilitas_1" value="1" required>
-                                                        <label class="form-check-label" for="visibilitas_1">1 - Very Low</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="visibilitas" id="visibilitas_2" value="2">
-                                                        <label class="form-check-label" for="visibilitas_2">2 - Low</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="visibilitas" id="visibilitas_3" value="3">
-                                                        <label class="form-check-label" for="visibilitas_3">3 - Medium</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="visibilitas" id="visibilitas_4" value="4">
-                                                        <label class="form-check-label" for="visibilitas_4">4 - High</label>
-                                                    </div>
+                                                    <input type="number" class="form-control" name="visibilitas" id="visibilitas" required min="0">
                                                 </div>
                                             </div>
                                         </div>
@@ -291,19 +276,15 @@
                                                     <label>Traffic Conditions</label>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_1" value="1" required>
-                                                        <label class="form-check-label" for="kepadatan_kendaraan_1">1 - Very Low</label>
+                                                        <label class="form-check-label" for="kepadatan_kendaraan_1">Lancar</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_2" value="2">
-                                                        <label class="form-check-label" for="kepadatan_kendaraan_2">2 - Low</label>
+                                                        <label class="form-check-label" for="kepadatan_kendaraan_2">Macet</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_3" value="3">
-                                                        <label class="form-check-label" for="kepadatan_kendaraan_3">3 - Medium</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_4" value="4">
-                                                        <label class="form-check-label" for="kepadatan_kendaraan_4">4 - High</label>
+                                                        <label class="form-check-label" for="kepadatan_kendaraan_3">Macet Parah</label>
                                                     </div>
                                                 </div>
                                             </div>

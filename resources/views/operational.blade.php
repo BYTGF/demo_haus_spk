@@ -81,11 +81,13 @@
                                             <button class="btn btn-xs btn-warning px-3 py-2" 
                                             onclick="openEditOperationalInputModal({
                                                 id: {{ $input->id }},
+                                                period: {{ $input->period->format('M Y') }},
                                                 gaji_upah: {{ $input->gaji_upah }},
                                                 sewa: {{ $input->sewa }},
                                                 utilitas: {{ $input->utilitas }},
                                                 perlengkapan: {{ $input->perlengkapan }},
                                                 lain_lain: {{ $input->lain_lain }},
+                                                total: {{ $input->total }},
                                                 comment_input: `{{ addslashes($input->comment_input) }}`,
                                                 comment_review: `{{ addslashes($input->comment_review) }}`,
                                                 status: `{{ $input->status }}`
@@ -465,12 +467,15 @@
                 if (el) el.value = value;
             };
 
+            
             setValueIfExists('input_id', input.id);
+            setValueIfExists('input_period', input.period);
             setValueIfExists('gaji_upah', input.gaji_upah);
             setValueIfExists('sewa', input.sewa);
             setValueIfExists('utilitas', input.utilitas);
             setValueIfExists('perlengkapan', input.perlengkapan);
             setValueIfExists('lain_lain', input.lain_lain);
+            setValueIfExists('input_total', input.total);
             setValueIfExists('comment_input', input.comment_input);
             setValueIfExists('comment_review', input.comment_review);
 

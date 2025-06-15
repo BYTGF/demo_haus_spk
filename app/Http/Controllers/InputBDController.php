@@ -64,7 +64,7 @@ class InputBDController extends Controller
     public function store(Request $request)
     {
         try {
-            if (auth()->user()->role->role_name == 'Business Development') {
+            if (auth()->user()->role->role_name == 'Business Development Staff') {
                 $validated = $request->validate([
                     'period' => 'required|date',
                     'store_id' => 'required|exists:stores,id',
@@ -114,6 +114,7 @@ class InputBDController extends Controller
 
             abort(403, 'Unauthorized action.');
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal approve data: ' . $e->getMessage());
         }
     }
@@ -134,6 +135,7 @@ class InputBDController extends Controller
 
             return response()->json(['success' => true]);
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menolak data: ' . $e->getMessage()
@@ -163,6 +165,7 @@ class InputBDController extends Controller
 
             abort(403, 'Unauthorized action.');
         } catch (\Throwable $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal update data: ' . $e->getMessage());
         }
     }

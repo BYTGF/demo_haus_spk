@@ -22,7 +22,6 @@
       <thead>
         <tr>
           <th>Store</th>
-          <th>Final Score</th>
           <th>Status</th>
           @if (auth()->user()->role->role_name === 'Manager Business Development')
             <th>Action</th>
@@ -33,7 +32,6 @@
         @forelse($paginatedStores as $s)
         <tr>
           <td>{{ $s->store_name }}</td>
-          <td>{{ $s->final_score }}%</td>
           <td>
             <span class="badge bg-{{ $s->status == 'Layak Tutup' ? 'danger' : 'success' }}">
               {{ $s->status }}

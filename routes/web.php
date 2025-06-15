@@ -65,13 +65,20 @@ Route::middleware('auth')->group(function () {
         Route::resource('manage-cw', CriteriaWeightController::class);  
     });
 
-    Route::middleware('role:Finance,Manager Business Development')->group(function () {
-        Route::resource('finance', InputFinanceController::class);  
-            // Custom workflow routes
-        Route::post('finance/{review}/approve', [InputFinanceController::class, 'approve'])
+    Route::middleware(['auth', 'role:Finance, Manager Business Development'])->group(function () {
+        // Standalone routes first
+        Route::get('/finance/get-operational-data', [InputFinanceController::class, 'getOperationalData'])
+            ->name('finance.getOperationalData');
+        
+        // Custom workflow routes
+        Route::post('/finance/{finance}/approve', [InputFinanceController::class, 'approve'])
             ->name('finance.approve');
-        Route::post('finance/{review}/reject', [InputFinanceController::class, 'reject'])
+        Route::post('/finance/{finance}/reject', [InputFinanceController::class, 'reject'])
             ->name('finance.reject');
+        
+        // Resource route last
+        Route::resource('finance', InputFinanceController::class)
+            ->except(['show']); // Exclude if you don't need show
     });
     
     Route::middleware('role:Operational,Manager Business Development')->group(function () {
