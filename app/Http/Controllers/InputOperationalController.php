@@ -134,7 +134,6 @@ class InputOperationalController extends Controller
                     'utilitas' => 'required|integer|min:0',
                     'perlengkapan' => 'required|integer|min:0',
                     'lain_lain' => 'required|integer|min:0',
-                    'rating' => 'required|integer|between:1,5',
                     'comment_input' => 'required|string',
                     'comment_review' => 'nullable|string',
                     'store_id' => 'required|exists:stores,id',

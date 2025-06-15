@@ -20,7 +20,6 @@ return new class extends Migration
             $table->integer('perlengkapan');
             $table->integer('lain_lain');
             $table->integer('total');
-            $table->integer('rating')->nullable();;
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
             $table->boolean('is_active')->default(true);

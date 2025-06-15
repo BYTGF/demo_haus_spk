@@ -18,7 +18,7 @@ class InputFinance extends Model
     protected $fillable = [
         'period', 'penjualan', 'pendapatan_lain', 'total_pendapatan',
         'total_hpp', 'laba_kotor', 'biaya_operasional', 'laba_sebelum_pajak',
-        'laba_bersih', 'gross_profit_margin', 'net_profit_margin', 'rating','is_active',
+        'laba_bersih', 'gross_profit_margin', 'net_profit_margin', 'is_active',
         'comment_input', 'comment_review', 'status', 'user_id', 'store_id'
     ];
 

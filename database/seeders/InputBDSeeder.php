@@ -34,7 +34,6 @@ class InputBDSeeder extends Seeder
                     'direct_competition' => rand(1, 5),
                     'substitute_competition' => rand(1, 5),
                     'indirect_competition' => rand(1, 5),
-                    'rating' => rand(1, 5),
                     'comment_input' => 'BD input for ' . $store->store_code,
                     'comment_review' => rand(0, 1) ? 'BD review for ' . $store->store_code : null,
                     'is_active' => true,

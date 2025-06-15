@@ -137,7 +137,6 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Accessibility</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibility</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,9 +154,6 @@
                             </td>
                             <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ $input->visibilitas_label }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->rating }}</p>
                             </td>
                         </tr>
                     @endforeach
@@ -439,7 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('parkir_mobil').value = input.parkir_mobil;
         document.getElementById('parkir_motor').value = input.parkir_motor;
         document.getElementById('kepadatan_kendaraan').value = input.kepadatan_kendaraan;
-        document.getElementById('rating').value = input.rating;
         document.getElementById('comment_input').value = input.comment_input;
         document.getElementById('comment_review').value = input.comment_review;
         

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->integer('direct_competition');
             $table->integer('substitute_competition');
             $table->integer('indirect_competition');
-            $table->integer('rating')->nullable();
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
             $table->boolean('is_active')->default(true);

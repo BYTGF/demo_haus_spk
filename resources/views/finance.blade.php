@@ -121,9 +121,7 @@
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Laba Kotor</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gross Profit</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Laba Bersih</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Net Profit</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
-                  </tr>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Net Profit</th>                  </tr>
                 </thead>
                 <tbody>
                   
@@ -149,9 +147,6 @@
                         </td>
                         <td class="align-middle text-center text-sm">
                             <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->net_profit_margin) }}</p>
-                        </td>
-                        <td class="align-middle text-center text-sm">
-                            <p class="text-xs font-weight-bold mb-0">{{ $done->rating }}</p>
                         </td>
                       </tr>
                   @endforeach

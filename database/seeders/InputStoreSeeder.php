@@ -54,7 +54,6 @@ class InputStoreSeeder extends Seeder
                     'kepadatan_kendaraan' => $kepadatan,
                     'parkir_mobil' => $parkir_mobil,
                     'parkir_motor' => $parkir_motor,
-                    'rating' => rand(1, 5),
                     'comment_input' => 'Input for ' . $store->store_code . ' on ' . $period->format('Y-m'),
                     'comment_review' => rand(0, 1) ? 'Review comment for ' . $store->store_code : null,
                     'is_active' => true,

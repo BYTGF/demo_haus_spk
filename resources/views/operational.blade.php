@@ -30,7 +30,6 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-                        {{-- <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th> --}}
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                       </tr>
@@ -63,9 +62,6 @@
                               <td class="align-middle text-center text-sm">
                                   <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total) }}</p>
                               </td>
-                              {{-- <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->rating }}</p>
-                              </td> --}}
                   
                                 <td class="align-middle text-center text-sm">
                                     @if ($input->status === 'Selesai')
@@ -90,7 +86,6 @@
                                                 utilitas: {{ $input->utilitas }},
                                                 perlengkapan: {{ $input->perlengkapan }},
                                                 lain_lain: {{ $input->lain_lain }},
-                                                rating: {{ $input->rating }},
                                                 comment_input: `{{ addslashes($input->comment_input) }}`,
                                                 comment_review: `{{ addslashes($input->comment_review) }}`,
                                                 status: `{{ $input->status }}`
@@ -155,7 +150,6 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -185,9 +179,6 @@
                             </td>
                             <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->total) }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->rating }}</p>
                             </td>
                         </tr>
                     @endforeach
@@ -480,7 +471,6 @@
             setValueIfExists('utilitas', input.utilitas);
             setValueIfExists('perlengkapan', input.perlengkapan);
             setValueIfExists('lain_lain', input.lain_lain);
-            setValueIfExists('rating', input.rating);
             setValueIfExists('comment_input', input.comment_input);
             setValueIfExists('comment_review', input.comment_review);
 

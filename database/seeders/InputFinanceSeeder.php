@@ -56,7 +56,6 @@ class InputFinanceSeeder extends Seeder
                     'laba_bersih' => $laba_bersih,
                     'gross_profit_margin' => $gross_margin,
                     'net_profit_margin' => $net_margin,
-                    'rating' => rand(1, 5),
                     'comment_input' => 'Finance input for ' . $store->store_code,
                     'comment_review' => rand(0, 1) ? 'Finance review for ' . $store->store_code : null,
                     'is_active' => true,

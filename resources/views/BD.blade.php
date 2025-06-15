@@ -72,7 +72,6 @@
                                                 direct_competition: {{ $input->direct_competition }},
                                                 substitute_competition: {{ $input->substitute_competition }},
                                                 indirect_competition: {{ $input->indirect_competition }},
-                                                rating: {{ $input->rating ?? 'null' }},
                                                 comment_input: `{{ addslashes($input->comment_input ?? '') }}`,
                                                 comment_review: `{{ addslashes($input->comment_review ?? '') }}`,
                                                 status: `{{ $input->status }}`
@@ -134,7 +133,6 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Direct Competition</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Substitute Competition</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Indirect Competition</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,9 +153,6 @@
                             </td>
                             <td class="align-middle text-center text-sm">
                                 <p class="text-xs font-weight-bold mb-0">{{ number_format($done->indirect_competition) }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->rating ?? 'N/A' }}</p>
                             </td>
                         </tr>
                     @endforeach

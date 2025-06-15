@@ -105,7 +105,6 @@ class InputBDController extends Controller
             if (auth()->user()->role->role_name === 'Manager Business Development') {
                 $input->update([
                     'status' => 'Selesai',
-                    'rating' => request('rating', null),
                     'comment_review' => request('comment_review', 'Approved')
                 ]);
 

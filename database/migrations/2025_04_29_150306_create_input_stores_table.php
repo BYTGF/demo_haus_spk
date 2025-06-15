@@ -21,7 +21,6 @@ return new class extends Migration
             $table->integer('kepadatan_kendaraan');
             $table->integer('parkir_mobil');
             $table->integer('parkir_motor');
-            $table->integer('rating')->nullable();
             $table->string('comment_input')->nullable();
             $table->string('comment_review')->nullable();
             $table->boolean('is_active')->default(true);

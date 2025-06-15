@@ -44,7 +44,6 @@ class InputOperationalSeeder extends Seeder
                     'perlengkapan' => $perlengkapan,
                     'lain_lain' => $lain_lain,
                     'total' => $total,
-                    'rating' => rand(1, 5),
                     'comment_input' => 'Operational input for ' . $store->store_code,
                     'comment_review' => rand(0, 1) ? 'Operational review for ' . $store->store_code : null,
                     'is_active' => true,
