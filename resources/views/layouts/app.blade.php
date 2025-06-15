@@ -50,6 +50,14 @@
   
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 
+  <style>
+    .dot {
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100 {{ (\Request::is('rtl') ? 'rtl' : (Request::is('virtual-reality') ? 'virtual-reality' : '')) }} ">

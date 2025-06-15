@@ -5,10 +5,10 @@
             <button id="refreshBtn" class="btn btn-sm btn-outline-secondary me-2">
                 <i class="fas fa-sync-alt"></i> Refresh
             </button>
-            <div class="input-group input-group-sm" style="width: 200px;">
+            {{-- <div class="input-group input-group-sm" style="width: 200px;">
                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                 <input type="text" id="searchInput" class="form-control" placeholder="Search stores...">
-            </div>
+            </div> --}}
         </div>
     </div>
     <div class="card-body">
@@ -51,7 +51,7 @@ $(document).ready(function() {
                 data: 'progress', 
                 name: 'progress',
                 orderable: false,
-                searchable: false
+                searchable: true
             },
             { 
                 data: 'status', 
@@ -89,7 +89,7 @@ $(document).ready(function() {
             // }
         ],
         order: [[0, 'asc']], // Default sort by store name
-        pageLength: 25,
+        pageLength: 10,
         language: {
             search: "_INPUT_",
             searchPlaceholder: "Search stores...",

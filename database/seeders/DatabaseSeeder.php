@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             InputOperationalSeeder::class,
             InputStoreSeeder::class,
             InputBDSeeder::class,
+            CriteriaWeightSeeder::class,
         ]);
     }
 }

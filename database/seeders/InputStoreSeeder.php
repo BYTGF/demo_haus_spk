@@ -7,56 +7,61 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use App\Models\InputStore;
 use App\Models\User;
+use App\Models\Store;
+use Carbon\Carbon;
 
 class InputStoreSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        $users = User::where('store_id', '!=', 1)->get();
-
-        foreach ($users as $user) {
-            $usedPeriods = [];
-
-            for ($i = 0; $i < 10; $i++) {
-                // Generate period unik buat store ini
-                do {
-                    $period = now()->subMonths(rand(1, 12))->startOfMonth()->format('Y-m-d');
-                } while (in_array($period, $usedPeriods));
-
-                $usedPeriods[] = $period;
-
-                // Cek apakah udah ada data untuk store + period itu
-                $exists = InputStore::where('store_id', $user->store_id)
-                    ->where('period', $period)
-                    ->exists();
-
-                if (!$exists) {
-                    InputStore::create([
-                        'period' => $period,
-                        'aksesibilitas' => rand(1, 5),
-                        'visibilitas' => rand(1, 5),
-                        'lingkungan' => json_encode([
-                            '1',
-                            '2',
-                            '3', // You can add more depending on your needs
-                        ]),
-                        'lalu_lintas' => rand(1, 5),
-                        'kepadatan_kendaraan' => rand(1, 5),
-                        'parkir_mobil' => rand(1, 5),
-                        'parkir_motor' => rand(1, 5),
-                        'rating' => rand(1, 5),
-                        'comment_input' => 'Komentar input ke-' . ($i + 1),
-                        'comment_review' => 'Komentar review ke-' . ($i + 1),
-                        'status' => collect([
-                            'Sedang Direview Manager Area',
-                            'Sedang Direview Manager BD',
-                            'Butuh Revisi',
-                            'Selesai'
-                        ])->random(),
-                        'user_id' => $user->id,
-                        'store_id' => $user->store_id,
-                    ]);
-                }
+        $userIds = User::pluck('id')->toArray();
+        $stores = Store::all();
+        
+        $statuses = ['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi', 'Selesai'];
+        
+        $environments = [
+            ['Kampus'],
+            ['Perumahan'],
+            ['Sekolah'],
+            ['Kampus', 'Perumahan'],
+            ['Kampus', 'Sekolah'],
+            ['Kampus', 'Perumahan', 'Sekolah'],
+        ];
+        
+        foreach ($stores as $store) {
+            // Create 3-6 months of data for each store
+            $months = rand(3, 6);
+            
+            for ($i = 0; $i < $months; $i++) {
+                $period = Carbon::now()->subMonths($i);
+                
+                $aksesibilitas = rand(1, 3);
+                $visibilitas = rand(1, 2);
+                $env = $environments[array_rand($environments)];
+                $lalu_lintas = rand(1, 3);
+                $kepadatan = rand(1, 3);
+                $parkir_mobil = rand(1, 3);
+                $parkir_motor = rand(1, 3);
+                
+                $total = $aksesibilitas + $visibilitas + count($env) + $lalu_lintas + $kepadatan + $parkir_mobil + $parkir_motor;
+                
+                InputStore::create([
+                    'period' => $period,
+                    'aksesibilitas' => $aksesibilitas,
+                    'visibilitas' => $visibilitas,
+                    'lingkungan' => json_encode($env),
+                    'lalu_lintas' => $lalu_lintas,
+                    'kepadatan_kendaraan' => $kepadatan,
+                    'parkir_mobil' => $parkir_mobil,
+                    'parkir_motor' => $parkir_motor,
+                    'rating' => rand(1, 5),
+                    'comment_input' => 'Input for ' . $store->store_code . ' on ' . $period->format('Y-m'),
+                    'comment_review' => rand(0, 1) ? 'Review comment for ' . $store->store_code : null,
+                    'is_active' => true,
+                    'status' => $statuses[array_rand($statuses)],
+                    'user_id' => $userIds[array_rand($userIds)],
+                    'store_id' => $store->id,
+                ]);
             }
         }
     }

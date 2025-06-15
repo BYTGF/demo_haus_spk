@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
             // Get list of stores for dropdown (only for Manager)
             $stores = [];
-            if ($user->role->role_name === 'Manager Business Development') {
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
                 $stores = Store::where('id', '!=', 1)->pluck('store_name', 'id');
 
             } elseif ($user->role->role_name === 'Area Manager') {
@@ -42,7 +42,7 @@ class DashboardController extends Controller
             //Operational
             // For Business Development Manager - can see all or filter by store
             $inputOperationals = collect(); 
-            if ($user->role->role_name === 'Manager Business Development') {
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
                 $inputOperationals = InputOperational::with(['user', 'store'])
                     ->when($storeFilter !== 'all', function ($query) use ($storeFilter) {
                         $query->where('store_id', $storeFilter);
@@ -72,7 +72,7 @@ class DashboardController extends Controller
             //Finance
             // For Business Development Manager - can see all or filter by store
             $inputFinances = collect(); 
-            if ($user->role->role_name === 'Manager Business Development') {
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
                 $inputFinances = InputFinance::with(['user', 'store'])
                     ->when($storeFilter !== 'all', function ($query) use ($storeFilter) {
                         $query->where('store_id', $storeFilter);
@@ -101,8 +101,8 @@ class DashboardController extends Controller
             //Store
             // For Business Development Manager - can see all or filter by store
             $inputStores = collect(); 
-            if ($user->role->role_name === 'Manager Business Development') {
-                $inputStores = InputOperational::with(['user', 'store'])
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
+                $inputStores = InputStore::with(['user', 'store'])
                     ->when($storeFilter !== 'all', function ($query) use ($storeFilter) {
                         $query->where('store_id', $storeFilter);
                     })
@@ -112,7 +112,7 @@ class DashboardController extends Controller
             } 
             // For Operational Staff - only their store
             elseif ($user->role->role_name === 'Store Manager') {
-                $inputStores = InputOperational::with(['user', 'store'])
+                $inputStores = InputStore::with(['user', 'store'])
                     ->where('store_id', $user->store_id)
                     ->when($periodFilter !== 'all', fn($q) => $q->whereMonth('period', substr($periodFilter, 5, 2))
                     ->whereYear('period', substr($periodFilter, 0, 4)))
@@ -130,7 +130,7 @@ class DashboardController extends Controller
             //BD
             // For Business Development Manager - can see all or filter by store
             $inputbds = collect(); 
-            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'Business Development Staff') {
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'Business Development Staff' || $user->role->role_name === 'C-Level') {
                 $inputbds = InputBD::with(['user', 'store'])
                     ->when($storeFilter !== 'all', function ($query) use ($storeFilter) {
                         $query->where('store_id', $storeFilter);
@@ -308,49 +308,7 @@ class DashboardController extends Controller
         }
 
         // Normalize all metrics to a 0-100 scale for progress bars
-        return [
-            'store_name' => Store::find($storeId)->store_name,
-            'period' => $period,
-            'metrics' => [
-                'Accessibility' => [
-                    'value' => $storeData->aksesibilitas,
-                    'max' => 10,
-                    'description' => 'Store accessibility score'
-                ],
-                'Visibility' => [
-                    'value' => $storeData->visibilitas,
-                    'max' => 10,
-                    'description' => 'Store visibility score'
-                ],
-                'Traffic Flow' => [
-                    'value' => $storeData->lalu_lintas,
-                    'max' => 10,
-                    'description' => 'Traffic flow rating'
-                ],
-                'Vehicle Density' => [
-                    'value' => $storeData->kepadatan_kendaraan,
-                    'max' => 10,
-                    'description' => 'Vehicle density rating'
-                ],
-                'Car Parking' => [
-                    'value' => $storeData->parkir_mobil,
-                    'max' => 100, // Assuming max 100 parking spots
-                    'description' => 'Car parking capacity'
-                ],
-                'Motor Parking' => [
-                    'value' => $storeData->parkir_motor,
-                    'max' => 100, // Assuming max 100 parking spots
-                    'description' => 'Motorcycle parking capacity'
-                ],
-                'Overall Rating' => [
-                    'value' => $storeData->rating ?? 0,
-                    'max' => 10,
-                    'description' => 'Overall store rating'
-                ]
-            ],
-            'status' => $storeData->status,
-            'comment' => $storeData->comment_input
-        ];
+        return $storeData ?: null;
     }
 
     // Add this method to your DashboardController
@@ -380,7 +338,6 @@ class DashboardController extends Controller
             'gross_margins' => $financeData->pluck('gross_profit_margin'),
             'net_margins' => $financeData->pluck('net_profit_margin'),
             'status' => $financeData->first()->status,
-            'comment' => $financeData->first()->comment_input
         ];
     }
 }

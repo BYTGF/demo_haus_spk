@@ -13,19 +13,23 @@ class StoreSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+     public function run()
     {
-        $areas = Area::all();
+        $areaIds = Area::pluck('id')->toArray();
+        
+        $stores = [];
+        for ($i = 1; $i <= 40; $i++) {
+            $storeCode = 'HAUS-' . str_pad($i, 3, '0', STR_PAD_LEFT);
+            $stores[] = [
+                'area_id' => $areaIds[array_rand($areaIds)],
+                'store_code' => $storeCode,
+                'store_name' => 'Store ' . $i,
+                'is_active' => true,
+            ];
+        }
 
-        $areas = [['1','MNG','Manager'], ['2','TNB','Tanah Abang'], ['2','PLT','Pluit'], ['3','DGO','Dago'], ['3','PST','Pasteur'], ['4','CKP','Cikupa'], ['4','CAW','Ciawi']];
-
-        foreach ($areas as $area) {
-            Store::create([
-                'area_id' => $area[0],
-                'store_code' => $area[1],
-                'store_name' => $area[2]
-            ]);
-            
+        foreach ($stores as $store) {
+            Store::create($store);
         }
     }
 }

@@ -2,65 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Store;
-use App\Http\Requests\StoreStoreRequest;
-use App\Http\Requests\UpdateStoreRequest;
+use App\Models\Area;
+use Illuminate\Http\Request;
 
 class StoreController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $stores = Store::with('area')->where('is_active', true)->paginate(10);
+        $areas = Area::all();
+        return view('manage-store', compact('stores', 'areas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'store_name' => 'required|string|max:255',
+            'area_id' => 'required|exists:areas,id',
+            'status' => 'required|string|in:active,inactive'
+        ]);
+
+        Store::create($request->only('store_name', 'area_id', 'status'));
+        return redirect()->back()->with('success', 'Store berhasil ditambahkan.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreStoreRequest $request)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'store_name' => 'required|string|max:255',
+            'area_id' => 'required|exists:areas,id',
+            'status' => 'required|string|in:active,inactive'
+        ]);
+
+        $store = Store::findOrFail($id);
+        $store->update($request->only('store_name', 'area_id', 'status'));
+        return redirect()->back()->with('success', 'Store berhasil diupdate.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Store $store)
+    public function destroy($id)
     {
-        //
-    }
+        $store = Store::findOrFail($id);
+        $store->is_active = false;
+        $store->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Store $store)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateStoreRequest $request, Store $store)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Store $store)
-    {
-        //
+        return response()->json(['message' => 'Store berhasil dihapus.']);
     }
 }

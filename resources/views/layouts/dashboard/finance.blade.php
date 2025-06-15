@@ -1,5 +1,6 @@
-@if($financeMetrics)
+
 <div class="card mb-4">
+    @if($financeMetrics)
     <div class="card-header d-flex justify-content-between align-items-center p-3">
         <h4>Income Report</h4>
     </div>
@@ -28,7 +29,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -98,4 +99,9 @@
     });
 </script>
 @endpush
+@else
+    <div class="card-header d-flex justify-content-between align-items-center p-3">
+        <h5 class="mb-4">Pilih Store dan Periode untuk melihat Dashboard Keuangan</h5>
+    </div>
 @endif
+</div>

@@ -49,10 +49,34 @@
             <span class="nav-link-text ms-1">User Management</span>
           </a>
         </li>
+        <li class="nav-item pb-2">
+          <a class="nav-link {{ (Request::is('manage-area') ? 'active' : '') }}" href="{{ route('manage-area.index')}}">
+            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i style="font-size: 1rem;" class="fas fa-lg fa-list-ul ps-2 pe-2 text-center text-dark {{ (Request::is('manage-area') ? 'text-white' : 'text-dark') }} " aria-hidden="true"></i>
+            </div>
+            <span class="nav-link-text ms-1">Manage Area</span>
+          </a>
+        </li>
+        <li class="nav-item pb-2">
+          <a class="nav-link {{ (Request::is('manage-store') ? 'active' : '') }}" href="{{ route('manage-store.index')}}">
+            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i style="font-size: 1rem;" class="fas fa-lg fa-list-ul ps-2 pe-2 text-center text-dark {{ (Request::is('manage-store') ? 'text-white' : 'text-dark') }} " aria-hidden="true"></i>
+            </div>
+            <span class="nav-link-text ms-1">Manage Store</span>
+          </a>
+        </li>
+        <li class="nav-item pb-2">
+          <a class="nav-link {{ (Request::is('manage-cw') ? 'active' : '') }}" href="{{ route('manage-cw.index')}}">
+            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i style="font-size: 1rem;" class="fas fa-lg fa-list-ul ps-2 pe-2 text-center text-dark {{ (Request::is('manage-cw') ? 'text-white' : 'text-dark') }} " aria-hidden="true"></i>
+            </div>
+            <span class="nav-link-text ms-1">Manage Criteria Weight</span>
+          </a>
+        </li>
       @endif
 
       <!-- C-LEVEL -->
-      @if (auth()->check() && auth()->user()->hasRole('C-Level'))
+      @if (auth()->check() && auth()->user()->hasRole('C-Level', 'Manager Business Development'))
         <li class="nav-item">
           <a class="nav-link {{ (Request::is('review-store') ? 'active' : '') }}" href="{{ route('review-store.index') }}">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">

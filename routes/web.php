@@ -13,6 +13,9 @@ use App\Http\Controllers\InputOperationalController;
 use App\Http\Controllers\InputStoreController;
 use App\Http\Controllers\InputBDController;
 use App\Http\Controllers\StoreReviewController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\CriteriaWeightController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -54,7 +57,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/data', [DashboardController::class, 'getChartData']);
     });
     
-	Route::resource('user-management', UserManagementController::class)->middleware('role:Admin');
+	Route::middleware('role:Admin')->group(function () {
+        Route::resource('user-management', UserManagementController::class);  
+        Route::resource('manage-store', StoreController::class);  
+            // Custom workflow routes
+        Route::resource('manage-area', AreaController::class);  
+        Route::resource('manage-cw', CriteriaWeightController::class);  
+    });
 
     Route::middleware('role:Finance,Manager Business Development')->group(function () {
         Route::resource('finance', InputFinanceController::class);  
@@ -94,7 +103,7 @@ Route::middleware('auth')->group(function () {
             ->name('store.reject');
     });
 
-    Route::middleware('role:C-Level')->group(function () {
+    Route::middleware('role:C-Level,Manager Business Development')->group(function () {
         Route::get('review-store', [StoreReviewController::class, 'index'])->name('review-store.index');
         Route::post('review-store/{store}', [StoreReviewController::class, 'update'])->name('review-store.update');
     });

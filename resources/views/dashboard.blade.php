@@ -3,15 +3,15 @@
 @php
     $activeComponents = 0;
 
-    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Finance') {
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Finance') {
         $activeComponents++;
     }
 
-    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Operational') {
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Operational') {
         $activeComponents++;
     }
 
-    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Business Development Staff') {
+    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Business Development Staff') {
         $activeComponents++;
     }
 
@@ -44,7 +44,7 @@
                 @endforeach
             </select>
 
-            @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Area Manager')
+            @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Area Manager')
             <select name="store_filter" class="form-select" style="max-width: 200px">
                 <option value="all">Semua Store</option>
                 @foreach($stores as $id => $name)
@@ -56,27 +56,27 @@
         </form>
       </div>
     </div>
-    @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Area Manager' || auth()->user()->role->role_name === 'Store Manager')
+    @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Area Manager' || auth()->user()->role->role_name === 'Store Manager')
     <div class="row">
       <div class="col-12">
         @include('layouts.dashboard.store')
       </div>
     </div>
     @endif
-    <div class="row">
-      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Finance')
+    <div class="row m-3">
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Finance')
       <div class="{{ $colClass }}">
         @include('layouts.dashboard.finance')
       </div>
       @endif
 
-      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Operational')
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Operational')
       <div class="{{ $colClass }}">
         @include('layouts.dashboard.operational')
       </div>
       @endif
 
-      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'Business Development Staff')
+      @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Business Development Staff')
       <div class="{{ $colClass }}">
         @include('layouts.dashboard.bd')
       </div>

@@ -17,36 +17,102 @@ class UserSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+   public function run()
     {
-        $roles = Role::all();
-        $areas = Area::all();
-        $stores = Store::all();
+        $roles = Role::pluck('id', 'role_name')->toArray();
+        $areaIds = Area::pluck('id')->toArray();
+        $storeIds = Store::pluck('id')->toArray();
+        
+        // Create admin user
+        User::create([
+            'username' => 'admin',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+            'role_id' => $roles['Admin'],
+            'area_id' => $areaIds[array_rand($areaIds)],
+            'store_id' => $storeIds[array_rand($storeIds)],
+        ]);
 
-        // contoh buat 1 user untuk setiap role
-        foreach ($roles as $role) {
-            // Determine area_id and store_id based on role_id conditions
-            if ($role->id == 8 || $role->id == 5 || $role->id == 6) {
-                // If role_id is 7, area_id and store_id are both set to 1
-                $area_id = $areas->random()->id;
-                $store_id = $stores->random()->id;
-            } elseif ($role->id == 7) {
-                // If role_id is 6, area_id and store_id are both random
-                $area_id = $areas->random()->id;
-                $store_id = 1;
-            } else {
-                // If role_id is neither 6 nor 7, area_id is set to 1 and store_id is random
-                $area_id = 1;
-                $store_id = 1;
-            }
-
-            // Create the user with the determined area_id and store_id
+        // Create C-Level users (2-3 executives)
+        for ($i = 1; $i <= rand(2, 3); $i++) {
             User::create([
-                'username' => strtolower($role->role_name),
-                'password' => Hash::make('pass'), // default password "pass"
-                'role_id' => $role->id,
-                'area_id' => $area_id,
-                'store_id' => $store_id,
+                'username' => 'ceo_' . $i,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['C-Level'],
+                'area_id' => $areaIds[array_rand($areaIds)],
+                'store_id' => $storeIds[array_rand($storeIds)],
+            ]);
+        }
+
+        // Create Business Development Team
+        User::create([
+            'username' => 'bd_manager',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+            'role_id' => $roles['Manager Business Development'],
+            'area_id' => $areaIds[array_rand($areaIds)],
+            'store_id' => $storeIds[array_rand($storeIds)],
+        ]);
+
+        // Create 3-5 BD Staff
+        for ($i = 1; $i <= rand(3, 5); $i++) {
+            User::create([
+                'username' => 'bd_staff_' . $i,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['Business Development Staff'],
+                'area_id' => $areaIds[array_rand($areaIds)],
+                'store_id' => $storeIds[array_rand($storeIds)],
+            ]);
+        }
+
+        // Create Operational users (3-5)
+        for ($i = 1; $i <= rand(3, 5); $i++) {
+            User::create([
+                'username' => 'operational_' . $i,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['Operational'],
+                'area_id' => $areaIds[array_rand($areaIds)],
+                'store_id' => $storeIds[array_rand($storeIds)],
+            ]);
+        }
+
+        // Create Finance users (2-3)
+        for ($i = 1; $i <= rand(2, 3); $i++) {
+            User::create([
+                'username' => 'finance_' . $i,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['Finance'],
+                'area_id' => $areaIds[array_rand($areaIds)],
+                'store_id' => $storeIds[array_rand($storeIds)],
+            ]);
+        }
+
+        // Create Area Managers (one per area)
+        foreach ($areaIds as $areaId) {
+            User::create([
+                'username' => 'area_manager_' . $areaId,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['Area Manager'],
+                'area_id' => $areaId,
+                'store_id' => Store::where('area_id', $areaId)->first()->id,
+            ]);
+        }
+
+        // Create Store Managers (one per store)
+        foreach ($storeIds as $storeId) {
+            $store = Store::find($storeId);
+            User::create([
+                'username' => 'store_manager_' . $storeId,
+                'password' => Hash::make('password'),
+                'is_active' => true,
+                'role_id' => $roles['Store Manager'],
+                'area_id' => $store->area_id,
+                'store_id' => $storeId,
             ]);
         }
     }
