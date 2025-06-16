@@ -74,7 +74,7 @@
           <div class="card-body text-center">
             <h6>Lingkungan Sekitar</h6>
             @php
-              $icons = ['Kampus' => 'fa-graduation-cap', 'Sekolah' => 'fa-school', 'Perumahan' => 'fa-house'];
+              $icons = ["1" => 'fa-graduation-cap', "2" => 'fa-school', "3" => 'fa-house'];
               $lingkunganData = json_decode($storeMetrics->lingkungan ?? '[]', true);
             @endphp
             @foreach ($icons as $key => $icon)

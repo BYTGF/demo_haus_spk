@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function() {
         form.action = `/finance/${input.id}`;
         document.getElementById('form-method').value = 'PUT';
         document.getElementById('modal-title').textContent = 'Edit Finance Input';
-        document.getElementById('input_id').value = input.id;
+        document.getElementById('input_id').value = input.store.id;
         
         // Fill form with input data
         document.getElementById('penjualan').value = input.penjualan;

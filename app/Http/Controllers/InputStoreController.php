@@ -49,49 +49,63 @@ class InputStoreController extends Controller
    public function store(Request $request)
     {
         if (auth()->user()->role->role_name === 'Store Manager') {
+            \Log::info('Store evaluation input:', $request->all());
             try {
                 $validated = $request->validate([
-                    'period' => 'required|date',
+                    'period' => 'required|date_format:Y-m',
                     'aksesibilitas' => 'required|integer|between:1,4',
-                    'visibilitas' => 'required|integer',
-                    'lingkungan' => 'required|array',
+                    'visibilitas' => 'required|integer|min:0',
+                    'lingkungan' => 'required|array|min:1',
                     'lingkungan.*' => 'integer|between:1,3',
-                    'lalu_lintas' => 'required|integer|between:1,4',
+                    'lalu_lintas' => 'required|integer|min:0',
+                    'kepadatan_kendaraan' => 'required|integer|between:1,3',
                     'parkir_mobil' => 'required|integer|min:0',
                     'parkir_motor' => 'required|integer|min:0',
                     'comment_input' => 'nullable|string',
+                    // 'store_id' => 'required|exists:stores,id'
                 ]);
 
-                $exists = InputStore::where('store_id', $request->store_id)
+                // Check for existing data
+                 $exists = InputStore::where('store_id', $request->store_id)
                     ->where('period', $request->period)
                     ->exists();
 
                 if ($exists) {
-                    return redirect()->back()->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])->withInput();
+                    return redirect()->back()
+                        ->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])
+                        ->withInput();
                 }
 
-                $validated['user_id'] = auth()->id();
-                if($validated['visibilitas'] < 20){
+                // Convert visibility input to score
+                $visibilitasValue = (int)$validated['visibilitas'];
+                if ($visibilitasValue < 20) {
                     $validated['visibilitas'] = 1;
-                }else if($validated['visibilitas'] > 20 && $validated['visibilitas'] <= 40){
+                } elseif ($visibilitasValue >= 20 && $visibilitasValue < 40) {
                     $validated['visibilitas'] = 2;
-                }else if($validated['visibilitas'] > 40 && $validated['visibilitas'] <= 60){
+                } elseif ($visibilitasValue >= 40 && $visibilitasValue < 60) {
                     $validated['visibilitas'] = 3;
-                }else if($validated['visibilitas'] > 60 && $validated['visibilitas'] <= 80){
+                } elseif ($visibilitasValue >= 60 && $visibilitasValue < 80) {
                     $validated['visibilitas'] = 4;
-                }else if($validated['visibilitas'] > 80){
+                } else {
                     $validated['visibilitas'] = 5;
                 }
+
+                // Prepare data
+                $validated['user_id'] = auth()->id();
                 $validated['status'] = 'Sedang Direview Manager Area';
-                $validated['period'] = now()->format('Y-m-d');
-                $validated['store_id'] = auth()->user()->store_id;
+                $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
+                 $validated['store_id'] = auth()->user()->store_id;
 
                 InputStore::create($validated);
 
-                return redirect()->route('store.index')->with('success', 'Store evaluation submitted for area manager review');
+                return redirect()->route('store.index')
+                    ->with('success', 'Store evaluation submitted for area manager review');
+                    
             } catch (\Exception $e) {
-                \Log::error('Error fetching data in index: ' . $e->getMessage());
-                return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.']);
+                \Log::error('Store evaluation error: ' . $e->getMessage());
+                return redirect()->back()
+                    ->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.'])
+                    ->withInput();
             }
         }
 
@@ -118,7 +132,7 @@ class InputStoreController extends Controller
 
     public function approveBd(InputStore $input)
     {
-        if (auth()->user()->role->role_name === 'Business Development Manager') {
+        if (auth()->user()->role->role_name === 'Manager Business Development') {
             try {
                 $input->update([
                     'status' => 'Selesai',

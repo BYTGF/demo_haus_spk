@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('manage-cw', CriteriaWeightController::class);  
     });
 
-    Route::middleware(['auth', 'role:Finance, Manager Business Development'])->group(function () {
+    Route::middleware('role:Finance,Manager Business Development')->group(function () {
         // Standalone routes first
         Route::get('/finance/get-operational-data', [InputFinanceController::class, 'getOperationalData'])
             ->name('finance.getOperationalData');

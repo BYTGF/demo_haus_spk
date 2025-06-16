@@ -48,7 +48,7 @@ class InputFinanceController extends Controller
         try {
             if (auth()->user()->role->role_name === 'Finance') {
                 $validated = $request->validate([
-                    'period' => 'required|date',
+                    'period' => 'required|date_format:Y-m',
                     'penjualan' => 'required|numeric|min:0',
                     'pendapatan_lain' => 'required|numeric|min:0',
                     'total_hpp' => 'required|numeric|min:0',
@@ -89,7 +89,7 @@ class InputFinanceController extends Controller
                     : 0;
 
                 $validated['user_id'] = auth()->id();
-                $validated['period'] = now()->format('Y-m-d');
+                $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
                 $validated['store_id'] = auth()->user()->store_id;
                 $validated['status'] = 'Sedang Direview';
 

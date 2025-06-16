@@ -148,7 +148,7 @@ class StoreReviewController extends Controller
 
     public function update(Request $request, Store $store)
     {
-        if (auth()->user()->role->role_name !== 'C-Level') {
+        if (auth()->user()->role->role_name !== 'Manager Business Development') {
             abort(403, 'Akses ditolak.');
         }
 

@@ -50,6 +50,7 @@ class InputOperationalController extends Controller
         if (auth()->user()->role->role_name == 'Operational') {
             try {
                 $validated = $request->validate([
+                    'period' => 'required|date_format:Y-m',
                     'gaji_upah' => 'required|integer|min:0',
                     'sewa' => 'required|integer|min:0',
                     'utilitas' => 'required|integer|min:0',
@@ -67,7 +68,7 @@ class InputOperationalController extends Controller
                 }
 
                 $validated['total'] = $validated['gaji_upah'] + $validated['sewa'] + $validated['utilitas'] + $validated['perlengkapan'] + $validated['lain_lain'];
-                $validated['period'] = now()->format('Y-m-d');
+                $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
                 $validated['status'] = 'Sedang Direview';
                 $validated['store_id'] = auth()->user()->store_id;
                 $validated['user_id'] = auth()->id();

@@ -144,16 +144,16 @@
                     @foreach ($dones as $done)
                         <tr>
                             <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $input->store->store_name }}</p>
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
                             </td>
                             <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $input->period->format('M Y') }}</p>
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->period->format('M Y') }}</p>
                             </td>
                             <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $input->aksesibilitas_label }}</p>
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->aksesibilitas_label }}</p>
                             </td>
                             <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $input->visibilitas_label }}</p>
+                                <p class="text-xs font-weight-bold mb-0">{{ $done->visibilitas_label }}</p>
                             </td>
                         </tr>
                     @endforeach

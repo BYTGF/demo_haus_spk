@@ -17,9 +17,18 @@ class InputStore extends Model
     ];
 
     protected $fillable = [
-        'period', 'aksesibilitas', 'visibilitas', 'lingkungan', 'lalu_lintas',
-        'area_parkir', 'comment_input', 'comment_review','is_active',
-        'status', 'user_id', 'store_id'
+        'period',
+        'aksesibilitas',
+        'visibilitas', 
+        'lingkungan',
+        'lalu_lintas',
+        'kepadatan_kendaraan', // Pastikan ini ada
+        'parkir_mobil',       // Pastikan ini ada
+        'parkir_motor',       // Pastikan ini ada
+        'comment_input',
+        'user_id',
+        'status',
+        'store_id'
     ];
 
     public function user()

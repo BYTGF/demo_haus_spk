@@ -66,7 +66,7 @@ class InputBDController extends Controller
         try {
             if (auth()->user()->role->role_name == 'Business Development Staff') {
                 $validated = $request->validate([
-                    'period' => 'required|date',
+                    'period' => 'required|date_format:Y-m',                    
                     'store_id' => 'required|exists:stores,id',
                     'direct_competition' => 'required|integer|min:0',
                     'substitute_competition' => 'required|integer|min:0',
@@ -75,6 +75,7 @@ class InputBDController extends Controller
                 ]);
 
                 $validated['status'] = 'Sedang Direview';
+                $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
                 $validated['user_id'] = auth()->id();
 
                 $exists = InputBD::where('store_id', $request->store_id)
