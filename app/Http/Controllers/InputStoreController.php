@@ -188,7 +188,7 @@ class InputStoreController extends Controller
                 'visibilitas' => 'required|integer|between:1,4',
                 'lingkungan' => 'required|array',
                 'lingkungan.*' => 'integer|between:1,3',
-                'lalu_lintas' => 'required|integer|between:1,4',
+                'lalu_lintas' => 'required|integer|min:0',
                 'parkir_mobil' => 'required|integer|min:0',
                 'parkir_motor' => 'required|integer|min:0',
                 'comment_input' => 'nullable|string',

@@ -18,12 +18,12 @@ class InputStoreSeeder extends Seeder
         $statuses = ['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi', 'Selesai'];
         
         $environments = [
-            ['Kampus'],
-            ['Perumahan'],
-            ['Sekolah'],
-            ['Kampus', 'Perumahan'],
-            ['Kampus', 'Sekolah'],
-            ['Kampus', 'Perumahan', 'Sekolah'],
+            ['1'],
+            ['2'],
+            ['3'],
+            ['1', '2'],
+            ['2', '3'],
+            ['1', '2', '3'],
         ];
         
         foreach ($users as $userId => $storeId) { // Loop berdasarkan user_id dan store_id

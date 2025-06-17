@@ -94,15 +94,26 @@
           <div class="card-body text-center">
             <h6>Area Parkir</h6>
             <p>
-              @for ($i = 0; $i < $storeMetrics->parkir_mobil; $i++)
-                <i class="fa-solid fa-car-side"></i>
+              @php
+                $maxIcons = 5;
+                $parkirMobil = min($storeMetrics->parkir_mobil, $maxIcons); // Batasi maks 5 ikon
+              @endphp
+              
+              @for ($i = 0; $i < $parkirMobil; $i++)
+                <i class="fa-solid fa-car-side {{ $i < $storeMetrics->parkir_mobil ? 'text-success' : 'text-secondary' }}"></i>
               @endfor
             </p>
+
             <p>
-              @for ($i = 0; $i < $storeMetrics->parkir_mobil; $i++)
-                <i class="fa-solid fa-motorcycle"></i>
+              @php
+                $parkirMotor = min($storeMetrics->parkir_motor, $maxIcons); // Batasi maks 5 ikon
+              @endphp
+              
+              @for ($i = 0; $i < $parkirMotor; $i++)
+                <i class="fa-solid fa-motorcycle {{ $i < $storeMetrics->parkir_motor ? 'text-success' : 'text-secondary' }}"></i>
               @endfor
             </p>
+
             <p class="badge bg-{{ ($storeMetrics->parkir_mobil + $storeMetrics->parkir_motor) > 10 ? 'success' : 'danger' }}">
               {{ ($storeMetrics->parkir_mobil + $storeMetrics->parkir_motor) > 10 ? 'LUAS' : 'TERBATAS' }}
             </p>
