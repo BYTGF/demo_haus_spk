@@ -154,7 +154,7 @@ class InputBDController extends Controller
                     'direct_competition' => 'required|integer|min:0',
                     'substitute_competition' => 'required|integer|min:0',
                     'indirect_competition' => 'required|integer|min:0',
-                    'comment_input' => 'required|string',
+                    'comment_input' => 'nullable|string',
                     'comment_review' => 'nullable|string',
                 ]);
 

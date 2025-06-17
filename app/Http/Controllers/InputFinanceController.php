@@ -199,7 +199,6 @@ class InputFinanceController extends Controller
                     'penjualan' => 'required|numeric|min:0',
                     'pendapatan_lain' => 'required|numeric|min:0',
                     'total_hpp' => 'required|numeric|min:0',
-                    'store_id' => 'required|exists:stores,id',
                     'comment_input' => 'nullable|string',
                     'comment_review' => 'nullable|string',
                 ]);

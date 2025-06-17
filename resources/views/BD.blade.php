@@ -9,7 +9,7 @@
           <div class="card mb-4">
             <div class="card-header pb-0">
               <div class="d-flex flex-row justify-content-between">
-                <h6>Business Development Input</h6>
+                <h6>Kompetitor Input</h6>
                 @if (auth()->user()->role->role_name === 'Business Development Staff')
                   <button type="button" class="btn btn-primary" onclick="openCreateBDInputModal()">
                       <i class="fas fa-plus me-2"></i> Add New Input

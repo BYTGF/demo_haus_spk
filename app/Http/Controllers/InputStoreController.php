@@ -190,7 +190,6 @@ class InputStoreController extends Controller
                     'lalu_lintas' => 'required|integer|between:1,4',
                     'parkir_mobil' => 'required|integer|min:0',
                     'parkir_motor' => 'required|integer|min:0',
-                    'store_id' => 'required|exists:stores,id',
                     'comment_input' => 'nullable|string',
                     'comment_review' => 'nullable|string',
                 ]);

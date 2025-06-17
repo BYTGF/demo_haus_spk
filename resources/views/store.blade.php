@@ -11,7 +11,7 @@
                             <h6>Store Evaluation</h6>
                             @if (auth()->user()->role->role_name === 'Store Manager')
                                 <button type="button" class="btn btn-primary" onclick="openCreateStoreInputModal()">
-                                    <i class="fas fa-plus me-2"></i> New Evaluation
+                                    <i class="fas fa-plus me-2"></i> Add New Input
                                 </button>
                             @endif
                         </div>
@@ -25,6 +25,8 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Accessibility</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibility</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lingkungan</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kepadatan Kendaraan</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                                     </tr>
@@ -39,10 +41,57 @@
                                                 <p class="text-xs font-weight-bold mb-0">{{ $input->period->format('M Y') }}</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $input->aksesibilitas_label }}</p>
+                                                @php
+                                                    $akses = [
+                                                        1 => 'Hanya Kendaraan Pribadi',
+                                                        2 => '1 Transportasi Umum & Kendaraan Pribadi',
+                                                        3 => '2 Transportasi Umum & Kendaraan Pribadi',
+                                                        4 => '>2 Transportasi Umum & Kendaraan Pribadi'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $akses[$input->aksesibilitas] ?? '-' }}
+                                                </p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <p class="text-xs font-weight-bold mb-0">{{ $input->visibilitas_label }}</p>
+                                                @php
+                                                    $vis = [
+                                                        1 => '< 20%',
+                                                        2 => '20 - 39%',
+                                                        3 => '40 - 59%',
+                                                        4 => '60 - 79%',
+                                                        5 => '≥ 80%'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $vis[$input->visibilitas] ?? '-' }}
+                                                </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $lingkunganList = [];
+                                                    $lingkungan = is_array($input->lingkungan) ? array_map('intval', $input->lingkungan) : json_decode($input->lingkungan, true);
+                                                    
+                                                    if (is_array($lingkungan)) {
+                                                        if (in_array(1, $lingkungan)) $lingkunganList[] = 'Kampus';
+                                                        if (in_array(2, $lingkungan)) $lingkunganList[] = 'Sekolah';
+                                                        if (in_array(3, $lingkungan)) $lingkunganList[] = 'Perumahan';
+                                                    }
+                                                @endphp
+
+                                                <p class="text-xs font-weight-bold mb-0">{{ implode(', ', $lingkunganList) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $traffic = [
+                                                        1 => 'Macet Parah',
+                                                        2 => 'Macet',
+                                                        3 => 'Lancar'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $traffic[$input->lalu_lintas] ?? '-' }}
+                                                </p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 @if ($input->status === 'Selesai')
@@ -58,6 +107,7 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
+                                                {{-- Aksi role Store Manager --}}
                                                 @if (auth()->user()->role->role_name === 'Store Manager')
                                                     @if($input->status === 'Butuh Revisi')
                                                         <button class="btn btn-sm btn-warning px-3 py-2" 
@@ -66,7 +116,8 @@
                                                         </button>
                                                     @endif
                                                 @endif
-                                                
+
+                                                {{-- Aksi role Area Manager --}}
                                                 @if (auth()->user()->role->role_name === 'Area Manager')
                                                     @if($input->status === 'Sedang Direview Manager Area')
                                                         <button class="btn btn-sm btn-success px-3 py-2" 
@@ -74,11 +125,11 @@
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                         <form id="approve-area-form-{{ $input->id }}" 
-                                                              action="{{ route('store.approve-area', $input) }}" 
-                                                              method="POST" class="d-none">
+                                                            action="{{ route('store.approve-area', $input) }}" 
+                                                            method="POST" class="d-none">
                                                             @csrf
                                                         </form>
-                                                
+
                                                         <button class="btn btn-sm btn-danger reject-btn px-3 py-2" 
                                                                 data-bs-toggle="modal" 
                                                                 data-bs-target="#rejectModal"
@@ -88,7 +139,8 @@
                                                         </button>
                                                     @endif
                                                 @endif
-                                                
+
+                                                {{-- Aksi role Manager BD --}}
                                                 @if (auth()->user()->role->role_name === 'Manager Business Development')
                                                     @if($input->status === 'Sedang Direview Manager BD')
                                                         <button class="btn btn-sm btn-success px-3 py-2" 
@@ -96,11 +148,11 @@
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                         <form id="approve-bd-form-{{ $input->id }}" 
-                                                              action="{{ route('store.approve-bd', $input) }}" 
-                                                              method="POST" class="d-none">
+                                                            action="{{ route('store.approve-bd', $input) }}" 
+                                                            method="POST" class="d-none">
                                                             @csrf
                                                         </form>
-                                                
+
                                                         <button class="btn btn-sm btn-danger reject-btn px-3 py-2" 
                                                                 data-bs-toggle="modal" 
                                                                 data-bs-target="#rejectModal"
@@ -115,6 +167,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
@@ -234,7 +287,10 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Visibility</label>
-                                                    <input type="number" class="form-control" name="visibilitas" id="visibilitas" required min="0">
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" name="visibilitas" id="visibilitas" required min="0">
+                                                        <span class="input-group-text">m</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -268,14 +324,17 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Lalu lintas</label>
-                                                    <input type="number" class="form-control" name="lalu_lintas" id="lalu_lintas" required min="0">
+                                                    <div class="input-group">
+                                                        <input type="number" class="form-control" name="lalu_lintas" id="lalu_lintas" required min="0">
+                                                        <span class="input-group-text">orang/m<sup>2</sup></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>Traffic Conditions</label>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_1" value="1" required>
+                                                        <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_1" value="3" required>
                                                         <label class="form-check-label" for="kepadatan_kendaraan_1">Lancar</label>
                                                     </div>
                                                     <div class="form-check">
@@ -283,7 +342,7 @@
                                                         <label class="form-check-label" for="kepadatan_kendaraan_2">Macet</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_3" value="3">
+                                                        <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_3" value="1">
                                                         <label class="form-check-label" for="kepadatan_kendaraan_3">Macet Parah</label>
                                                     </div>
                                                 </div>
@@ -412,12 +471,12 @@ document.addEventListener('DOMContentLoaded', function() {
         inputIdField.value = input.id;
         
         // Fill form with input data
-        document.getElementById('period').value = input.period.substring(0, 7);
-        document.getElementById('parkir_mobil').value = input.parkir_mobil;
-        document.getElementById('parkir_motor').value = input.parkir_motor;
-        document.getElementById('kepadatan_kendaraan').value = input.kepadatan_kendaraan;
-        document.getElementById('comment_input').value = input.comment_input;
-        document.getElementById('comment_review').value = input.comment_review;
+        document.getElementById('period').value = input.period.substring(0, 7) || '';
+        document.getElementById('parkir_mobil').value = input.parkir_mobil || '';
+        document.getElementById('parkir_motor').value = input.parkir_motor || '';
+        document.getElementById('lalu_lintas').value = input.lalu_lintas || '';
+        document.getElementById('comment_input').value = input.comment_input || '';
+        document.getElementById('comment_review').value = input.comment_review || '';
         
         // Set radio buttons
         document.querySelector(`input[name="aksesibilitas"][value="${input.aksesibilitas}"]`).checked = true;

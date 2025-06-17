@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Personnel & Facilities', 'Supplies', 'Others'],
+            labels: ['Personel dan Fasilitas', 'Suplai', 'Lainnya'],
             datasets: [{
                 data: [
                     {{ $operationalData['Personnel & Facilities'] ?? 0 }},

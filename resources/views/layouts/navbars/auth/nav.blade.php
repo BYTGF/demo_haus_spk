@@ -23,7 +23,11 @@
             <ul class="navbar-nav  justify-content-end">
             <li class="nav-item d-flex align-items-center">
                 <span class="nav-link text-body font-weight-bold px-0 me-3">
-                    {{ Auth::user()->username }} |
+                    @if(Auth::check())
+                        {{ Auth::user()->username }} |
+                    @else
+                        Guest
+                    @endif
                 </span>
                 <a href="{{ url('/logout')}}" class="nav-link text-body font-weight-bold px-0">
                     <i class="fa fa-user me-sm-1"></i>

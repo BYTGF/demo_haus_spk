@@ -4,134 +4,118 @@
 
   <main class="main-content position-relative max-height-vh-100 h-100 mt-1 border-radius-lg ">
     <div class="container-fluid py-4">
-      <div class="row">
-        <div class="col-12">
-          <div class="card mb-4">
-            <div class="card-header pb-0">
-              <div class="d-flex flex-row justify-content-between">
-                <h6>Operational Input</h6>
-                @if (auth()->user()->role->role_name === 'Operational')
-                  <button type="button" class="btn btn-primary" onclick="openCreateOperationalInputModal()">
-                      <i class="fas fa-plus me-2"></i> Add New Input
-                  </button>
-                @endif
-              </div>
-            </div>
-            <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0">
-                    <thead>
-                      <tr>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gaji & Upah</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sewa</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Utilitas</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      
-                      @foreach ($inputs as $input)
-                          <tr>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $input->period->format('M Y') }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">{{ $input->store->store_name }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">          
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->gaji_upah) }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->sewa) }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->utilitas) }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->perlengkapan) }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->lain_lain) }}</p>
-                              </td>
-                              <td class="align-middle text-center text-sm">
-                                  <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total) }}</p>
-                              </td>
-                  
-                                <td class="align-middle text-center text-sm">
-                                    @if ($input->status === 'Selesai')
-                                        <span class="badge badge-sm bg-gradient-success">{{ $input->status }}</span>
-                                    @elseif ($input->status === 'Sedang Direview')
-                                        <span class="badge badge-sm bg-gradient-warning">{{ $input->status }}</span>
-                                    @elseif ($input->status === 'Butuh Revisi')
-                                        <span class="badge badge-sm bg-gradient-danger">{{ $input->status }}</span>
-                                    @else
-                                        <span class="badge badge-sm bg-gradient-secondary">{{ $input->status }}</span>
-                                    @endif
-                                </td>                            
-                                <td class="text-center">
-                                  <!-- Staff: Only show "Revise" if status is "Butuh Revisi" -->
-                                    @if (auth()->user()->role->role_name === 'Operational')
-                                        @if($input->status === 'Butuh Revisi')
-                                            <button class="btn btn-xs btn-warning px-3 py-2" 
-                                            onclick="openEditOperationalInputModal({
-                                                id: {{ $input->id }},
-                                                period: {{ $input->period->format('M Y') }},
-                                                gaji_upah: {{ $input->gaji_upah }},
-                                                sewa: {{ $input->sewa }},
-                                                utilitas: {{ $input->utilitas }},
-                                                perlengkapan: {{ $input->perlengkapan }},
-                                                lain_lain: {{ $input->lain_lain }},
-                                                total: {{ $input->total }},
-                                                comment_input: `{{ addslashes($input->comment_input) }}`,
-                                                comment_review: `{{ addslashes($input->comment_review) }}`,
-                                                status: `{{ $input->status }}`
-                                            })">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        @endif
-                                    @endif
-                            
-                                    <!-- Manager: Show Approve/Reject only if status is "Sedang Direview" -->
-                                    @if (auth()->user()->role->role_name === 'Manager Business Development')
-                                        @if($input->status === 'Sedang Direview')
-                                            <button class="btn btn-xs btn-success px-3 py-2" 
-                                                    onclick="document.getElementById('approve-form-{{ $input->id }}').submit()">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <form id="approve-form-{{ $input->id }}" 
-                                                  action="{{ route('operational.approve', $input) }}" 
-                                                  method="POST" class="d-none">
-                                                @csrf
-                                            </form>
-                        
-                                            <button class="btn btn-xs btn-danger reject-btn px-3 py-2" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#rejectModal"
-                                                    data-input-id="{{ $input->id }}">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        @endif
-                                    @endif
-                                </td>
-                            </tr>
-                      @endforeach
-                    </tbody>
-                </table>
-                  <div class="d-flex justify-content-center mt-3">
-                    {{ $inputs->links('pagination::bootstrap-5') }}
-                  </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <div class="d-flex flex-row justify-content-between">
+                            <h6>Operational Input</h6>
+                            @if (auth()->check() && auth()->user()->role->role_name === 'Operational')
+                                <button type="button" class="btn btn-primary" onclick="openCreateOperationalInputModal()">
+                                    <i class="fas fa-plus me-2"></i> Add New Input
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gaji & Upah</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sewa</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Utilitas</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Perlengkapan</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lain-lain</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($inputs as $input)
+                                        <tr>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ optional($input->period)->format('M Y') }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ optional($input->store)->store_name }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">          
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->gaji_upah) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->sewa) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->utilitas) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->perlengkapan) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->lain_lain) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @if ($input->status === 'Selesai')
+                                                    <span class="badge bg-success">{{ $input->status }}</span>
+                                                @elseif ($input->status === 'Sedang Direview')
+                                                    <span class="badge bg-warning">{{ $input->status }}</span>
+                                                @elseif ($input->status === 'Butuh Revisi')
+                                                    <span class="badge bg-danger">{{ $input->status }}</span>
+                                                @else
+                                                    <span class="badge bg-secondary">{{ $input->status }}</span>
+                                                @endif
+                                            </td>                            
+                                            <td class="text-center">
+                                                @if (auth()->check() && auth()->user()->role->role_name === 'Operational')
+                                                    @if($input->status === 'Butuh Revisi')
+                                                        <button class="btn btn-xs btn-warning px-3 py-2 edit-btn"
+                                                            onclick="openEditOperationalInputModal({{ json_encode($input) }})">
+                                                            <i class="fas fa-edit"></i>
+                                                        </button>
+                                                    @endif
+                                                @endif
+
+                                                @if (auth()->check() && auth()->user()->role->role_name === 'Manager Business Development')
+                                                    @if($input->status === 'Sedang Direview')
+                                                        <button class="btn btn-xs btn-success px-3 py-2" 
+                                                                onclick="document.getElementById('approve-form-{{ $input->id }}').submit()">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                        <form id="approve-form-{{ $input->id }}" 
+                                                            action="{{ route('operational.approve', $input) }}" 
+                                                            method="POST" class="d-none">
+                                                            @csrf
+                                                        </form>
+
+                                                        <button class="btn btn-xs btn-danger reject-btn px-3 py-2" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#rejectModal"
+                                                                data-input-id="{{ $input->id }}">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    @endif
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-center mt-3">
+                                {{ $inputs->links('pagination::bootstrap-5') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
 
       <div class="row">
         <div class="col-12">
@@ -245,25 +229,30 @@
                                                 <div class="form-group">
                                                     <label for="gaji_upah">
                                                         Gaji & Upah
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Total gaji karyawan termasuk tunjangan dan bonus"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Total gaji karyawan termasuk tunjangan dan bonus"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="gaji_upah" id="gaji_upah" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="gaji_upah" id="gaji_upah" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="sewa">
                                                         Sewa
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Biaya sewa lokasi/tempat usaha"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Biaya sewa lokasi/tempat usaha"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="sewa" id="sewa" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="sewa" id="sewa" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             
                                 <!-- Section 2: Variable Costs -->
                                 <div class="card mb-3">
@@ -277,36 +266,44 @@
                                                 <div class="form-group">
                                                     <label for="utilitas">
                                                         Utilitas
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Biaya listrik, air, gas, telepon, internet"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Biaya listrik, air, gas, telepon, internet"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="utilitas" id="utilitas" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="utilitas" id="utilitas" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="perlengkapan">
                                                         Perlengkapan
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Biaya alat tulis, bahan habis pakai, dll"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Biaya alat tulis, bahan habis pakai, dll"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="perlengkapan" id="perlengkapan" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="lain_lain">
                                                         Lain-lain
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Biaya operasional lain yang tidak termasuk kategori di atas"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Biaya operasional lain yang tidak termasuk kategori di atas"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="lain_lain" id="lain_lain" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             
+                                <!-- Section 3: Total -->
                                 <!-- Section 3: Total -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
@@ -318,15 +315,18 @@
                                                 <div class="form-group">
                                                     <label for="total">
                                                         Total
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Jumlah total semua biaya operasional"></i>
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Jumlah total semua biaya operasional"></i>
                                                     </label>
-                                                    <input type="number" class="form-control bg-light" name="total" id="total" readonly>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="total" id="total" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             
                                 <!-- Comments Section -->
                                 <div class="card mb-3">
@@ -455,42 +455,58 @@
         };
     
         // Open modal for editing existing input
-        window.openEditOperationalInputModal = function (input) {
-            form.reset();
-            form.action = `/operational/${input.id}`;
-            methodField.value = 'PUT';
-            modalTitle.textContent = 'Edit Operational Input';
-            
-            // Safely set values only if elements exist
-            const setValueIfExists = (id, value) => {
-                const el = document.getElementById(id);
-                if (el) el.value = value;
-            };
+        window.openEditOperationalInputModal = function(inputData) {
+        // Parse the input if it's a string
+        const input = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+        
+        form.reset();
+        form.action = `/operational/${input.id}`;
+        methodField.value = 'PUT';
+        modalTitle.textContent = 'Edit Operational Input';
+        
+        // Format period correctly (from "May 2025" to "2025-05")
+        if (input.period) {
+            const [month, year] = input.period.split(' ');
+            const monthNumber = new Date(`${month} 1, ${year}`).getMonth() + 1;
+            input.periodFormatted = `${year}-${monthNumber.toString().padStart(2, '0')}`;
+        }
 
-            
-            setValueIfExists('input_id', input.id);
-            setValueIfExists('input_period', input.period);
-            setValueIfExists('gaji_upah', input.gaji_upah);
-            setValueIfExists('sewa', input.sewa);
-            setValueIfExists('utilitas', input.utilitas);
-            setValueIfExists('perlengkapan', input.perlengkapan);
-            setValueIfExists('lain_lain', input.lain_lain);
-            setValueIfExists('input_total', input.total);
-            setValueIfExists('comment_input', input.comment_input);
-            setValueIfExists('comment_review', input.comment_review);
+        // Format Rupiah helper function
+        const formatRupiah = (value) => {
+            return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '';
+        };
 
-            // Handle status field if it exists
-            if (statusField) {
-                statusField.value = input.status;
+        // Safely set values only if elements exist
+        const setValueIfExists = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.value = value || '';
+        };
+
+        setValueIfExists('input_id', input.id);
+        setValueIfExists('period', input.periodFormatted);
+        setValueIfExists('gaji_upah', formatRupiah(input.gaji_upah));
+        setValueIfExists('sewa', formatRupiah(input.sewa));
+        setValueIfExists('utilitas', formatRupiah(input.utilitas));
+        setValueIfExists('perlengkapan', formatRupiah(input.perlengkapan));
+        setValueIfExists('lain_lain', formatRupiah(input.lain_lain));
+        setValueIfExists('total', formatRupiah(input.total));
+        setValueIfExists('comment_input', input.comment_input);
+        setValueIfExists('comment_review', input.comment_review);
+
+        // Handle status field if it exists
+        if (statusField) {
+            statusField.value = input.status;
+            if (typeof handleStatusChange === 'function') {
                 handleStatusChange(input.status);
             }
+        }
 
-            if (document.getElementById('comment-review-group')) {
-                document.getElementById('comment-review-group').style.display = 'block';
-            }
-    
-            modal.modal('show');
-        };
+        if (commentReviewGroup) {
+            commentReviewGroup.style.display = 'block';
+        }
+
+        modal.modal('show');
+    };
     
         // Handle status change for managers
         if (statusField) {

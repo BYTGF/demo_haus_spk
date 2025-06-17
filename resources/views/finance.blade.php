@@ -188,6 +188,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="period">Period</label>
+            
                                                     <input type="month" class="form-control" name="period" id="period" required>
                                                 </div>
                                             </div>
@@ -198,141 +199,156 @@
                                 <!-- Section 1: Revenue -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Revenue</h6>
-                                        <small class="text-muted">Income from sales and other sources</small>
+                                        <h6 class="mb-0">Pendapatan</h6>
+                                        <small class="text-muted">Pendapatan dari penjualan dan sumber lainnya</small>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="penjualan">
-                                                        Sales Revenue
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Total revenue from product sales"></i>
+                                                        Pendapatan Penjualan
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Total pendapatan dari penjualan produk"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="penjualan" id="penjualan" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="penjualan" id="penjualan" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="pendapatan_lain">
-                                                        Other Income
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Income from non-sales activities (services, commissions, etc.)"></i>
+                                                        Pendapatan Lain
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Pendapatan dari aktivitas non-penjualan (jasa, komisi, dll)"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="pendapatan_lain" id="pendapatan_lain" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="pendapatan_lain" id="pendapatan_lain" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <label for="total_pendapatan">
-                                                        Total Revenue
-                                                    </label>
-                                                    <input type="number" class="form-control bg-light" name="total_pendapatan" id="total_pendapatan" readonly>
+                                                    <label for="total_pendapatan">Total Pendapatan</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="total_pendapatan" id="total_pendapatan" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
+
                                 <!-- Section 2: Costs -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Costs</h6>
-                                        <small class="text-muted">Cost of goods sold and operational expenses</small>
+                                        <h6 class="mb-0">Biaya</h6>
+                                        <small class="text-muted">Harga pokok penjualan dan biaya operasional</small>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="total_hpp">
-                                                        COGS (Cost of Goods Sold)
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Direct costs attributable to production"></i>
+                                                        Harga Pokok Penjualan (HPP)
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Biaya langsung yang berhubungan dengan produksi"></i>
                                                     </label>
-                                                    <input type="number" class="form-control" name="total_hpp" id="total_hpp" required>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control" name="total_hpp" id="total_hpp" required>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="biaya_operasional">
-                                                        Operational Costs
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Total operational expenses (auto-filled from operational input)"></i>
+                                                        Biaya Operasional
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Total biaya operasional (otomatis dari input operasional)"></i>
                                                     </label>
-                                                    <input type="number" class="form-control bg-light" name="biaya_operasional" id="biaya_operasional" readonly>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="biaya_operasional" id="biaya_operasional" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <label for="laba_kotor">
-                                                        Gross Profit
-                                                    </label>
-                                                    <input type="number" class="form-control bg-light" name="laba_kotor" id="laba_kotor" readonly>
+                                                    <label for="laba_kotor">Laba Kotor</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="laba_kotor" id="laba_kotor" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
+
                                 <!-- Section 3: Profit -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Profit & Margins</h6>
+                                        <h6 class="mb-0">Laba & Margin</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="laba_sebelum_pajak">
-                                                        Profit Before Tax
-                                                    </label>
-                                                    <input type="number" class="form-control bg-light" name="laba_sebelum_pajak" id="laba_sebelum_pajak" readonly>
+                                                    <label for="laba_sebelum_pajak">Laba Sebelum Pajak</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="laba_sebelum_pajak" id="laba_sebelum_pajak" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="laba_bersih">
-                                                        Net Profit
-                                                    </label>
-                                                    <input type="number" class="form-control bg-light" name="laba_bersih" id="laba_bersih" readonly>
+                                                    <label for="laba_bersih">Laba Bersih</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Rp</span>
+                                                        <input type="number" class="form-control bg-light" name="laba_bersih" id="laba_bersih" readonly>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            {{-- <div class="col-md-4">
+                                        </div>
+
+                                        {{-- Kalau mau tambahkan lagi nanti bisa aktifkan ini --}}
+                                        {{-- <div class="row">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="period">
-                                                        Period
-                                                        <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                           title="Select the month/year this report covers"></i>
+                                                        Periode
+                                                        <i class="fas fa-info-circle text-primary ms-1" title="Pilih bulan/tahun untuk laporan ini"></i>
                                                     </label>
                                                     <input type="month" class="form-control" name="period" id="period" required>
                                                 </div>
-                                            </div> --}}
-                                        </div>
+                                            </div>
+                                        </div> --}}
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="gross_profit_margin">
-                                                        Gross Profit Margin (%)
-                                                    </label>
+                                                    <label for="gross_profit_margin">Gross Profit Margin (%)</label>
                                                     <input type="number" class="form-control bg-light" name="gross_profit_margin" id="gross_profit_margin" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="net_profit_margin">
-                                                        Net Profit Margin (%)
-                                                    </label>
+                                                    <label for="net_profit_margin">Net Profit Margin (%)</label>
                                                     <input type="number" class="form-control bg-light" name="net_profit_margin" id="net_profit_margin" readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
 
                                 <!-- Section 4: Comments -->
                                 <div class="card mb-3">
@@ -613,15 +629,15 @@ document.addEventListener('DOMContentLoaded', function() {
         form.action = `/finance/${input.id}`;
         document.getElementById('form-method').value = 'PUT';
         document.getElementById('modal-title').textContent = 'Edit Finance Input';
-        document.getElementById('input_id').value = input.store.id;
+        document.getElementById('input_id').value = input.store.id || '';
         
         // Fill form with input data
-        document.getElementById('penjualan').value = input.penjualan;
-        document.getElementById('pendapatan_lain').value = input.pendapatan_lain;
-        document.getElementById('total_hpp').value = input.total_hpp;
-        document.getElementById('biaya_operasional').value = input.biaya_operasional;
-        document.getElementById('comment_input').value = input.comment_input;
-        document.getElementById('comment_review').value = input.comment_review;
+        document.getElementById('penjualan').value = input.penjualan || '';
+        document.getElementById('pendapatan_lain').value = input.pendapatan_lain || '';
+        document.getElementById('total_hpp').value = input.total_hpp || '';
+        document.getElementById('biaya_operasional').value = input.biaya_operasional || '';
+        document.getElementById('comment_input').value = input.comment_input || '';
+        document.getElementById('comment_review').value = input.comment_review || '';
         
         // Format period as YYYY-MM if needed
         if (input.period) {

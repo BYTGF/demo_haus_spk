@@ -138,12 +138,14 @@ class InputOperationalController extends Controller
                     'utilitas' => 'required|integer|min:0',
                     'perlengkapan' => 'required|integer|min:0',
                     'lain_lain' => 'required|integer|min:0',
-                    'comment_input' => 'required|string',
+                    'comment_input' => 'nullable|string',
                     'comment_review' => 'nullable|string',
-                    'store_id' => 'required|exists:stores,id',
                 ]);
 
+                $validated['status'] = 'Sedang Direview';
+
                 $validated['total'] = $validated['gaji_upah'] + $validated['sewa'] + $validated['utilitas'] + $validated['perlengkapan'] + $validated['lain_lain'];
+
 
                 $operationalInput->update($validated);
 
