@@ -20,9 +20,9 @@ class DatabaseSeeder extends Seeder
             AreaSeeder::class,
             StoreSeeder::class,
             UserSeeder::class,
-            // InputFinanceSeeder::class,
-            // InputOperationalSeeder::class,
-            // InputStoreSeeder::class,
+            InputFinanceSeeder::class,
+            InputOperationalSeeder::class,
+            InputStoreSeeder::class,
             // InputBDSeeder::class,
             CriteriaWeightSeeder::class,
         ]);

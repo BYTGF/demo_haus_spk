@@ -14,9 +14,7 @@ class InputStoreSeeder extends Seeder
 {
     public function run()
     {
-        $userIds = User::pluck('id')->toArray();
-        $stores = Store::all();
-        
+        $users = User::where('role_id', 8)->pluck('store_id', 'id')->toArray();// Ambil user_id dan store_id
         $statuses = ['Sedang Direview Manager Area', 'Sedang Direview Manager BD', 'Butuh Revisi', 'Selesai'];
         
         $environments = [
@@ -28,12 +26,20 @@ class InputStoreSeeder extends Seeder
             ['Kampus', 'Perumahan', 'Sekolah'],
         ];
         
-        foreach ($stores as $store) {
-            // Create 3-6 months of data for each store
-            $months = rand(3, 6);
+        foreach ($users as $userId => $storeId) { // Loop berdasarkan user_id dan store_id
+            $months = rand(3, 6); // Generate data untuk 3-6 bulan
             
             for ($i = 0; $i < $months; $i++) {
                 $period = Carbon::now()->subMonths($i);
+
+                $exists = InputStore::where('store_id', $storeId)
+                    ->where('user_id', $userId)
+                    ->where('period', $period)
+                    ->exists();
+
+                if ($exists) {
+                    continue; // Lewati jika sudah ada
+                }
                 
                 $aksesibilitas = rand(1, 3);
                 $visibilitas = rand(1, 2);
@@ -43,9 +49,7 @@ class InputStoreSeeder extends Seeder
                 $parkir_mobil = rand(1, 3);
                 $parkir_motor = rand(1, 3);
                 
-                $total = $aksesibilitas + $visibilitas + count($env) + $lalu_lintas + $kepadatan + $parkir_mobil + $parkir_motor;
-                
-                InputStore::create([
+                InputStore::updateOrCreate([
                     'period' => $period,
                     'aksesibilitas' => $aksesibilitas,
                     'visibilitas' => $visibilitas,
@@ -54,14 +58,15 @@ class InputStoreSeeder extends Seeder
                     'kepadatan_kendaraan' => $kepadatan,
                     'parkir_mobil' => $parkir_mobil,
                     'parkir_motor' => $parkir_motor,
-                    'comment_input' => 'Input for ' . $store->store_code . ' on ' . $period->format('Y-m'),
-                    'comment_review' => rand(0, 1) ? 'Review comment for ' . $store->store_code : null,
+                    'comment_input' => 'Input for store ID ' . $storeId . ' on ' . $period->format('Y-m'),
+                    'comment_review' => rand(0, 1) ? 'Review comment for store ID ' . $storeId : null,
                     'is_active' => true,
                     'status' => $statuses[array_rand($statuses)],
-                    'user_id' => $userIds[array_rand($userIds)],
-                    'store_id' => $store->id,
+                    'user_id' => $userId, // Pastikan user_id sesuai dengan store_id
+                    'store_id' => $storeId, // Ambil store_id langsung dari User
                 ]);
             }
         }
     }
+
 }

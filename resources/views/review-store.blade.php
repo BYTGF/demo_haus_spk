@@ -60,5 +60,36 @@
         {{ $paginatedStores->links('pagination::bootstrap-5') }}
     </div>
   </div>
+
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5>Toko yang sudah ditutup</h5>
+  </div>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Store</th>
+          <th>Waktu Tutup</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($closed as $close)
+        <tr>
+          <td>{{ $close->store_name }}</td>
+          <td>
+            {{ $close->updated_at }}
+          </td>
+        </tr>
+        @empty
+        <tr>
+          <td colspan="4" class="text-center">Belum ada store yang ditutup.</td>
+        </tr>
+        @endforelse
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-center mt-4">
+        {{ $closed->links('pagination::bootstrap-5') }}
+    </div>
+  </div>
 </div>
 @endsection

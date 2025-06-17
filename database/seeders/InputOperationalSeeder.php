@@ -17,17 +17,26 @@ class InputOperationalSeeder extends Seeder
      */
     public function run()
     {
-        $userIds = User::pluck('id')->toArray();
+        $users = User::where('role_id', 5)->pluck('store_id', 'id')->toArray();
         $stores = Store::all();
         
         $statuses = ['Sedang Direview', 'Butuh Revisi', 'Selesai'];
         
-        foreach ($stores as $store) {
+        foreach ($users as $userId => $storeId) {
             // Create 3-6 months of data for each store
             $months = rand(3, 6);
             
             for ($i = 0; $i < $months; $i++) {
                 $period = Carbon::now()->subMonths($i);
+
+                $exists = InputOperational::where('store_id', $storeId)
+                    ->where('user_id', $userId)
+                    ->where('period', $period)
+                    ->exists();
+
+                if ($exists) {
+                    continue; // Lewati jika sudah ada
+                }
                 
                 $gaji_upah = rand(10000000, 15000000);
                 $sewa = rand(8000000, 11000000);
@@ -36,7 +45,7 @@ class InputOperationalSeeder extends Seeder
                 $lain_lain = rand(3000000, 4500000);
                 $total = $gaji_upah + $sewa + $utilitas + $perlengkapan + $lain_lain;
                 
-                InputOperational::create([
+                InputOperational::updateOrCreate([
                     'period' => $period,
                     'gaji_upah' => $gaji_upah,
                     'sewa' => $sewa,
@@ -44,12 +53,12 @@ class InputOperationalSeeder extends Seeder
                     'perlengkapan' => $perlengkapan,
                     'lain_lain' => $lain_lain,
                     'total' => $total,
-                    'comment_input' => 'Operational input for ' . $store->store_code,
-                    'comment_review' => rand(0, 1) ? 'Operational review for ' . $store->store_code : null,
+                    'comment_input' => 'Operational input for ' . $storeId,
+                    'comment_review' => rand(0, 1) ? 'Operational review for ' . $storeId : null,
                     'is_active' => true,
                     'status' => $statuses[array_rand($statuses)],
-                    'user_id' => $userIds[array_rand($userIds)],
-                    'store_id' => $store->id,
+                    'user_id' => $userId, // Pastikan user_id sesuai dengan store_id
+                    'store_id' => $storeId, 
                 ]);
             }
         }

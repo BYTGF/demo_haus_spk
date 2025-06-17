@@ -15,6 +15,7 @@ class AreaSeeder extends Seeder
     public function run()
     {
         $areas = [
+            ['area_code' => 'MNG', 'area_name' => 'Manager'],
             ['area_code' => 'AREA-001', 'area_name' => 'Jakarta Pusat'],
             ['area_code' => 'AREA-002', 'area_name' => 'Jakarta Barat'],
             ['area_code' => 'AREA-003', 'area_name' => 'Jakarta Selatan'],

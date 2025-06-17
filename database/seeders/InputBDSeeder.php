@@ -17,29 +17,38 @@ class InputBDSeeder extends Seeder
      */
     public function run()
     {
-        $userIds = User::pluck('id')->toArray();
+        $users = User::where('role_id', 4)->pluck('store_id', 'id')->toArray();
         $stores = Store::all();
         
         $statuses = ['Sedang Direview', 'Butuh Revisi', 'Selesai'];
         
-        foreach ($stores as $store) {
+        foreach ($users as $userId => $storeId) {
             // Create 3-6 months of data for each store
             $months = rand(3, 6);
             
             for ($i = 0; $i < $months; $i++) {
                 $period = Carbon::now()->subMonths($i);
+
+                $exists = InputBD::where('store_id', $storeId)
+                    ->where('user_id', $userId)
+                    ->where('period', $period)
+                    ->exists();
+
+                if ($exists) {
+                    continue; // Lewati jika sudah ada
+                }
                 
-                InputBD::create([
+                InputBD::updateOrCreate([
                     'period' => $period,
                     'direct_competition' => rand(1, 5),
                     'substitute_competition' => rand(1, 5),
                     'indirect_competition' => rand(1, 5),
-                    'comment_input' => 'BD input for ' . $store->store_code,
-                    'comment_review' => rand(0, 1) ? 'BD review for ' . $store->store_code : null,
+                    'comment_input' => 'BD input for ' . $storeId,
+                    'comment_review' => rand(0, 1) ? 'BD review for ' . $storeId : null,
                     'is_active' => true,
                     'status' => $statuses[array_rand($statuses)],
-                    'user_id' => $userIds[array_rand($userIds)],
-                    'store_id' => $store->id,
+                    'user_id' => $userId, // Pastikan user_id sesuai dengan store_id
+                    'store_id' => $storeId, 
                 ]);
             }
         }

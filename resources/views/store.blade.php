@@ -8,7 +8,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
-                            <h6>Store Evaluation</h6>
+                            <h6>Store Input</h6>
                             @if (auth()->user()->role->role_name === 'Store Manager')
                                 <button type="button" class="btn btn-primary" onclick="openCreateStoreInputModal()">
                                     <i class="fas fa-plus me-2"></i> Add New Input
