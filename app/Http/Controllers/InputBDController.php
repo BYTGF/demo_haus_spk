@@ -158,6 +158,8 @@ class InputBDController extends Controller
                     'comment_review' => 'nullable|string',
                 ]);
 
+                $validated['status'] = 'Sedang Direview';
+
                 $bdInput->update($validated);
 
                 return redirect()->route('bd.index')

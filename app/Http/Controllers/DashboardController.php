@@ -23,9 +23,31 @@ class DashboardController extends Controller
             $storeFilter = $request->input('store_filter', 'all'); // 'all' or specific store ID
             $periodFilter = $request->input('period_filter', 'all');
             
-            $availablePeriods = InputOperational::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
-            ->orderByDesc('period')
-            ->pluck('period');
+            $operationalPeriods = InputOperational::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
+                ->orderByDesc('period')
+                ->pluck('period');
+
+            $financePeriods = InputFinance::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
+                ->orderByDesc('period')
+                ->pluck('period');
+
+            $bdPeriods = InputBD::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
+                ->orderByDesc('period')
+                ->pluck('period');
+
+            $storePeriods = InputStore::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
+                ->orderByDesc('period')
+                ->pluck('period');
+
+            // Gabungkan semua daftar periode, hilangkan duplikat, lalu urutkan
+            $availablePeriods = collect()
+                ->merge($operationalPeriods)
+                ->merge($financePeriods)
+                ->merge($bdPeriods)
+                ->merge($storePeriods)
+                ->unique()
+                ->sortDesc();
+
 
             // Get list of stores for dropdown (only for Manager)
             $stores = [];

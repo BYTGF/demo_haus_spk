@@ -466,6 +466,11 @@
         
         // Format period correctly (from "May 2025" to "2025-05")
 
+        // Format Rupiah helper function
+        const formatRupiah = (value) => {
+            return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '';
+        };
+
         // Safely set values only if elements exist
         const setValueIfExists = (id, value) => {
             const el = document.getElementById(id);

@@ -62,11 +62,10 @@ class InputStoreController extends Controller
                     'parkir_mobil' => 'required|integer|min:0',
                     'parkir_motor' => 'required|integer|min:0',
                     'comment_input' => 'nullable|string',
-                    // 'store_id' => 'required|exists:stores,id'
                 ]);
 
                 // Check for existing data
-                 $exists = InputStore::where('store_id', $request->store_id)
+                $exists = InputStore::where('store_id', $request->store_id)
                     ->where('period', $request->period)
                     ->exists();
 
@@ -93,8 +92,11 @@ class InputStoreController extends Controller
                 // Prepare data
                 $validated['user_id'] = auth()->id();
                 $validated['status'] = 'Sedang Direview Manager Area';
-                $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
-                 $validated['store_id'] = auth()->user()->store_id;
+                $validated['period'] = $validated['period'] . '-15';
+                $validated['store_id'] = auth()->user()->store_id;
+                
+                // Tambahkan ini untuk mengkonversi lingkungan ke JSON
+                $validated['lingkungan'] = json_encode($validated['lingkungan']);
 
                 InputStore::create($validated);
 
@@ -108,7 +110,6 @@ class InputStoreController extends Controller
                     ->withInput();
             }
         }
-
         abort(403, 'Unauthorized action.');
     }
 
@@ -176,37 +177,39 @@ class InputStoreController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        if (auth()->user()->role->role_name === 'Store Manager') {
-            try {
-                $storeInput = InputStore::findOrFail($id);
+{
+    if (auth()->user()->role->role_name === 'Store Manager') {
+        try {
+            $storeInput = InputStore::findOrFail($id);
 
-                $validated = $request->validate([
-                    'period' => 'required|date',
-                    'aksesibilitas' => 'required|integer|between:1,4',
-                    'visibilitas' => 'required|integer|between:1,4',
-                    'lingkungan' => 'required|array',
-                    'lingkungan.*' => 'integer|between:1,3',
-                    'lalu_lintas' => 'required|integer|between:1,4',
-                    'parkir_mobil' => 'required|integer|min:0',
-                    'parkir_motor' => 'required|integer|min:0',
-                    'comment_input' => 'nullable|string',
-                    'comment_review' => 'nullable|string',
-                ]);
+            $validated = $request->validate([
+                'period' => 'required|date',
+                'aksesibilitas' => 'required|integer|between:1,4',
+                'visibilitas' => 'required|integer|between:1,4',
+                'lingkungan' => 'required|array',
+                'lingkungan.*' => 'integer|between:1,3',
+                'lalu_lintas' => 'required|integer|between:1,4',
+                'parkir_mobil' => 'required|integer|min:0',
+                'parkir_motor' => 'required|integer|min:0',
+                'comment_input' => 'nullable|string',
+                'comment_review' => 'nullable|string',
+            ]);
 
-                $validated['lingkungan'] = implode(',', $validated['lingkungan']);
-                $validated['status'] = 'Sedang Direview Manager Area';
+            // Ubah ini:
+            // $validated['lingkungan'] = implode(',', $validated['lingkungan']);
+            // Menjadi:
+            $validated['lingkungan'] = json_encode($validated['lingkungan']);
+            
+            $validated['status'] = 'Sedang Direview Manager Area';
 
-                $storeInput->update($validated);
+            $storeInput->update($validated);
 
-                return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
-            } catch (\Exception $e) {
-                \Log::error('Error fetching data in index: ' . $e->getMessage());
-                return redirect()->back()->withErrors(['error' => 'Gagal update data store.']);
-            }
+            return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
+        } catch (\Exception $e) {
+            \Log::error('Error fetching data in index: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Gagal update data store.']);
         }
-
-        abort(403, 'Unauthorized action.');
     }
-
+    abort(403, 'Unauthorized action.');
+}
 }

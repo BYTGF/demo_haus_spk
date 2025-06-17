@@ -206,7 +206,7 @@ class InputFinanceController extends Controller
                 $validated['total_pendapatan'] = $validated['penjualan'] + $validated['pendapatan_lain'];
                 $validated['laba_kotor'] = $validated['total_pendapatan'] - $validated['total_hpp'];
 
-                $operational = InputOperational::where('store_id', $validated['store_id'])->latest()->first();
+                $operational = InputOperational::where('store_id', $finance->store_id)->latest()->first();
                 $validated['biaya_operasional'] = $operational->total ?? 0;
                 $validated['laba_sebelum_pajak'] = $validated['laba_kotor'] - $validated['biaya_operasional'];
                 $validated['laba_bersih'] = $validated['laba_sebelum_pajak'];
