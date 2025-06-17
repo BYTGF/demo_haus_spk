@@ -1,6 +1,6 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center p-3">
-        <h4>Operational Expenses</h4>
+        <h4>Biaya Operasional</h4>
     </div>
     <div class="card-body p-3">
         @if($inputOperationals->isNotEmpty())
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Personel dan Fasilitas', 'Suplai', 'Lainnya'],
+            labels: ['Biaya Tetap', 'Biaya Variabel', 'Biaya Lain - Lain'],
             datasets: [{
                 data: [
                     {{ $operationalData['Personnel & Facilities'] ?? 0 }},

@@ -24,9 +24,9 @@
                       <tr>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Direct Competition</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Substitute Competition</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Indirect Competition</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Langsung</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Pengganti</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Tidak Langsung</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                       </tr>
@@ -130,9 +130,9 @@
                     <tr>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Toko</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Direct Competition</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Substitute Competition</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Indirect Competition</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Langsung</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Pengganti</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kompetisi Tidak Langsung</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -178,7 +178,7 @@
                 <div class="modal-body p-0">
                     <div class="card card-plain">
                         <div class="card-header pb-0 text-left">
-                            <h3 class="font-weight-bolder text-info text-gradient" id="modal-title">Business Development Input</h3>
+                            <h3 class="font-weight-bolder text-info text-gradient" id="modal-title">Kompetitor Input</h3>
                         </div>
                         <div class="card-body">
                             <form id="bd-input-form" method="POST">
@@ -234,9 +234,9 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="direct_competition">
-                                                        Direct Competition
+                                                        Jenis Kompetitor 1
                                                         <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                        title="Number of businesses offering similar products/services"></i>
+                                                        title=" Menawarkan produk sejenis dan memiliki target pasar yang sama, Contoh (Es teh Indonesia, Teguk, dll )"></i>
                                                     </label>
                                                     <input type="number" class="form-control" name="direct_competition" id="direct_competition" required>
                                                 </div>
@@ -244,9 +244,9 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="substitute_competition">
-                                                        Substitute Competition
+                                                        Jenis Kompetitor 2
                                                         <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                        title="Number of businesses offering alternative solutions"></i>
+                                                        title="Menawarkan produk berbeda tetapi dapat menggantikan atau memenuhi kebutuhan yang sama dari konsumen, Contoh (Kopi Kenangan, Tomoro, dll )"></i>
                                                     </label>
                                                     <input type="number" class="form-control" name="substitute_competition" id="substitute_competition" required>
                                                 </div>
@@ -254,9 +254,9 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="indirect_competition">
-                                                        Indirect Competition
+                                                        Jenis Kompetitor 3
                                                         <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
-                                                        title="Number of businesses competing for the same customer budget"></i>
+                                                        title="Memiliki skala lebih besar dari baik dari segi penjualan, penguasaan pasar, atau distribusi, Contoh (Chatime, Lawson, dll)"></i>
                                                     </label>
                                                     <input type="number" class="form-control" name="indirect_competition" id="indirect_competition" required>
                                                 </div>
@@ -313,7 +313,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="viewBdModalLabel">Business Development Input Details</h5>
+                    <h5 class="modal-title" id="viewBdModalLabel">Input Detail Kompetitor</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -328,13 +328,13 @@
                     
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <p><strong>Direct Competition:</strong> <span id="viewDirect"></span></p>
+                            <p><strong>Jenis Kompetitor 1:</strong> <span id="viewDirect"></span></p>
                         </div>
                         <div class="col-md-4">
-                            <p><strong>Substitute Competition:</strong> <span id="viewSubstitute"></span></p>
+                            <p><strong>Jenis Kompetitor 2:</strong> <span id="viewSubstitute"></span></p>
                         </div>
                         <div class="col-md-4">
-                            <p><strong>Indirect Competition:</strong> <span id="viewIndirect"></span></p>
+                            <p><strong>Jenis Kompetitor 3:</strong> <span id="viewIndirect"></span></p>
                         </div>
                     </div>
                     
@@ -430,7 +430,7 @@
             form.reset();
             form.action = '{{ route("bd.store") }}';
             methodField.value = 'POST';
-            modalTitle.textContent = 'Create Business Development Input';
+            modalTitle.textContent = 'Create Input Kompetitor';
             
             // Reset store selection
             if (storeSelect) {
@@ -450,7 +450,7 @@
             form.reset();
             form.action = `/bd/${input.id}`;
             methodField.value = 'PUT';
-            modalTitle.textContent = 'Edit Business Development Input';
+            modalTitle.textContent = 'Edit Input Kompetitor';
             
             // Safely set values only if elements exist
             const setValueIfExists = (id, value) => {

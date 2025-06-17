@@ -27,6 +27,8 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibility</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lingkungan</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kepadatan Kendaraan</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Parkir Motor</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Parkir Mobil</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                                     </tr>
@@ -92,6 +94,12 @@
                                                 <p class="text-xs font-weight-bold mb-0">
                                                     {{ $traffic[$input->lalu_lintas] ?? '-' }}
                                                 </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $input->parkir_mobil }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $input->parkir_motor }}</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 @if ($input->status === 'Selesai')
@@ -190,25 +198,81 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Accessibility</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Visibility</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lingkungan</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kepadatan Kendaraan</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Parkir Motor</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Parkir Mobil</th>
                     </tr>
                   </thead>
                   <tbody>
                     
                     @foreach ($dones as $done)
                         <tr>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->period->format('M Y') }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->aksesibilitas_label }}</p>
-                            </td>
-                            <td class="align-middle text-center text-sm">
-                                <p class="text-xs font-weight-bold mb-0">{{ $done->visibilitas_label }}</p>
-                            </td>
-                        </tr>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->store->store_name }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->period->format('M Y') }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $akses = [
+                                                        1 => 'Hanya Kendaraan Pribadi',
+                                                        2 => '1 Transportasi Umum & Kendaraan Pribadi',
+                                                        3 => '2 Transportasi Umum & Kendaraan Pribadi',
+                                                        4 => '>2 Transportasi Umum & Kendaraan Pribadi'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $akses[$done->aksesibilitas] ?? '-' }}
+                                                </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $vis = [
+                                                        1 => '< 20%',
+                                                        2 => '20 - 39%',
+                                                        3 => '40 - 59%',
+                                                        4 => '60 - 79%',
+                                                        5 => '≥ 80%'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $vis[$done->visibilitas] ?? '-' }}
+                                                </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $lingkunganList = [];
+                                                    $lingkungan = is_array($done->lingkungan) ? array_map('intval', $done->lingkungan) : json_decode($done->lingkungan, true);
+                                                    
+                                                    if (is_array($lingkungan)) {
+                                                        if (in_array(1, $lingkungan)) $lingkunganList[] = 'Kampus';
+                                                        if (in_array(2, $lingkungan)) $lingkunganList[] = 'Sekolah';
+                                                        if (in_array(3, $lingkungan)) $lingkunganList[] = 'Perumahan';
+                                                    }
+                                                @endphp
+
+                                                <p class="text-xs font-weight-bold mb-0">{{ implode(', ', $lingkunganList) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $traffic = [
+                                                        1 => 'Macet Parah',
+                                                        2 => 'Macet',
+                                                        3 => 'Lancar'
+                                                    ];
+                                                @endphp
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ $traffic[$done->lalu_lintas] ?? '-' }}
+                                                </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->parkir_mobil }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->parkir_motor }}</p>
+                                            </td>
                     @endforeach
                   </tbody>
                 </table>
@@ -229,7 +293,7 @@
                 <div class="modal-body p-0">
                     <div class="card card-plain">
                         <div class="card-header pb-0 text-left">
-                            <h3 class="font-weight-bolder text-info text-gradient" id="modal-title">Store Evaluation</h3>
+                            <h3 class="font-weight-bolder text-info text-gradient" id="modal-title">Evaluasi Toko</h3>
                         </div>
                         <div class="card-body">
                             <form id="store-input-form" method="POST">
@@ -239,16 +303,16 @@
                                 <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                                 <input type="hidden" name="status" value="Sedang Direview Manager Area">
 
-                                <!-- Section 1: Basic Info -->
+                                <!-- Bagian 1: Informasi Dasar -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Basic Information</h6>
+                                        <h6 class="mb-0">Informasi Dasar</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="period">Period</label>
+                                                    <label for="period">Periode</label>
                                                     <input type="month" class="form-control" name="period" id="period" required>
                                                 </div>
                                             </div>
@@ -256,16 +320,16 @@
                                     </div>
                                 </div>
 
-                                <!-- Section 2: Location Evaluation -->
+                                <!-- Bagian 2: Evaluasi Lokasi -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Location Evaluation</h6>
+                                        <h6 class="mb-0">Evaluasi Lokasi</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label>Accessibility</label>
+                                                    <label>Aksesibilitas</label>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="aksesibilitas" id="aksesibilitas_a" value="4" required>
                                                         <label class="form-check-label" for="aksesibilitas_a"> >2 jenis transportasi umum & kendaraan pribadi</label>
@@ -286,10 +350,10 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label>Visibility</label>
+                                                    <label>Visibilitas</label>
                                                     <div class="input-group">
                                                         <input type="number" class="form-control" name="visibilitas" id="visibilitas" required min="0">
-                                                        <span class="input-group-text">m</span>
+                                                        <span class="input-group-text">meter</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -297,33 +361,33 @@
                                     </div>
                                 </div>
 
-                                <!-- Section 3: Surroundings -->
+                                <!-- Bagian 3: Lingkungan Sekitar -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Surroundings</h6>
+                                        <h6 class="mb-0">Lingkungan Sekitar</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label>Environment Type (Select all that apply)</label>
+                                                    <label>Jenis Lingkungan (Pilih yang sesuai)</label>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="lingkungan[]" id="lingkungan_kampus" value="1">
-                                                        <label class="form-check-label" for="lingkungan_kampus">Campus Area</label>
+                                                        <label class="form-check-label" for="lingkungan_kampus">Area Kampus</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="lingkungan[]" id="lingkungan_sekolah" value="2">
-                                                        <label class="form-check-label" for="lingkungan_sekolah">School Area</label>
+                                                        <label class="form-check-label" for="lingkungan_sekolah">Area Sekolah</label>
                                                     </div>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="lingkungan[]" id="lingkungan_perumahan" value="3">
-                                                        <label class="form-check-label" for="lingkungan_perumahan">Residential Area</label>
+                                                        <label class="form-check-label" for="lingkungan_perumahan">Area Perumahan</label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label>Lalu lintas</label>
+                                                    <label>Kepadatan Pengunjung</label>
                                                     <div class="input-group">
                                                         <input type="number" class="form-control" name="lalu_lintas" id="lalu_lintas" required min="0">
                                                         <span class="input-group-text">orang/m<sup>2</sup></span>
@@ -332,7 +396,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group">
-                                                    <label>Traffic Conditions</label>
+                                                    <label>Kondisi Lalu Lintas</label>
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="kepadatan_kendaraan" id="kepadatan_kendaraan_1" value="3" required>
                                                         <label class="form-check-label" for="kepadatan_kendaraan_1">Lancar</label>
@@ -351,22 +415,22 @@
                                     </div>
                                 </div>
 
-                                <!-- Section 4: Parking -->
+                                <!-- Bagian 4: Fasilitas Parkir -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Parking Facilities</h6>
+                                        <h6 class="mb-0">Fasilitas Parkir</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label>Car Parking Capacity</label>
+                                                    <label>Kapasitas Parkir Mobil</label>
                                                     <input type="number" class="form-control" name="parkir_mobil" id="parkir_mobil" required min="0">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label>Motorcycle Parking Capacity</label>
+                                                    <label>Kapasitas Parkir Motor</label>
                                                     <input type="number" class="form-control" name="parkir_motor" id="parkir_motor" required min="0">
                                                 </div>
                                             </div>
@@ -374,35 +438,32 @@
                                     </div>
                                 </div>
 
-                                <!-- Section 5: Rating & Comments -->
+                                <!-- Bagian 5: Evaluasi Keseluruhan -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Overall Evaluation</h6>
+                                        <h6 class="mb-0">Evaluasi Keseluruhan</h6>
                                     </div>
                                     <div class="card-body">
-    
                                         <div class="form-group mt-3">
-                                            <label for="comment_input">Evaluation Notes</label>
+                                            <label for="comment_input">Catatan Evaluasi</label>
                                             <textarea class="form-control" name="comment_input" id="comment_input" rows="3"></textarea>
                                         </div>
-                                        
-                                        @if(auth()->user()->role->role_name === 'Area Manager' || 
-                                            auth()->user()->role->role_name === 'Business Development Manager')
-                                            <div class="form-group mt-3">
-                                                <label for="comment_review">Review Comments</label>
-                                                <textarea class="form-control" name="comment_review" id="comment_review" rows="3"></textarea>
-                                            </div>
-                                        @endif
+
+                                        <div class="form-group mt-3" id="comment-review-group">
+                                            <label for="comment_review">Komentar Review</label>
+                                            <textarea class="form-control" name="comment_review" id="comment_review" rows="3"></textarea>
+                                        </div>
+
                                     </div>
                                 </div>
 
-                                <!-- Form Buttons -->
+                                <!-- Tombol Form -->
                                 <div class="text-center mt-4">
                                     <button type="submit" class="btn btn-primary px-4">
-                                        <i class="fas fa-save me-2"></i> Submit
+                                        <i class="fas fa-save me-2"></i> Simpan
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i> Close
+                                        <i class="fas fa-times me-2"></i> Tutup
                                     </button>
                                 </div>
                             </form>
@@ -421,7 +482,7 @@
                     @csrf
                     <input type="hidden" name="approval_level" id="approval_level">
                     <div class="modal-header">
-                        <h5 class="modal-title">Reject Evaluation</h5>
+                        <h5 class="modal-title">Reject Input</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -458,7 +519,11 @@ document.addEventListener('DOMContentLoaded', function() {
         form.reset();
         form.action = '{{ route("store.store") }}';
         methodField.value = 'POST';
-        modalTitle.textContent = 'Create Store Evaluation';
+        modalTitle.textContent = 'Create Store Input';
+
+        if (document.getElementById('comment-review-group')) {
+            document.getElementById('comment-review-group').style.display = 'none';
+        }
         modal.modal('show');
     };
 
@@ -467,30 +532,53 @@ document.addEventListener('DOMContentLoaded', function() {
         form.reset();
         form.action = `/store/${input.id}`;
         methodField.value = 'PUT';
-        modalTitle.textContent = 'Edit Store Evaluation';
+        modalTitle.textContent = 'Edit Store Input';
         inputIdField.value = input.id;
         
-        // Fill form with input data
+        // Set basic fields
         document.getElementById('period').value = input.period.substring(0, 7) || '';
+        document.getElementById('visibilitas').value = input.visibilitas || '';
+        document.getElementById('lalu_lintas').value = input.lalu_lintas || '';
         document.getElementById('parkir_mobil').value = input.parkir_mobil || '';
         document.getElementById('parkir_motor').value = input.parkir_motor || '';
-        document.getElementById('lalu_lintas').value = input.lalu_lintas || '';
         document.getElementById('comment_input').value = input.comment_input || '';
-        document.getElementById('comment_review').value = input.comment_review || '';
-        
-        // Set radio buttons
-        document.querySelector(`input[name="aksesibilitas"][value="${input.aksesibilitas}"]`).checked = true;
-        document.querySelector(`input[name="visibilitas"][value="${input.visibilitas}"]`).checked = true;
-        document.querySelector(`input[name="kepadatan_kendaraan"][value="${input.kepadatan_kendaraan}"]`).checked = true;
-        
-        // Set checkboxes (assuming lingkungan is stored as comma-separated values)
-        if (input.lingkungan) {
-            const lingkunganValues = input.lingkungan.split(',');
-            lingkunganValues.forEach(value => {
-                const checkbox = document.querySelector(`input[name="lingkungan[]"][value="${value.trim()}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
+        const commentReviewField = document.getElementById('comment_review');
+        if (commentReviewField) {
+            commentReviewField.value = input.comment_review || '';
         }
+
+                if (document.getElementById('comment-review-group')) {
+            document.getElementById('comment-review-group').style.display = 'block';
+        }
+        
+        // Set radio buttons (with null checks)
+        const aksesibilitasRadio = document.querySelector(`input[name="aksesibilitas"][value="${input.aksesibilitas}"]`);
+        if (aksesibilitasRadio) aksesibilitasRadio.checked = true;
+        
+        const kepadatanRadio = document.querySelector(`input[name="kepadatan_kendaraan"][value="${input.kepadatan_kendaraan}"]`);
+        if (kepadatanRadio) kepadatanRadio.checked = true;
+        
+        // Set checkboxes (handle array or JSON string)
+        const lingkunganCheckboxes = document.querySelectorAll('input[name="lingkungan[]"]');
+        lingkunganCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        let lingkunganValues = [];
+        if (Array.isArray(input.lingkungan)) {
+            lingkunganValues = input.lingkungan;
+        } else if (typeof input.lingkungan === 'string') {
+            try {
+                lingkunganValues = JSON.parse(input.lingkungan) || [];
+            } catch {
+                lingkunganValues = input.lingkungan.split(',');
+            }
+        }
+        
+        lingkunganValues.forEach(value => {
+            const checkbox = document.querySelector(`input[name="lingkungan[]"][value="${value.toString().trim()}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
         
         modal.modal('show');
     };

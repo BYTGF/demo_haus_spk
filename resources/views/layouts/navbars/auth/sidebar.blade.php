@@ -81,7 +81,7 @@
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fas fa-money-bill-wave text-dark"></i>
             </div>
-            <span class="nav-link-text ms-1">Review Store</span>
+            <span class="nav-link-text ms-1">Simulasi Keputusan Toko</span>
           </a>
         </li>
       @endif

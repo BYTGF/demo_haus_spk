@@ -465,16 +465,6 @@
         modalTitle.textContent = 'Edit Operational Input';
         
         // Format period correctly (from "May 2025" to "2025-05")
-        if (input.period) {
-            const [month, year] = input.period.split(' ');
-            const monthNumber = new Date(`${month} 1, ${year}`).getMonth() + 1;
-            input.periodFormatted = `${year}-${monthNumber.toString().padStart(2, '0')}`;
-        }
-
-        // Format Rupiah helper function
-        const formatRupiah = (value) => {
-            return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '';
-        };
 
         // Safely set values only if elements exist
         const setValueIfExists = (id, value) => {
@@ -483,7 +473,7 @@
         };
 
         setValueIfExists('input_id', input.id);
-        setValueIfExists('period', input.periodFormatted);
+        setValueIfExists('period', input.period.substring(0, 7));
         setValueIfExists('gaji_upah', formatRupiah(input.gaji_upah));
         setValueIfExists('sewa', formatRupiah(input.sewa));
         setValueIfExists('utilitas', formatRupiah(input.utilitas));

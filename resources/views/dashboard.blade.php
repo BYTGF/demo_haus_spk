@@ -44,7 +44,7 @@
                 @endforeach
             </select>
 
-            @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Area Manager')
+            @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Area Manager' || auth()->user()->role->role_name === 'Business Development Staff')
             <select name="store_filter" class="form-select" style="max-width: 200px">
                 <option value="all">Semua Store</option>
                 @foreach($stores as $id => $name)

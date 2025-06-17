@@ -2,7 +2,7 @@
 <div class="card mb-4">
     @if($financeMetrics)
     <div class="card-header d-flex justify-content-between align-items-center p-3">
-        <h4>Income Report</h4>
+        <h4>Laporan Keuangan</h4>
     </div>
     <div class="card-body">
         <div class="row">

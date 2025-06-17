@@ -23,7 +23,7 @@ class DashboardController extends Controller
             $storeFilter = $request->input('store_filter', 'all'); // 'all' or specific store ID
             $periodFilter = $request->input('period_filter', 'all');
             
-            $availablePeriods = InputFinance::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
+            $availablePeriods = InputOperational::selectRaw('DISTINCT DATE_FORMAT(period, "%Y-%m") as period')
             ->orderByDesc('period')
             ->pluck('period');
 

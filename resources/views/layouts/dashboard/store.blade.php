@@ -75,7 +75,7 @@
             <h6>Lingkungan Sekitar</h6>
             @php
               $icons = ["1" => 'fa-graduation-cap', "2" => 'fa-school', "3" => 'fa-house'];
-              $lingkunganData = json_decode($storeMetrics->lingkungan ?? '[]', true);
+              $lingkunganData = is_string($storeMetrics->lingkungan) ? json_decode($storeMetrics->lingkungan, true) : $storeMetrics->lingkungan;
             @endphp
             @foreach ($icons as $key => $icon)
               @if (in_array($key, $lingkunganData))
