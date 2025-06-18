@@ -3,9 +3,6 @@
 @php
     $activeComponents = 0;
 
-    if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Finance') {
-        $activeComponents++;
-    }
 
     if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Operational') {
         $activeComponents++;
@@ -19,7 +16,6 @@
     $colClass = match($activeComponents) {
         1 => 'col-12',
         2 => 'col-6',
-        3 => 'col-4',
         default => 'col-12'
     };
 @endphp
@@ -65,9 +61,8 @@
     @endif
     <div class="row m-3">
       @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Finance')
-      <div class="{{ $colClass }}">
+      
         @include('layouts.dashboard.finance')
-      </div>
       @endif
 
       @if(auth()->user()->role->role_name === 'Manager Business Development' || auth()->user()->role->role_name === 'C-Level' || auth()->user()->role->role_name === 'Operational')

@@ -358,7 +358,7 @@
                                     <div class="card-body">
                                         <div class="form-group mb-3">
                                             <label for="comment_input">
-                                                Input Comments
+                                                Komentar Input
                                                 <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
                                                    title="Add any notes about this financial report"></i>
                                             </label>
@@ -367,7 +367,7 @@
                                         
                                         <div class="form-group" id="comment-review-group">
                                             <label for="comment_review">
-                                                Review Comments
+                                                Komentar Review
                                                 <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
                                                    title="Comments from reviewer (if any)"></i>
                                             </label>

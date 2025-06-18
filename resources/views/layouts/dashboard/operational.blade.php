@@ -21,7 +21,7 @@
                 <canvas id="pieOperational"></canvas>
             </div>          
         @else
-            <div class="alert alert-info">
+            <div class="alert">
                 Belum ada data operational yang diinput.
             </div>
         @endif
@@ -35,20 +35,26 @@ document.addEventListener('DOMContentLoaded', function () {
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Biaya Tetap', 'Biaya Variabel', 'Biaya Lain - Lain'],
+            labels: ['Gaji & Upah', 'Biaya Sewa', 'Biaya Utilitas', 'Biaya Perlengkapan', 'Biaya Lain - Lain'],
             datasets: [{
                 data: [
-                    {{ $operationalData['Personnel & Facilities'] ?? 0 }},
+                    {{ $operationalData['Gaji'] ?? 0 }},
+                    {{ $operationalData['Sewa'] ?? 0 }},
+                    {{ $operationalData['Utilitas'] ?? 0 }},
                     {{ $operationalData['Supplies'] ?? 0 }},
-                    {{ $operationalData['Others'] ?? 0 }}
+                    {{ $operationalData['Others'] ?? 0 }},
                 ],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)',
+                    'rgba(0, 99, 132, 0.7)',
+                    'rgba(255, 0, 132, 0.7)',
                     'rgba(54, 162, 235, 0.7)',
                     'rgba(255, 206, 86, 0.7)'
                 ],
                 borderColor: [
                     'rgba(255, 99, 132, 1)',
+                    'rgba(0, 99, 132, 0.7)',
+                    'rgba(255, 0, 132, 0.7)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)'
                 ],

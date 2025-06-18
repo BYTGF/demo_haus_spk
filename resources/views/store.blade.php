@@ -445,7 +445,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="form-group mt-3">
-                                            <label for="comment_input">Catatan Evaluasi</label>
+                                            <label for="comment_input">Komentar Input</label>
                                             <textarea class="form-control" name="comment_input" id="comment_input" rows="3"></textarea>
                                         </div>
 

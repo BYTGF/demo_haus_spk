@@ -3,7 +3,7 @@
 @section('content')
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h5>Evaluasi Kelayakan Store</h5>
+    <h5>Decision</h5>
     <form method="GET" action="{{ route('review-store.index') }}">
       <select name="period" onchange="this.form.submit()" class="form-select form-select-sm">
         <option value="6" {{ $periodChoice == '6' ? 'selected' : '' }}>6 Bulan Terakhir</option>

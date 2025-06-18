@@ -10,6 +10,7 @@ use App\Models\InputFinance;
 use App\Models\InputStore;
 use App\Models\InputOperational;
 use App\Models\InputBD;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -84,7 +85,9 @@ class DashboardController extends Controller
             }
 
             $operationalData = [
-                'Personnel & Facilities' => $inputOperationals->sum(fn($item) => ($item->gaji_upah ?? 0) + ($item->sewa ?? 0) + ($item->utilitas ?? 0)),
+                'Gaji' => $inputOperationals->sum('gaji_upah') ?? 0,
+                'Sewa' => $inputOperationals->sum('sewa') ?? 0,
+                'Utilitas' => $inputOperationals->sum('utilitas') ?? 0,
                 'Supplies' => $inputOperationals->sum('perlengkapan') ?? 0,
                 'Others' => $inputOperationals->sum('lain_lain') ?? 0,
                 'Total' => $inputOperationals->sum('total') ?? 0,
@@ -116,12 +119,20 @@ class DashboardController extends Controller
             $financeMetrics = null;
             
             // Only fetch store metrics if both store and period are selected
+            if ($storeFilter !== 'all') {
+                $financeMetrics = $this->getFinanceMetrics($storeFilter);
+            }
+
+            $financeBarMetrics = null;
             if ($storeFilter !== 'all' && $periodFilter !== 'all') {
-                $financeMetrics = $this->getFinanceMetrics($storeFilter, $periodFilter);
+                $financeBarMetrics = $this->getFinanceBarMetrics($storeFilter, $periodFilter);
             }
 
             //Store
-            // For Business Development Manager - can see all or filter by store
+            // For Business Development Manager - can see all or filter by store, 
+
+            $storeMetrics = null;
+            
             $inputStores = collect(); 
             if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
                 $inputStores = InputStore::with(['user', 'store'])
@@ -141,8 +152,6 @@ class DashboardController extends Controller
                     ->get();
                 $storeFilter = $user->store_id; // Force to their store
             }
-
-            $storeMetrics = null;
             
             // Only fetch store metrics if both store and period are selected
             if ($storeFilter !== 'all' && $periodFilter !== 'all') {
@@ -200,7 +209,7 @@ class DashboardController extends Controller
                 ];
             }
             
-            return view('dashboard', compact('inputFinances', 'inputOperationals', 'inputStores', 'inputbds','operationalData', 'stores', 'storeFilter', 'periodFilter', 'availablePeriods', 'completionData', 'storeMetrics', 'financeMetrics'));
+            return view('dashboard', compact('inputFinances', 'inputOperationals', 'inputStores', 'inputbds','operationalData', 'stores', 'storeFilter', 'periodFilter', 'availablePeriods', 'completionData', 'storeMetrics', 'financeMetrics', 'financeBarMetrics'));
             
         } catch (\Exception $e) {
             \Log::error('Dashboard Error: ' . $e->getMessage());
@@ -227,7 +236,9 @@ class DashboardController extends Controller
         }
 
         $data = [
-            'Personnel & Facilities' => $inputOperationals->sum(fn($item) => ($item->gaji_upah ?? 0) + ($item->sewa ?? 0) + ($item->utilitas ?? 0)),
+            'Gaji' => $inputOperationals->sum('gaji_upah') ?? 0,
+            'Sewa' => $inputOperationals->sum('sewa') ?? 0,
+            'Utilitas' => $inputOperationals->sum('utilitas') ?? 0,
             'Supplies' => $inputOperationals->sum('perlengkapan') ?? 0,
             'Others' => $inputOperationals->sum('lain_lain') ?? 0,
             'Total' => $inputOperationals->sum('total') ?? 0,
@@ -334,32 +345,51 @@ class DashboardController extends Controller
     }
 
     // Add this method to your DashboardController
-    protected function getFinanceMetrics($storeId, $periodFilter)
+    protected function getFinanceMetrics($storeId)
     {
-        $query = InputFinance::where('store_id', $storeId)
-            ->with('store')
-            ->orderBy('period');
-        
-        if ($periodFilter !== 'all') {
-            $query->whereYear('period', substr($periodFilter, 0, 4))
-                ->whereMonth('period', substr($periodFilter, 5, 2));
-        } else {
-            // Get data for last 6 periods if no specific period selected
-            $query->limit(6);
-        }
+        $endDate = Carbon::now()->startOfMonth(); // awal bulan ini
+        $startDate = $endDate->copy()->subMonths(5); // mundur 5 bulan, jadi total 6 bulan
 
-        $financeData = $query->get();
+        $financeData = InputFinance::where('store_id', $storeId)
+            ->whereBetween('period', [$startDate, $endDate])
+            ->orderBy('period')
+            ->with('store')
+            ->get();
 
         if ($financeData->isEmpty()) {
             return null;
         }
 
         return [
-            'store_name' => $financeData->first()->store->store_name,
-            'periods' => $financeData->map(fn($item) => $item->period->format('M Y')),
-            'gross_margins' => $financeData->pluck('gross_profit_margin'),
-            'net_margins' => $financeData->pluck('net_profit_margin'),
-            'status' => $financeData->first()->status,
+            'store_name'          => $financeData->first()->store->store_name,
+            'periods'             => $financeData->map(fn($item) => $item->period->format('M Y')),
+            'penjualan'           => $financeData->pluck('penjualan'),
+            'laba_bersih'         => $financeData->pluck('laba_bersih'),
+            'biaya_operasional'   => $financeData->pluck('biaya_operasional'),
+            'gross_profit_margin' => $financeData->pluck('gross_profit_margin'),
+            'net_profit_margin'   => $financeData->pluck('net_profit_margin'),
+            'status'              => $financeData->first()->status,
+        ];
+    }
+
+    protected function getFinanceBarMetrics($storeId, $period)
+    {
+        $financeData = InputFinance::where('store_id', $storeId)
+            ->whereYear('period', substr($period, 0, 4))
+            ->whereMonth('period', substr($period, 5, 2))
+            ->with('store')
+            ->first();
+
+        if (!$financeData) {
+            return null;
+        }
+
+        return [
+            'store_name' => $financeData->store->store_name,
+            'period' => Carbon::parse($financeData->period)->format('M Y'),
+            'gross_profit_margin' => $financeData->gross_profit_margin,
+            'net_profit_margin' => $financeData->net_profit_margin,
+            'status' => $financeData->status
         ];
     }
 }

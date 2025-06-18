@@ -79,7 +79,7 @@
             @endfor
         </div>
     @else
-        <div class="alert alert-info">
+        <div class="alert">
             Belum ada data Business Development yang diinput.
         </div>
     @endif
