@@ -441,7 +441,7 @@
                                 <!-- Bagian 5: Evaluasi Keseluruhan -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Evaluasi Keseluruhan</h6>
+                                        <h6 class="mb-0">Komentar</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="form-group mt-3">

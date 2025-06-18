@@ -11,8 +11,8 @@
             <h6>Aksesibilitas 🚗</h6>
             @php
                 $aksesVal = $storeMetrics->aksesibilitas;
-                $aksesLabels = ['Terbatas', 'Dapat Dijangkau', 'Sangat Dapat Dijangkau'];
-                $aksesColors = ['danger', 'dark', 'success'];
+                $aksesLabels = ['Sangat Terbatas','Terbatas', 'Dapat Dijangkau', 'Sangat Dapat Dijangkau'];
+                $aksesColors = ['danger', 'warning', 'dark', 'success'];
             @endphp
             <div class="d-flex justify-content-between align-items-center mb-2">
               @foreach($aksesLabels as $i => $label)
