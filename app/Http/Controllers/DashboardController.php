@@ -52,7 +52,7 @@ class DashboardController extends Controller
 
             // Get list of stores for dropdown (only for Manager)
             $stores = [];
-            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level') {
+            if ($user->role->role_name === 'Manager Business Development' || $user->role->role_name === 'C-Level' || $user->role->role_name === 'Business Development Staff') {
                 $stores = Store::where('id', '!=', 1)->pluck('store_name', 'id');
 
             } elseif ($user->role->role_name === 'Area Manager') {

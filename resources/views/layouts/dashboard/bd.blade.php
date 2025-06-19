@@ -59,21 +59,24 @@
         @endif
 
         <div class="direct-compete m-3">
-            <h6>Direct Competition</h6>
+                <h6>Direct Competition <span><i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                        title=" Menawarkan produk sejenis dan memiliki target pasar yang sama, Contoh (Es teh Indonesia, Teguk, dll )"></i></span></h6>
             @for($i = 0; $i < $direct_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #ff3d3d;"></i>
             @endfor
         </div>
 
         <div class="indirect-compete m-3">
-            <h6>Indirect Competition</h6>
+            <h6>Indirect Competition<span> <i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                        title="Memiliki skala lebih besar dari baik dari segi penjualan, penguasaan pasar, atau distribusi, Contoh (Chatime, Lawson, dll)"></i></span></h6>
             @for($i = 0; $i < $indirect_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #3d7dff;"></i>
             @endfor
         </div>
 
         <div class="subsit-compete m-3">
-            <h6>Substitute Competition</h6>
+            <h6>Substitute Competition<span><i class="fas fa-info-circle text-primary ms-1" data-bs-toggle="tooltip" 
+                                                        title="Menawarkan produk berbeda tetapi dapat menggantikan atau memenuhi kebutuhan yang sama dari konsumen, Contoh (Kopi Kenangan, Tomoro, dll )"></i></span></h6>
             @for($i = 0; $i < $substitute_competition; $i++)
                 <i class="fa-solid fa-glass-water fa-2xl" style="color: #3dff74;"></i>
             @endfor

@@ -4,14 +4,17 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h5>Decision</h5>
-    <form method="GET" action="{{ route('review-store.index') }}">
-      <select name="period" onchange="this.form.submit()" class="form-select form-select-sm">
+    <form method="GET" action="{{ route('review-store.index') }}" id="simulate-form" class="d-flex align-items-center gap-3">
+      <select name="period" id="period-select" class="form-select form-select-sm">
         <option value="6" {{ $periodChoice == '6' ? 'selected' : '' }}>6 Bulan Terakhir</option>
         <option value="12" {{ $periodChoice == '12' ? 'selected' : '' }}>12 Bulan Terakhir</option>
       </select>
+      <button type="submit" class="btn btn-primary">Simulasi</button>
     </form>
   </div>
-  <div class="card-body">
+
+  @if(request()->has('period'))
+  <div class="card-body" id="decision-table-wrapper">
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
     @elseif(session('error'))
@@ -60,8 +63,9 @@
         {{ $paginatedStores->links('pagination::bootstrap-5') }}
     </div>
   </div>
+  @endif
 
-  <div class="card-header d-flex justify-content-between align-items-center">
+  <div class="card-header d-flex justify-content-between align-items-center mt-4">
     <h5>Toko yang sudah ditutup</h5>
   </div>
   <div class="card-body">
@@ -76,9 +80,7 @@
         @forelse($closed as $close)
         <tr>
           <td>{{ $close->store_name }}</td>
-          <td>
-            {{ $close->updated_at }}
-          </td>
+          <td>{{ $close->updated_at }}</td>
         </tr>
         @empty
         <tr>

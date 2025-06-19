@@ -43,10 +43,10 @@
                                                 <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total_pendapatan) }}</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->gross_profit_margin) }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ number_format($input->gross_profit_margin) }}%</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->net_profit_margin) }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{ number_format($input->net_profit_margin) }}%</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 @if ($input->status === 'Selesai')
@@ -140,13 +140,13 @@
                             <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->laba_kotor) }}</p>
                         </td>
                         <td class="align-middle text-center text-sm">
-                            <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->gross_profit_margin) }}</p>
+                            <p class="text-xs font-weight-bold mb-0">{{ number_format($done->gross_profit_margin) }}%</p>
                         </td>
                         <td class="align-middle text-center text-sm">
                             <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->laba_bersih) }}</p>
                         </td>
                         <td class="align-middle text-center text-sm">
-                            <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->net_profit_margin) }}</p>
+                            <p class="text-xs font-weight-bold mb-0">{{ number_format($done->net_profit_margin) }}%</p>
                         </td>
                       </tr>
                   @endforeach
