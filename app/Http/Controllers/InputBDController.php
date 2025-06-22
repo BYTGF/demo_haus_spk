@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Store;
 use App\Models\InputBD;
+use Carbon\Carbon;
 
 class InputBDController extends Controller
 {
@@ -78,9 +79,13 @@ class InputBDController extends Controller
                 $validated['period'] = $validated['period'] . '-15'; // Format ke YYYY-MM-DD
                 $validated['user_id'] = auth()->id();
 
+                $period = Carbon::parse($request->period);
+
                 $exists = InputBD::where('store_id', $request->store_id)
-                    ->where('period', $request->period)
+                    ->whereMonth('period', $period->month)
+                    ->whereYear('period', $period->year)
                     ->exists();
+
 
                 if ($exists) {
                     return redirect()->back()

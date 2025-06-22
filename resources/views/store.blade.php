@@ -86,14 +86,17 @@
                                             <td class="align-middle text-center text-sm">
                                                 @php
                                                     $traffic = [
-                                                        1 => 'Macet Parah',
-                                                        2 => 'Macet',
-                                                        3 => 'Lancar'
+                                                        "1" => 'Macet Parah',
+                                                        "2" => 'Macet',
+                                                        "3" => 'Lancar'
                                                     ];
                                                 @endphp
                                                 <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $traffic[$input->lalu_lintas] ?? '-' }}
+                                                    {{ $traffic[$input->kepadatan_kendaraan] ?? '-' }}
                                                 </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $input->lalu_lintas }} orang/m<sup>2</sup></p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $input->parkir_mobil }}</p>
@@ -264,8 +267,11 @@
                                                     ];
                                                 @endphp
                                                 <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $traffic[$done->lalu_lintas] ?? '-' }}
+                                                    {{ $traffic[$done->kepadatan_kendaraan] ?? '-' }}
                                                 </p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">{{ $done->lalu_lintas }} orang/m<sup>2</sup></p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 <p class="text-xs font-weight-bold mb-0">{{ $done->parkir_mobil }}</p>

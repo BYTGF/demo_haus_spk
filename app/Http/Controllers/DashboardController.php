@@ -167,6 +167,7 @@ class DashboardController extends Controller
                         $query->where('store_id', $storeFilter);
                     })
                     ->when($periodFilter !== 'all', fn($q) => $q->whereMonth('period', substr($periodFilter, 5, 2))
+                    
                     ->whereYear('period', substr($periodFilter, 0, 4)))
                     ->get();
             }

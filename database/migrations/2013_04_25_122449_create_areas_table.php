@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('area_code');
             $table->string('area_name');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

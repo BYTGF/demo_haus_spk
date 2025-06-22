@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Store;
 use App\Models\InputOperational;
+use Carbon\Carbon;
 
 class InputOperationalController extends Controller
 {
@@ -59,9 +60,13 @@ class InputOperationalController extends Controller
                     'comment_input' => 'nullable|string',
                 ]);
 
+                $period = Carbon::parse($request->period);
+
                 $exists = InputOperational::where('store_id', $request->store_id)
-                    ->where('period', $request->period)
+                    ->whereMonth('period', $period->month)
+                    ->whereYear('period', $period->year)
                     ->exists();
+
 
                 if ($exists) {
                     return redirect()->back()->withErrors(['period' => 'Kamu sudah input data untuk periode ini.'])->withInput();

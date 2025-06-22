@@ -114,8 +114,8 @@
               @endfor
             </p>
 
-            <p class="badge bg-{{ ($storeMetrics->parkir_mobil + $storeMetrics->parkir_motor) > 10 ? 'success' : 'danger' }}">
-              {{ ($storeMetrics->parkir_mobil + $storeMetrics->parkir_motor) > 10 ? 'LUAS' : 'TERBATAS' }}
+            <p class="badge bg-{{ ($storeMetrics->parkir_mobil >= 3 && $storeMetrics->parkir_motor) <= 1 ? 'success' : 'danger' }}">
+              {{ ($storeMetrics->parkir_mobil >= 3 && $storeMetrics->parkir_motor) <= 1 ? 'LUAS' : 'TERBATAS' }}
             </p>
           </div>
         </div>

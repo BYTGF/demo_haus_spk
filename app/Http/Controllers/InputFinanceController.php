@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Store;
 use App\Models\InputFinance;
 use App\Models\InputOperational;
+use Carbon\Carbon;
 
 class InputFinanceController extends Controller
 {
@@ -55,9 +56,13 @@ class InputFinanceController extends Controller
                     'comment_input' => 'nullable|string',
                 ]);
 
+                $period = Carbon::parse($request->period);
+
                 $exists = InputFinance::where('store_id', $request->store_id)
-                    ->where('period', $request->period)
+                    ->whereMonth('period', $period->month)
+                    ->whereYear('period', $period->year)
                     ->exists();
+
 
                 if ($exists) {
                     return redirect()->back()
@@ -107,42 +112,43 @@ class InputFinanceController extends Controller
     }
 
     public function getOperationalData(Request $request)
-{
-    try {
-        // Validasi input
-        $request->validate([
-            'period' => 'required|date_format:Y-m', // Format dari input month (YYYY-MM)
-            'store_id' => 'required|exists:stores,id'
-        ]);
+    {
+        try {
+            // Validasi input
+            $request->validate([
+                'period' => 'required|date_format:Y-m', // Format dari input month (YYYY-MM)
+                'store_id' => 'required|exists:stores,id'
+            ]);
 
-        // Konversi period dari YYYY-MM ke YYYY-MM-DD (format database)
-        $periodInDB = $request->period . '-15'; // Menjadi 2025-06-01
+            // Konversi period dari YYYY-MM ke YYYY-MM-DD (format database)
+            $periodInDB = Carbon::parse($request->period); // Menjadi 2025-06-01
 
-        $operational = InputOperational::where('store_id', $request->store_id)
-            ->where('period', $periodInDB)
-            ->first();
+            $operational = InputOperational::where('store_id', $request->store_id)
+                ->whereMonth('period', $periodInDB)
+                ->whereYear('period', $periodInDB)
+                ->first();
 
-        if (!$operational) {
+            if (!$operational) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data operasional tidak ditemukan untuk periode ' . $request->period
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'biaya_operasional' => $operational->total
+                ]
+            ]);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data operasional tidak ditemukan untuk periode ' . $request->period
-            ], 404);
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'biaya_operasional' => $operational->total
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     public function approve(InputFinance $finance)
     {

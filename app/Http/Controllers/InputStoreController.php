@@ -6,6 +6,7 @@ use App\Models\InputStore;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class InputStoreController extends Controller
 {
@@ -65,9 +66,13 @@ class InputStoreController extends Controller
                 ]);
 
                 // Check for existing data
+                $period = Carbon::parse($request->period);
+
                 $exists = InputStore::where('store_id', $request->store_id)
-                    ->where('period', $request->period)
+                    ->whereMonth('period', $period->month)
+                    ->whereYear('period', $period->year)
                     ->exists();
+
 
                 if ($exists) {
                     return redirect()->back()

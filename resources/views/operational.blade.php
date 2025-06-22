@@ -458,6 +458,8 @@
         window.openEditOperationalInputModal = function(inputData) {
         // Parse the input if it's a string
         const input = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+
+        console.log(inputData)
         
         form.reset();
         form.action = `/operational/${input.id}`;
@@ -467,9 +469,6 @@
         // Format period correctly (from "May 2025" to "2025-05")
 
         // Format Rupiah helper function
-        const formatRupiah = (value) => {
-            return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : '';
-        };
 
         // Safely set values only if elements exist
         const setValueIfExists = (id, value) => {
@@ -479,12 +478,12 @@
 
         setValueIfExists('input_id', input.id);
         setValueIfExists('period', input.period.substring(0, 7));
-        setValueIfExists('gaji_upah', formatRupiah(input.gaji_upah));
-        setValueIfExists('sewa', formatRupiah(input.sewa));
-        setValueIfExists('utilitas', formatRupiah(input.utilitas));
-        setValueIfExists('perlengkapan', formatRupiah(input.perlengkapan));
-        setValueIfExists('lain_lain', formatRupiah(input.lain_lain));
-        setValueIfExists('total', formatRupiah(input.total));
+        setValueIfExists('gaji_upah', input.gaji_upah);
+        setValueIfExists('sewa', input.sewa);
+        setValueIfExists('utilitas', input.utilitas);
+        setValueIfExists('perlengkapan', input.perlengkapan);
+        setValueIfExists('lain_lain', input.lain_lain);
+        setValueIfExists('total', input.total);
         setValueIfExists('comment_input', input.comment_input);
         setValueIfExists('comment_review', input.comment_review);
 

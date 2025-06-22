@@ -24,6 +24,7 @@
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Store</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total Pendapatan</th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total HPP</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gross Profit</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Net Profit</th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
@@ -41,6 +42,9 @@
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total_pendapatan) }}</p>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($input->total_hpp) }}</p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 <p class="text-xs font-weight-bold mb-0">{{ number_format($input->gross_profit_margin) }}%</p>
@@ -118,6 +122,7 @@
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Store</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Period</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total Pendapatan</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Total HPP</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Laba Kotor</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Gross Profit</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Laba Bersih</th>
@@ -135,6 +140,9 @@
                         </td>
                         <td class="align-middle text-center text-sm">
                             <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->total_pendapatan) }}</p>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                            <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->total_hpp) }}</p>
                         </td>
                         <td class="align-middle text-center text-sm">
                             <p class="text-xs font-weight-bold mb-0">Rp. {{ number_format($done->laba_kotor) }}</p>
