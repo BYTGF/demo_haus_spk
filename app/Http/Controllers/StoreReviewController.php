@@ -95,7 +95,7 @@ class StoreReviewController extends Controller
                         ->get();
 
                     foreach ($bdItems as $item) {
-                        $bdScore += ($item->direct_competition ?? 0) * 2;
+                        $bdScore += ($item->direct_competition ?? 0) * 1;
                         $bdScore += ($item->indirect_competition ?? 0) * 1;
                         $bdScore += ($item->substitute_competition ?? 0) * 1;
                     }

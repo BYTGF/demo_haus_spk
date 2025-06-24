@@ -67,31 +67,29 @@ class UserSeeder extends Seeder
         }
 
         // Create Operational users (3-5) - Pastikan store sesuai area
-        for ($i = 1; $i <= rand(3, 5); $i++) {
-            $areaId = $areaIds[array_rand($areaIds)];
-            $store = Store::where('area_id', $areaId)->inRandomOrder()->first();
+        foreach (Store::all() as $store) {
+            if ($store->id == 1) continue; // Skip Head Office store
             
             User::create([
-                'username' => 'operational_' . $i,
+                'username' => 'operational' . $store->id,
                 'password' => Hash::make('password'),
                 'is_active' => true,
                 'role_id' => $roles['Operational'],
-                'area_id' => $areaId,
+                'area_id' => $store->area_id,
                 'store_id' => $store->id,
             ]);
         }
 
         // Create Finance users (2-3) - Pastikan store sesuai area
-        for ($i = 1; $i <= rand(2, 3); $i++) {
-            $areaId = $areaIds[array_rand($areaIds)];
-            $store = Store::where('area_id', $areaId)->inRandomOrder()->first();
+        foreach (Store::all() as $store) {
+            if ($store->id == 1) continue; // Skip Head Office store
             
             User::create([
-                'username' => 'finance_' . $i,
+                'username' => 'finance' . $store->id,
                 'password' => Hash::make('password'),
                 'is_active' => true,
                 'role_id' => $roles['Finance'],
-                'area_id' => $areaId,
+                'area_id' => $store->area_id,
                 'store_id' => $store->id,
             ]);
         }
