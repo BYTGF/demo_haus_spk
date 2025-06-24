@@ -27,7 +27,7 @@ class InputStoreSeeder extends Seeder
         ];
         
         foreach ($users as $userId => $storeId) { // Loop berdasarkan user_id dan store_id
-            $months = rand(3, 6); // Generate data untuk 3-6 bulan
+            $months = rand(6, 12); // Generate data untuk 3-6 bulan
             
             for ($i = 0; $i < $months; $i++) {
                 $period = Carbon::now()->subMonths($i);
@@ -61,7 +61,7 @@ class InputStoreSeeder extends Seeder
                     'comment_input' => 'Input for store ID ' . $storeId . ' on ' . $period->format('Y-m'),
                     'comment_review' => rand(0, 1) ? 'Review comment for store ID ' . $storeId : null,
                     'is_active' => true,
-                    'status' => $statuses[array_rand($statuses)],
+                    'status' => 'Selesai',
                     'user_id' => $userId, // Pastikan user_id sesuai dengan store_id
                     'store_id' => $storeId, // Ambil store_id langsung dari User
                 ]);

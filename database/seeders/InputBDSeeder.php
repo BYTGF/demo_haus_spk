@@ -17,40 +17,53 @@ class InputBDSeeder extends Seeder
      */
     public function run() 
     {
-        $users = User::where('role_id', 4)->pluck('store_id', 'id')->toArray();
-        $stores = Store::all();
+        // Get all Business Development users (role_id 4)
+        $bdUsers = User::where('role_id', 4)->get();
+        
+        // Get all active stores (excluding the default store if needed)
+        $stores = Store::where('is_active', true)
+                    ->where('id', '!=', 1) // Exclude default store if needed
+                    ->get();
+        
         $statuses = ['Sedang Direview', 'Butuh Revisi', 'Selesai'];
         
-        foreach ($users as $userId => $storeId) {
-            // Create 3-6 months of data for each store
-            $months = rand(3, 6);
+        // If there are no stores or no BD users, return
+        if ($stores->isEmpty() || $bdUsers->isEmpty()) {
+            return;
+        }
+        
+        foreach ($stores as $store) {
+            // Randomly select a BD user for this store
+            $randomUser = $bdUsers->random();
+            
+            // Create 6-12 months of data for each store
+            $months = rand(6, 12);
             
             for ($i = 0; $i < $months; $i++) {
-                // Gunakan awal bulan (tanggal 1) untuk konsistensi
+                // Use start of month (1st day) for consistency
                 $period = Carbon::now()->subMonths($i)->startOfMonth();
                 
-                // Cek apakah data sudah ada dengan kombinasi user_id, store_id, dan period
-                $exists = InputBD::where('store_id', $storeId)
-                    ->where('user_id', $userId)
-                    ->where('period', $period->format('Y-m-d'))
-                    ->exists();
-                    
+                // Check if data already exists for this store and period
+                $exists = InputBD::where('store_id', $store->id)
+                            ->where('period', $period->format('Y-m-d'))
+                            ->exists();
+                            
                 if ($exists) {
-                    continue; // Lewati jika sudah ada
+                    continue; // Skip if already exists
                 }
                 
-                // Buat data baru
+                // Create new data
                 InputBD::create([
                     'period' => $period,
                     'direct_competition' => rand(1, 5),
                     'substitute_competition' => rand(1, 5),
                     'indirect_competition' => rand(1, 5),
-                    'comment_input' => 'BD input for store ' . $storeId,
-                    'comment_review' => rand(0, 1) ? 'BD review for store ' . $storeId : null,
+                    'comment_input' => 'BD input for store ' . $store->id,
+                    'comment_review' => rand(0, 1) ? 'BD review for store ' . $store->id : null,
                     'is_active' => true,
-                    'status' => $statuses[array_rand($statuses)],
-                    'user_id' => $userId,
-                    'store_id' => $storeId,
+                    'status' => $statuses[array_rand($statuses)], // Random status
+                    'user_id' => $randomUser->id,
+                    'store_id' => $store->id,
                 ]);
             }
         }

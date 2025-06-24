@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             InputFinanceSeeder::class,
             InputOperationalSeeder::class,
             InputStoreSeeder::class,
-            // InputBDSeeder::class,
+            InputBDSeeder::class,
             CriteriaWeightSeeder::class,
         ]);
     }

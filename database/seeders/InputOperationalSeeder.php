@@ -24,7 +24,7 @@ class InputOperationalSeeder extends Seeder
         
         foreach ($users as $userId => $storeId) {
             // Create 3-6 months of data for each store
-            $months = rand(3, 6);
+            $months = rand(6, 12);
             
             for ($i = 0; $i < $months; $i++) {
                 $period = Carbon::now()->subMonths($i);
@@ -56,7 +56,7 @@ class InputOperationalSeeder extends Seeder
                     'comment_input' => 'Operational input for ' . $storeId,
                     'comment_review' => rand(0, 1) ? 'Operational review for ' . $storeId : null,
                     'is_active' => true,
-                    'status' => $statuses[array_rand($statuses)],
+                    'status' => 'Selesai',
                     'user_id' => $userId, // Pastikan user_id sesuai dengan store_id
                     'store_id' => $storeId, 
                 ]);

@@ -76,42 +76,44 @@ class StoreReviewController extends Controller
                 $dataComplete = $completeness >= 100;
 
                 if ($dataComplete) {
-                    // Calculate finance score
+                    // Calculate FINANCE SCORE (accumulated sum for all months)
                     $finance = $store->finances()
                         ->where('is_active', true)
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->sum('net_profit_margin');
 
-                    // Calculate operational score
+                    // Calculate OPERATIONAL SCORE (accumulated sum for all months)
                     $operational = $store->operationals()
                         ->where('is_active', true)
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->sum('total');
 
-                    // Calculate BD score
-                    $bdItems = $store->bds()
+                    // Calculate BD SCORE (only latest month)
+                    $latestBd = $store->bds()
                         ->where('is_active', true)
                         ->where('period', '>=', now()->subMonths($monthBack))
-                        ->get();
+                        ->latest('period')
+                        ->first();
 
-                    foreach ($bdItems as $item) {
-                        $bdScore += ($item->direct_competition ?? 0) * 1;
-                        $bdScore += ($item->indirect_competition ?? 0) * 1;
-                        $bdScore += ($item->substitute_competition ?? 0) * 1;
+                    if ($latestBd) {
+                        $bdScore += ($latestBd->direct_competition ?? 0) * 1;
+                        $bdScore += ($latestBd->indirect_competition ?? 0) * 1;
+                        $bdScore += ($latestBd->substitute_competition ?? 0) * 1;
                     }
 
-                    // Calculate store score
-                    $storeInputs = $store->stores()
+                    // Calculate STORE SCORE (only latest month)
+                    $latestStore = $store->stores()
                         ->where('is_active', true)
                         ->where('period', '>=', now()->subMonths($monthBack))
-                        ->get();
+                        ->latest('period')
+                        ->first();
 
-                    foreach ($storeInputs as $storeInput) {
-                        $storeScore += (int) $storeInput->aksesibilitas;
-                        $storeScore += (int) $storeInput->visibilitas;
-                        $storeScore += (int) $storeInput->lingkungan;
-                        $storeScore += (int) $storeInput->lalu_lintas;
-                        $storeScore += (int) $storeInput->area_parkir;
+                    if ($latestStore) {
+                        $storeScore += (int) $latestStore->aksesibilitas;
+                        $storeScore += (int) $latestStore->visibilitas;
+                        $storeScore += (int) $latestStore->lingkungan;
+                        $storeScore += (int) $latestStore->lalu_lintas;
+                        $storeScore += (int) $latestStore->area_parkir;
                     }
                 }
 
@@ -183,7 +185,7 @@ class StoreReviewController extends Controller
             });
 
             // Sort stores: complete first (by score), then incomplete
-            $sortedStores = $scoredStores->sortByDesc(function ($store) {
+            $sortedStores = $scoredStores->sortBy(function ($store) {
                 return $store->data_complete ? $store->final_score : 0;
             })->values();
 
