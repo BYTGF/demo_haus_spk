@@ -29,10 +29,9 @@ class StoreReviewController extends Controller
                 ->where('is_active', true)
                 ->pluck('weight', 'criteria');
 
-            $totalWeight = $criteriaWeightsRaw->sum();
             $criteriaWeights = [];
             foreach ($criteriaWeightsRaw as $criteria => $weight) {
-                $criteriaWeights[$criteria] = $weight / $totalWeight;
+                $criteriaWeights[$criteria] = $weight / 100;
             }
 
             // Calculate raw scores
@@ -45,21 +44,25 @@ class StoreReviewController extends Controller
                 // Check data completeness
                 $financeCount = $store->finances()
                     ->where('is_active', true)
+                    ->where('status', 'Selesai')
                     ->where('period', '>=', now()->subMonths($monthBack))
                     ->count();
 
                 $operationalCount = $store->operationals()
                     ->where('is_active', true)
+                    ->where('status', 'Selesai')
                     ->where('period', '>=', now()->subMonths($monthBack))
                     ->count();
 
                 $bdCount = $store->bds()
                     ->where('is_active', true)
+                    ->where('status', 'Selesai')
                     ->where('period', '>=', now()->subMonths($monthBack))
                     ->count();
 
                 $storeCount = $store->stores()
                     ->where('is_active', true)
+                    ->where('status', 'Selesai')
                     ->where('period', '>=', now()->subMonths($monthBack))
                     ->count();
 
@@ -79,18 +82,21 @@ class StoreReviewController extends Controller
                     // Calculate FINANCE SCORE (accumulated sum for all months)
                     $finance = $store->finances()
                         ->where('is_active', true)
+                        ->where('status', 'Selesai')
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->sum('net_profit_margin');
 
                     // Calculate OPERATIONAL SCORE (accumulated sum for all months)
                     $operational = $store->operationals()
                         ->where('is_active', true)
+                        ->where('status', 'Selesai')
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->sum('total');
 
                     // Calculate BD SCORE (only latest month)
                     $latestBd = $store->bds()
                         ->where('is_active', true)
+                        ->where('status', 'Selesai')
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->latest('period')
                         ->first();
@@ -104,6 +110,7 @@ class StoreReviewController extends Controller
                     // Calculate STORE SCORE (only latest month)
                     $latestStore = $store->stores()
                         ->where('is_active', true)
+                        ->where('status', 'Selesai')
                         ->where('period', '>=', now()->subMonths($monthBack))
                         ->latest('period')
                         ->first();
