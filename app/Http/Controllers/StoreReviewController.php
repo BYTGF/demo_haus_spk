@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use App\Models\CriteriaWeight;
+use App\Models\InputStore;
+use App\Models\InputFinance;
+use App\Models\InputOperational;
+use App\Models\InputBD;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +16,8 @@ class StoreReviewController extends Controller
 {
     public function index(Request $request)
     {
-        if (auth()->user()->role->role_name !== 'Manager Business Development' && auth()->user()->role->role_name !== 'C-Level') {
+        // Authorization check
+        if (!in_array(auth()->user()->role->role_name, ['Manager Business Development', 'C-Level'])) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -19,140 +25,83 @@ class StoreReviewController extends Controller
         $monthBack = (int) $periodChoice;
 
         try {
-            // Get all active stores
+            // Get all active stores (excluding store with id 1)
             $allStores = Store::where('is_active', true)
-                ->where('id', '!=', 1)
-                ->get();
+                            ->where('id', '!=', 1)
+                            ->get();
 
             // Get criteria weights
-            $criteriaWeightsRaw = DB::table('criteria_weights')
-                ->where('is_active', true)
-                ->pluck('weight', 'criteria');
+            $criteriaWeights = DB::table('criteria_weights')
+                            ->where('is_active', true)
+                            ->pluck('weight', 'criteria')
+                            ->map(fn($weight) => $weight / 100)
+                            ->toArray();
 
-            $criteriaWeights = [];
-            foreach ($criteriaWeightsRaw as $criteria => $weight) {
-                $criteriaWeights[$criteria] = $weight / 100;
-            }
-
-            // Calculate raw scores
-            $financeData = [];
-            $operationalData = [];
-            $bdData = [];
-            $storeData = [];
+            // Initialize arrays for min/max calculations
+            $financeData = $operationalData = $bdData = $storeData = [];
 
             foreach ($allStores as $store) {
-                // Check data completeness
-                $financeCount = $store->finances()
-                    ->where('is_active', true)
-                    ->where('status', 'Selesai')
-                    ->where('period', '>=', now()->subMonths($monthBack))
-                    ->count();
+                // Check data completeness for all categories
+                $counts = [
+                    'finance' => $store->finances()->complete()->lastMonths($monthBack)->count(),
+                    'operational' => $store->operationals()->complete()->lastMonths($monthBack)->count(),
+                    'bd' => $store->bds()->complete()->lastMonths($monthBack)->count(),
+                    'store' => $store->stores()->complete()->lastMonths($monthBack)->count()
+                ];
 
-                $operationalCount = $store->operationals()
-                    ->where('is_active', true)
-                    ->where('status', 'Selesai')
-                    ->where('period', '>=', now()->subMonths($monthBack))
-                    ->count();
-
-                $bdCount = $store->bds()
-                    ->where('is_active', true)
-                    ->where('status', 'Selesai')
-                    ->where('period', '>=', now()->subMonths($monthBack))
-                    ->count();
-
-                $storeCount = $store->stores()
-                    ->where('is_active', true)
-                    ->where('status', 'Selesai')
-                    ->where('period', '>=', now()->subMonths($monthBack))
-                    ->count();
-
-                // Calculate completeness
-                $totalPossible = $monthBack * 4; // 4 categories per month
-                $actualCount = $financeCount + $operationalCount + $bdCount + $storeCount;
+                $totalPossible = $monthBack * 4;
+                $actualCount = array_sum($counts);
                 $completeness = ($actualCount / $totalPossible) * 100;
-
-                // Initialize scores
-                $finance = 0;
-                $operational = 0;
-                $bdScore = 0;
-                $storeScore = 0;
                 $dataComplete = $completeness >= 100;
 
+                // Initialize scores
+                $scores = [
+                    'finance' => 0,
+                    'operational' => 0,
+                    'bd' => 0,
+                    'store' => 0
+                ];
+
                 if ($dataComplete) {
-                    // Calculate FINANCE SCORE (accumulated sum for all months)
-                    $finance = $store->finances()
-                        ->where('is_active', true)
-                        ->where('status', 'Selesai')
-                        ->where('period', '>=', now()->subMonths($monthBack))
-                        ->sum('net_profit_margin');
+                    // Calculate scores
+                    $scores['finance'] = $store->finances()->complete()->lastMonths($monthBack)->sum('net_profit_margin');
+                    $scores['operational'] = $store->operationals()->complete()->lastMonths($monthBack)->sum('total');
 
-                    // Calculate OPERATIONAL SCORE (accumulated sum for all months)
-                    $operational = $store->operationals()
-                        ->where('is_active', true)
-                        ->where('status', 'Selesai')
-                        ->where('period', '>=', now()->subMonths($monthBack))
-                        ->sum('total');
-
-                    // Calculate BD SCORE (only latest month)
-                    $latestBd = $store->bds()
-                        ->where('is_active', true)
-                        ->where('status', 'Selesai')
-                        ->where('period', '>=', now()->subMonths($monthBack))
-                        ->latest('period')
-                        ->first();
-
+                    // BD Score (latest month only)
+                    $latestBd = $store->bds()->complete()->lastMonths($monthBack)->latest('period')->first();
                     if ($latestBd) {
-                        $bdScore += ($latestBd->direct_competition ?? 0) * 1;
-                        $bdScore += ($latestBd->indirect_competition ?? 0) * 1;
-                        $bdScore += ($latestBd->substitute_competition ?? 0) * 1;
+                        $scores['bd'] = ($latestBd->direct_competition ?? 0) 
+                                    + ($latestBd->indirect_competition ?? 0) 
+                                    + ($latestBd->substitute_competition ?? 0);
                     }
 
-                    // Calculate STORE SCORE (only latest month)
-                    $latestStore = $store->stores()
-                        ->where('is_active', true)
-                        ->where('status', 'Selesai')
-                        ->where('period', '>=', now()->subMonths($monthBack))
-                        ->latest('period')
-                        ->first();
-
+                    // Store Score (latest month only)
+                    $latestStore = $store->stores()->complete()->lastMonths($monthBack)->latest('period')->first();
                     if ($latestStore) {
-                        $storeScore += (int) $latestStore->aksesibilitas;
-                        $storeScore += (int) $latestStore->visibilitas;
-                        $storeScore += (int) $latestStore->lingkungan;
-                        $storeScore += (int) $latestStore->lalu_lintas;
-                        $storeScore += (int) $latestStore->area_parkir;
+                        $scores['store'] = $this->calculateStoreScore($latestStore);
                     }
                 }
 
-                $financeData[] = $finance;
-                $operationalData[] = $operational;
-                $bdData[] = $bdScore;
-                $storeData[] = $storeScore;
-
-                $store->raw_scores = [
-                    'finance'     => $finance,
-                    'operational' => $operational,
-                    'bd'          => $bdScore,
-                    'store'       => $storeScore,
-                ];
+                // Store the scores and completeness
+                $store->raw_scores = $scores;
                 $store->data_complete = $dataComplete;
                 $store->completeness = $completeness;
+
+                // Push to arrays for min/max calculation
+                foreach ($scores as $key => $value) {
+                    ${$key.'Data'}[] = $value;
+                }
             }
 
-            // Calculate min & max for normalization (only complete data)
-            $completeFinanceData = array_filter($financeData, fn($val) => $val > 0);
-            $completeOperationalData = array_filter($operationalData, fn($val) => $val > 0);
-            $completeBdData = array_filter($bdData, fn($val) => $val > 0);
-            $completeStoreData = array_filter($storeData, fn($val) => $val > 0);
-
+            // Calculate min/max for normalization
             $minMax = [
-                'finance'     => ['min' => !empty($completeFinanceData) ? min($completeFinanceData) : 0, 'max' => !empty($completeFinanceData) ? max($completeFinanceData) : 0],
-                'operational' => ['min' => !empty($completeOperationalData) ? min($completeOperationalData) : 0, 'max' => !empty($completeOperationalData) ? max($completeOperationalData) : 0],
-                'bd'          => ['min' => !empty($completeBdData) ? min($completeBdData) : 0, 'max' => !empty($completeBdData) ? max($completeBdData) : 0],
-                'store'       => ['min' => !empty($completeStoreData) ? min($completeStoreData) : 0, 'max' => !empty($completeStoreData) ? max($completeStoreData) : 0],
+                'finance' => $this->calculateMinMax($financeData),
+                'operational' => $this->calculateMinMax($operationalData),
+                'bd' => $this->calculateMinMax($bdData),
+                'store' => $this->calculateMinMax($storeData)
             ];
 
-            // Calculate final scores
+            // Calculate final scores with normalization
             $scoredStores = $allStores->map(function ($store) use ($criteriaWeights, $minMax) {
                 if (!$store->data_complete) {
                     $store->final_score = 0;
@@ -164,7 +113,11 @@ class StoreReviewController extends Controller
                 foreach ($store->raw_scores as $key => $value) {
                     $min = $minMax[$key]['min'];
                     $max = $minMax[$key]['max'];
-                    $normalized[$key] = $max !== $min ? ($value - $min) / ($max - $min) : 0;
+                    $isBenefit = in_array($key, ['finance', 'store']);
+
+                    $normalized[$key] = $max !== $min 
+                        ? ($isBenefit ? ($value / $max) : (($max - $value) / ($max - $min)))
+                        : 0;
                 }
 
                 $finalScore = 0;
@@ -172,38 +125,29 @@ class StoreReviewController extends Controller
                     $finalScore += $value * ($criteriaWeights[$key] ?? 0);
                 }
 
-                $store->final_score = round($finalScore * 100, 0);
+                $store->final_score = round($finalScore, 2);
                 return $store;
             });
 
-            // Calculate mean score from complete data
+            // Calculate mean score and determine status
             $completeStores = $scoredStores->filter(fn($store) => $store->data_complete);
-            $meanScore = $completeStores->avg('final_score');
+            $meanScore = $completeStores->isNotEmpty() ? $completeStores->avg('final_score') : 0;
 
-            // Determine status based on mean score comparison
             $scoredStores = $scoredStores->map(function ($store) use ($meanScore) {
-                if (!$store->data_complete) {
-                    return $store;
+                if ($store->data_complete) {
+                    $store->status = $store->final_score >= $meanScore ? 'Layak Buka' : 'Layak Tutup';
+                    $store->above_mean = $store->final_score >= $meanScore;
                 }
-
-                $store->status = $store->final_score >= $meanScore ? 'Layak Buka' : 'Layak Tutup';
-                $store->above_mean = $store->final_score >= $meanScore;
                 return $store;
             });
 
-            // Sort stores: complete first (by score), then incomplete
-            $sortedStores = $scoredStores->sortBy(function ($store) {
-                return $store->data_complete ? $store->final_score : 0;
-            })->values();
-
-            // Manual pagination
-            $page = $request->get('page', 1);
-            $perPage = 5;
+            // Sort and paginate
+            $sortedStores = $scoredStores->sortBy(fn($store) => $store->data_complete ? $store->final_score : 0);
             $paginatedStores = new \Illuminate\Pagination\LengthAwarePaginator(
-                $sortedStores->forPage($page, $perPage),
+                $sortedStores->forPage($request->get('page', 1), 5),
                 $sortedStores->count(),
-                $perPage,
-                $page,
+                5,
+                null,
                 ['path' => $request->url(), 'query' => $request->query()]
             );
 
@@ -222,7 +166,52 @@ class StoreReviewController extends Controller
         }
     }
 
+    // Helper method to calculate store score
+    protected function calculateStoreScore($store)
+    {
+        $lingkunganArray = json_decode($store->lingkungan, true);
+        $lingkunganCount = is_array($lingkunganArray) ? count($lingkunganArray) : 0;
 
+        $score = 0;
+        
+        // Accessibility
+        $score += (int) ($store->aksesibilitas - 1);
+        
+        // Visibility
+        $score += $store->visibilitas > 100 ? 1 : 0;
+        
+        // Environment
+        $score += match($lingkunganCount) {
+            3 => 2,
+            2 => 1,
+            default => 0
+        };
+        
+        // Traffic
+        $score += $store->lalu_lintas >= 4 ? 1 : 0;
+        
+        // Vehicle density
+        $score += match($store->kepadatan_kendaraan) {
+            3 => 2,
+            2 => 1,
+            default => 0
+        };
+        
+        // Parking
+        $score += ($store->parkir_mobil >= 1 && $store->parkir_motor >= 3) ? 1 : 0;
+        
+        return $score;
+    }
+
+    // Helper method to calculate min/max
+    protected function calculateMinMax(array $data)
+    {
+        $filtered = array_filter($data, fn($val) => $val > 0);
+        return [
+            'min' => !empty($filtered) ? min($filtered) : 0,
+            'max' => !empty($filtered) ? max($filtered) : 0
+        ];
+    }
 
     public function update(Request $request, Store $store)
     {

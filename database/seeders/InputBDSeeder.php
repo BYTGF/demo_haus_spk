@@ -61,7 +61,7 @@ class InputBDSeeder extends Seeder
                     'comment_input' => 'BD input for store ' . $store->id,
                     'comment_review' => rand(0, 1) ? 'BD review for store ' . $store->id : null,
                     'is_active' => true,
-                    'status' => $statuses[array_rand($statuses)], // Random status
+                    'status' => 'Selesai', // Random status
                     'user_id' => $randomUser->id,
                     'store_id' => $store->id,
                 ]);

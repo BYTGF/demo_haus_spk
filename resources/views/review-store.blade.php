@@ -30,6 +30,7 @@
         <thead>
           <tr>
             <th>Store</th>
+            <th>Nilai</th>
             <th>Status</th>
             <th>Kelengkapan Data</th>
             @if (auth()->user()->role->role_name === 'Manager Business Development')
@@ -41,15 +42,16 @@
           @forelse($paginatedStores as $s)
           <tr>
             <td>{{ $s->store_name }}</td>
+            <td>{{ $s->final_score }}</td>
             <td>
               <span class="badge bg-{{ 
                   $s->status == 'Layak Tutup' ? 'danger' : 
                   ($s->status == 'Layak Buka' ? 'success' : 'warning') 
               }}">
                 {{ $s->status }}
-                @if($s->data_complete && isset($s->above_mean))
+                {{-- @if($s->data_complete && isset($s->above_mean))
                   ({{ $s->above_mean ? 'Di Atas' : 'Di Bawah' }} Rata-rata)
-                @endif
+                @endif --}}
               </span>
             </td>
             <td>

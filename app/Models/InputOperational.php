@@ -30,4 +30,15 @@ class InputOperational extends Model
     {
         return $this->belongsTo(Store::class);
     }
+
+    public function scopeComplete($query)
+    {
+        return $query->where('is_active', true)
+                    ->where('status', 'Selesai');
+    }
+
+    public function scopeLastMonths($query, $months)
+    {
+        return $query->where('period', '>=', now()->subMonths($months));
+    }
 }
