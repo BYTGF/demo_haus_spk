@@ -33,7 +33,19 @@
         <div class="card h-100 shadow-lg bg-body rounded border border-primary">
           <div class="card-body text-center">
             <h6>Visibilitas 👁️</h6>
-            @php $vis = $storeMetrics->visibilitas; @endphp
+            @php
+              if($storeMetrics->visibilitas < 20){
+                $vis = 1; 
+              }else if($storeMetrics->visibilitas >= 20 && $storeMetrics->visibilitas < 40){
+                $vis = 2; 
+              }else if($storeMetrics->visibilitas >= 40 && $storeMetrics->visibilitas < 60){
+                $vis = 3; 
+              }else if($storeMetrics->visibilitas >= 60 && $storeMetrics->visibilitas < 80){
+                $vis = 4; 
+              }else if($storeMetrics->visibilitas >= 80){
+                $vis = 5; 
+              }
+            @endphp
             <div class="d-flex flex-column align-items-center">
               @for ($i = 5; $i >= 1; $i--)
                 <div class="w-100 mb-1" style="height: 10px; background-color: {{ $i <= $vis ? '#3399ff' : '#e0e0e0' }}; width: {{ 40 + ($i * 10) }}%;"></div>
@@ -97,6 +109,7 @@
               @php
                 $maxIcons = 5;
                 $parkirMobil = min($storeMetrics->parkir_mobil, $maxIcons); // Batasi maks 5 ikon
+
               @endphp
               
               @for ($i = 0; $i < $parkirMobil; $i++)
@@ -113,9 +126,26 @@
                 <i class="fa-solid fa-motorcycle {{ $i < $storeMetrics->parkir_motor ? 'text-success' : 'text-secondary' }}"></i>
               @endfor
             </p>
-
-            <p class="badge bg-{{ ($storeMetrics->parkir_mobil >= 3 && $storeMetrics->parkir_motor) <= 1 ? 'success' : 'danger' }}">
-              {{ ($storeMetrics->parkir_mobil >= 3 && $storeMetrics->parkir_motor) <= 1 ? 'LUAS' : 'TERBATAS' }}
+                @php
+                if($storeMetrics->parkir_mobil == 1 && $storeMetrics->parkir_motor == 3){
+                  $statusParkir = "CUKUP";
+                  $statusParkirBadge = 'info';
+                }else if($storeMetrics->parkir_mobil >= 1 && $storeMetrics->parkir_motor >= 3){
+                  $statusParkir = "LUAS";
+                  $statusParkirBadge = 'success';
+                }else if($storeMetrics->parkir_mobil <= 0 && $storeMetrics->parkir_motor == 3){
+                  $statusParkir = "TERBATAS";
+                  $statusParkirBadge = 'warning';
+                }else if($storeMetrics->parkir_mobil <= 0 && $storeMetrics->parkir_motor < 3){
+                  $statusParkir = "SANGAT TERBATAS";
+                  $statusParkirBadge = 'danger';
+                }else{
+                  $statusParkir = "CUKUP";
+                  $statusParkirBadge = 'secondary';
+                }
+            @endphp
+            <p class="badge bg-{{ $statusParkirBadge }}">
+              {{ $statusParkir }}
             </p>
           </div>
         </div>

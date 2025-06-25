@@ -110,9 +110,7 @@ class InputStoreController extends Controller
                     
             } catch (\Exception $e) {
                 \Log::error('Store evaluation error: ' . $e->getMessage());
-                return redirect()->back()
-                    ->withErrors(['error' => 'Terjadi kesalahan. Silakan coba lagi.'])
-                    ->withInput();
+                return redirect()->back()->with('error', $e->getMessage());
             }
         }
         abort(403, 'Unauthorized action.');
@@ -190,7 +188,7 @@ class InputStoreController extends Controller
             $validated = $request->validate([
                 'period' => 'required|date',
                 'aksesibilitas' => 'required|integer|between:1,4',
-                'visibilitas' => 'required|integer|between:1,4',
+                'visibilitas' => 'required|integer|min:0',
                 'lingkungan' => 'required|array',
                 'lingkungan.*' => 'integer|between:1,3',
                 'lalu_lintas' => 'required|integer|min:0',
@@ -212,7 +210,7 @@ class InputStoreController extends Controller
             return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
         } catch (\Exception $e) {
             \Log::error('Error fetching data in index: ' . $e->getMessage());
-            return redirect()->back()->withErrors(['error' => 'Gagal update data store.']);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
     abort(403, 'Unauthorized action.');

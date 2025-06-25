@@ -56,17 +56,9 @@
                                                 </p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                @php
-                                                    $vis = [
-                                                        1 => '< 20%',
-                                                        2 => '20 - 39%',
-                                                        3 => '40 - 59%',
-                                                        4 => '60 - 79%',
-                                                        5 => '≥ 80%'
-                                                    ];
-                                                @endphp
+                                                
                                                 <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $vis[$input->visibilitas] ?? '-' }}
+                                                    {{ $input->visibilitas ?? '-' }} m
                                                 </p>
                                             </td>
                                             <td class="align-middle text-center text-sm">
@@ -341,7 +333,7 @@
                                                         <label class="form-check-label" for="aksesibilitas_a"> >2 jenis transportasi umum & kendaraan pribadi</label>
                                                     </div>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="aksesibilitas" id="aksesibilitas_b" value="1">
+                                                        <input class="form-check-input" type="radio" name="aksesibilitas" id="aksesibilitas_b" value="3">
                                                         <label class="form-check-label" for="aksesibilitas_b">2 jenis transportasi umum & kendaraan pribadi</label>
                                                     </div>
                                                     <div class="form-check">
@@ -642,10 +634,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Additional validation can be added here
     });
 });
-@if(session('error'))
-    <script>
-        alert("{{ session('error') }}");
-    </script>
-@endif
+    @if(session('error'))
+        <script>
+            alert("{{ session('error') }}");
+        </script>
+    @endif
 </script>
 @endpush
