@@ -17,7 +17,7 @@ class CriteriaWeightController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'division' => 'required|string',
+            'criteria' => 'required|string',
             'weight' => 'required|numeric|min:0',
         ]);
 
@@ -28,7 +28,7 @@ class CriteriaWeightController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'division' => 'required|string',
+            'criteria' => 'required|string',
             'weight' => 'required|numeric|min:0',
         ]);
 

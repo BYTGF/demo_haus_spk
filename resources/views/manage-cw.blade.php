@@ -15,7 +15,6 @@
                         <thead>
                             <tr>
                                 <th class="ps-4">No</th>
-                                <th>Divisi</th>
                                 <th>Kriteria</th>
                                 <th>Bobot</th>
                                 <th>Periode</th>
@@ -26,8 +25,9 @@
                             @foreach ($weights as $i => $w)
                             <tr>
                                 <td class="ps-4">{{ $i + 1 }}</td>
-                                <td>{{ ucfirst($w->division) }}</td>
+                                <td>{{ ucfirst($w->criteria) }}</td>
                                 <td>{{ $w->weight }}</td>
+                                <td>{{ $w->updated_at->format('d/m/Y') }}</td>
                                 <td class="text-center">
                                     <button class="btn btn-warning btn-sm me-2" onclick="openEditModal({{ $w }})">Edit</button>
                                     <button class="btn btn-danger btn-sm" onclick="deleteWeight({{ $w->id }})">Hapus</button>
@@ -60,7 +60,7 @@
               <input type="hidden" name="_method" id="formMethod" value="POST">
               <div class="form-group">
                 <label>Divisi</label>
-                <select name="division" id="division" class="form-control" required>
+                <select name="criteria" id="criteria" class="form-control" required>
                     <option value="finance">Finance</option>
                     <option value="operational">Operational</option>
                     <option value="bd">Business Dev</option>
@@ -98,9 +98,9 @@
     }
 
     function openEditModal(weight) {
-        form.action = `/admin/criteria_weight/${weight.id}`;
+        form.action = `/manage-cw/${weight.id}`;
         formMethod.value = "PUT";
-        document.getElementById('division').value = weight.division;
+        document.getElementById('criteria').value = weight.criteria;
         document.getElementById('weight').value = weight.weight;
         modalTitle.textContent = "Edit Bobot";
         modal.show();
@@ -108,7 +108,7 @@
 
     function deleteWeight(id) {
         if (confirm("Yakin mau hapus data ini?")) {
-            fetch(`/admin/criteria_weight/${id}`, {
+            fetch(`/manage-cw/${id}`, {
                 method: "DELETE",
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
