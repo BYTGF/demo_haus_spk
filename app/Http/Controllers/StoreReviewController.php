@@ -37,8 +37,8 @@ class StoreReviewController extends Controller
                             ->map(fn($weight) => $weight / 100)
                             ->toArray();
 
-            // Initialize arrays for min/max calculations
-            $financeData = $operationalData = $bdData = $storeData = [];
+            // Initialize arrays for complete stores' data only
+            $completeFinanceData = $completeOperationalData = $completeBdData = $completeStoreData = [];
 
             foreach ($allStores as $store) {
                 // Check data completeness for all categories
@@ -64,8 +64,14 @@ class StoreReviewController extends Controller
 
                 if ($dataComplete) {
                     // Calculate scores
-                    $scores['finance'] = $store->finances()->complete()->lastMonths($monthBack)->sum('net_profit_margin');
-                    $scores['operational'] = $store->operationals()->complete()->lastMonths($monthBack)->sum('total');
+                    $operationalSum = $store->operationals()->complete()->lastMonths($monthBack)->sum('total');
+                    $scores['operational'] = $operationalSum;
+
+                    $penjualan = $store->finances()->complete()->lastMonths($monthBack)->sum('penjualan');
+                    $gross = $store->finances()->complete()->lastMonths($monthBack)->sum('laba_kotor');
+                    $net = $gross - $operationalSum;
+                    
+                    $scores['finance'] = $penjualan != 0 ? ($net / $penjualan * 100) : 0;
 
                     // BD Score (latest month only)
                     $latestBd = $store->bds()->complete()->lastMonths($monthBack)->latest('period')->first();
@@ -80,27 +86,50 @@ class StoreReviewController extends Controller
                     if ($latestStore) {
                         $scores['store'] = $this->calculateStoreScore($latestStore);
                     }
+
+                    // Only push to min/max arrays if data is complete
+                    $completeFinanceData[] = $scores['finance'];
+                    $completeOperationalData[] = $scores['operational'];
+                    $completeBdData[] = $scores['bd'];
+                    $completeStoreData[] = $scores['store'];
                 }
 
                 // Store the scores and completeness
                 $store->raw_scores = $scores;
                 $store->data_complete = $dataComplete;
                 $store->completeness = $completeness;
-
-                // Push to arrays for min/max calculation
-                foreach ($scores as $key => $value) {
-                    ${$key.'Data'}[] = $value;
-                }
             }
 
-            // Calculate min/max for normalization
+            \Log::info('Complete Finance Data:', $completeFinanceData);
+            \Log::info('Complete Operational Data:', $completeOperationalData);
+            \Log::info('Complete BD Data:', $completeBdData);
+            \Log::info('Complete Store Data:', $completeStoreData);
+
+            // Calculate min/max for normalization (only from complete data)
             $minMax = [
-                'finance' => $this->calculateMinMax($financeData),
-                'operational' => $this->calculateMinMax($operationalData),
-                'bd' => $this->calculateMinMax($bdData),
-                'store' => $this->calculateMinMax($storeData)
+                'finance' => [
+                    'min' => !empty($completeFinanceData) ? min($completeFinanceData) : 0,
+                    'max' => !empty($completeFinanceData) ? max($completeFinanceData) : 0,
+                    'type' => 'benefit'
+                ],
+                'operational' => [
+                    'min' => !empty($completeOperationalData) ? min($completeOperationalData) : 0,
+                    'max' => !empty($completeOperationalData) ? max($completeOperationalData) : 0,
+                    'type' => 'cost'
+                ],
+                'bd' => [
+                    'min' => !empty($completeBdData) ? min($completeBdData) : 0,
+                    'max' => !empty($completeBdData) ? max($completeBdData) : 0,
+                    'type' => 'benefit' // Changed to benefit as higher BD score is better
+                ],
+                'store' => [
+                    'min' => !empty($completeStoreData) ? min($completeStoreData) : 0,
+                    'max' => !empty($completeStoreData) ? max($completeStoreData) : 0,
+                    'type' => 'benefit'
+                ]
             ];
 
+            \Log::info('MinMax from Complete Data:', $minMax);
             // Calculate final scores with normalization
             $scoredStores = $allStores->map(function ($store) use ($criteriaWeights, $minMax) {
                 if (!$store->data_complete) {
@@ -110,22 +139,39 @@ class StoreReviewController extends Controller
                 }
 
                 $normalized = [];
+                \Log::info("Normalization for Store: {$store->store_name} (ID: {$store->id})");
+
                 foreach ($store->raw_scores as $key => $value) {
                     $min = $minMax[$key]['min'];
                     $max = $minMax[$key]['max'];
-                    $isBenefit = in_array($key, ['finance', 'store']);
+                    $type = $minMax[$key]['type'];
 
-                    $normalized[$key] = $max !== $min 
-                        ? ($isBenefit ? ($value / $max) : (($max - $value) / ($max - $min)))
-                        : 0;
+                    if ($max == $min) {
+                        $normalized[$key] = 0;
+                    } else {
+                        if ($type == 'benefit') {
+                            // For benefit criteria: (value - min) / (max - min)
+                            $normalized[$key] = ($value - $min) / ($max - $min);
+                        } else {
+                            // For cost criteria: (max - value) / (max - min)
+                            $normalized[$key] = ($max - $value) / ($max - $min);
+                        }
+                    }
+
+                    \Log::info("  {$key}:");
+                    \Log::info("    Raw Score: {$value}");
+                    \Log::info("    Normalized: {$normalized[$key]}");
                 }
 
+                // Calculate final score
                 $finalScore = 0;
                 foreach ($normalized as $key => $value) {
                     $finalScore += $value * ($criteriaWeights[$key] ?? 0);
                 }
 
-                $store->final_score = round($finalScore, 2);
+                $store->final_score = round($finalScore, 2); 
+                \Log::info("  Final Score: {$store->final_score}\n");
+                
                 return $store;
             });
 
@@ -157,7 +203,7 @@ class StoreReviewController extends Controller
                 'paginatedStores' => $paginatedStores,
                 'periodChoice' => $periodChoice,
                 'closed' => $closed,
-                'meanScore' => round($meanScore, 2)
+                'meanScore' => $meanScore
             ]);
 
         } catch (\Throwable $e) {
@@ -175,7 +221,7 @@ class StoreReviewController extends Controller
         $score = 0;
         
         // Accessibility
-        $score += (int) ($store->aksesibilitas - 1);
+        $score += (int) $store->aksesibilitas ;
         
         // Visibility
         $score += $store->visibilitas > 100 ? 1 : 0;
