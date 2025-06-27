@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('criteria_weights', function (Blueprint $table) {
             $table->id();
             $table->string('criteria');
-            $table->integer('weight');
+            $table->float('weight');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

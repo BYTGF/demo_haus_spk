@@ -70,8 +70,9 @@ class StoreReviewController extends Controller
                     $penjualan = $store->finances()->complete()->lastMonths($monthBack)->sum('penjualan');
                     $gross = $store->finances()->complete()->lastMonths($monthBack)->sum('laba_kotor');
                     $net = $gross - $operationalSum;
+
                     
-                    $scores['finance'] = $penjualan != 0 ? ($net / $penjualan * 100) : 0;
+                    $scores['finance'] = $penjualan != 0 ? (($net / $penjualan) * 100) : 0;
 
                     // BD Score (latest month only)
                     $latestBd = $store->bds()->complete()->lastMonths($monthBack)->latest('period')->first();
@@ -120,7 +121,7 @@ class StoreReviewController extends Controller
                 'bd' => [
                     'min' => !empty($completeBdData) ? min($completeBdData) : 0,
                     'max' => !empty($completeBdData) ? max($completeBdData) : 0,
-                    'type' => 'benefit' // Changed to benefit as higher BD score is better
+                    'type' => 'cost' // Changed to benefit as higher BD score is better
                 ],
                 'store' => [
                     'min' => !empty($completeStoreData) ? min($completeStoreData) : 0,
@@ -151,7 +152,7 @@ class StoreReviewController extends Controller
                     } else {
                         if ($type == 'benefit') {
                             // For benefit criteria: (value - min) / (max - min)
-                            $normalized[$key] = ($value - $min) / ($max - $min);
+                            $normalized[$key] = ($value) / ($max);
                         } else {
                             // For cost criteria: (max - value) / (max - min)
                             $normalized[$key] = ($max - $value) / ($max - $min);
@@ -166,7 +167,12 @@ class StoreReviewController extends Controller
                 // Calculate final score
                 $finalScore = 0;
                 foreach ($normalized as $key => $value) {
-                    $finalScore += $value * ($criteriaWeights[$key] ?? 0);
+                    $weight = $criteriaWeights[$key] ?? 0;
+                    $partial = $value * $weight;
+
+                    Log::info("Criteria: $key | Normalized: $value | Weight: $weight | Partial: $partial");
+
+                    $finalScore += $partial;
                 }
 
                 $store->final_score = round($finalScore, 2); 
@@ -179,10 +185,10 @@ class StoreReviewController extends Controller
             $completeStores = $scoredStores->filter(fn($store) => $store->data_complete);
             $meanScore = $completeStores->isNotEmpty() ? $completeStores->avg('final_score') : 0;
 
-            $scoredStores = $scoredStores->map(function ($store) use ($meanScore) {
+            $scoredStores = $scoredStores->map(function ($store) {
                 if ($store->data_complete) {
-                    $store->status = $store->final_score >= $meanScore ? 'Layak Buka' : 'Layak Tutup';
-                    $store->above_mean = $store->final_score >= $meanScore;
+                    $store->status = $store->final_score >= 0.49 ? 'Layak Buka' : 'Layak Tutup';
+                    $store->above_mean = $store->final_score >= 0.49;
                 }
                 return $store;
             });
@@ -221,10 +227,10 @@ class StoreReviewController extends Controller
         $score = 0;
         
         // Accessibility
-        $score += (int) $store->aksesibilitas ;
+        $score += (int) ($store->aksesibilitas-1) ;
         
         // Visibility
-        $score += $store->visibilitas > 100 ? 1 : 0;
+        $score += $store->visibilitas >= 5 ? 1 : 0;
         
         // Environment
         $score += match($lingkunganCount) {
