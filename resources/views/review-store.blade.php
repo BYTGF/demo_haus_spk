@@ -5,9 +5,9 @@
     <div class="card-header d-flex justify-content-between align-items-center">
       <div>
         <h5>Decision</h5>
-        @if(isset($meanScore))
+        {{-- @if(isset($meanScore))
           <small class="text-muted">Nilai Rata-rata: {{ $meanScore }}</small>
-        @endif
+        @endif --}}
       </div>
       <form method="GET" action="{{ route('review-store.index') }}" id="simulate-form" class="d-flex align-items-center gap-3">
         <select name="period" id="period-select" class="form-select form-select-sm">
@@ -30,7 +30,7 @@
         <thead>
           <tr>
             <th>Store</th>
-            <th>Nilai</th>
+            {{-- <th>Nilai</th> --}}
             <th>Status</th>
             <th>Kelengkapan Data</th>
             @if (auth()->user()->role->role_name === 'Manager Business Development')
@@ -42,7 +42,7 @@
           @forelse($paginatedStores as $s)
           <tr>
             <td>{{ $s->store_name }}</td>
-            <td>{{ $s->final_score }}</td>
+            {{-- <td>{{ $s->final_score }}</td> --}}
             <td>
               <span class="badge bg-{{ 
                   $s->status == 'Layak Tutup' ? 'danger' : 
