@@ -49,6 +49,9 @@ class StoreReviewController extends Controller
                     'store' => $store->stores()->complete()->lastMonths($monthBack)->count()
                 ];
 
+                \Log::info('Complete Store Data:', $counts);
+
+
                 $totalPossible = $monthBack * 4;
                 $actualCount = array_sum($counts);
                 $completeness = ($actualCount / $totalPossible) * 100;

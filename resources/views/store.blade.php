@@ -56,11 +56,22 @@
                                                     {{ $akses[$input->aksesibilitas] ?? '-' }}
                                                 </p>
                                             </td>
-                                            <td class="align-middle text-center text-sm">
+                                            
                                                 
+                                            <td class="align-middle text-center text-sm">
+                                                @php
+                                                    $vis = [
+                                                        1 => '< 20%',
+                                                        2 => '20 - 39%',
+                                                        3 => '40 - 59%',
+                                                        4 => '60 - 79%',
+                                                        5 => '≥ 80%'
+                                                    ];
+                                                @endphp
                                                 <p class="text-xs font-weight-bold mb-0">
-                                                    {{ $input->visibilitas ?? '-' }} m
+                                                    {{ $vis[$input->visibilitas] ?? '-' }}
                                                 </p>
+                                    
                                             </td>
                                             <td class="align-middle text-center text-sm">
                                                 @php
@@ -547,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function() {
             commentReviewField.value = input.comment_review || '';
         }
 
-                if (document.getElementById('comment-review-group')) {
+        if (document.getElementById('comment-review-group')) {
             document.getElementById('comment-review-group').style.display = 'block';
         }
         
@@ -597,24 +608,30 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('confirmRejectBtn').addEventListener('click', function() {
         const formData = new FormData(rejectForm);
         
+        // Convert FormData to URL-encoded format
+        const urlEncodedData = new URLSearchParams(formData).toString();
+        
         fetch(rejectForm.action, {
             method: 'POST',
-            body: formData,
+            body: urlEncodedData,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json'
             }
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-            throw new Error('Network response was not ok');
+            return response.json();
         })
         .then(data => {
             if (data.success) {
                 $('#rejectModal').modal('hide');
                 location.reload();
+            } else {
+                alert(data.message || 'Error rejecting evaluation');
             }
         })
         .catch(error => {

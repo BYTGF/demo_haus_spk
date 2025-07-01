@@ -120,9 +120,13 @@ class InputStoreController extends Controller
     {
         if (auth()->user()->role->role_name === 'Area Manager') {
             try {
+                request()->validate([
+                    'comment_review' => 'required|string'
+                ]);
+
                 $input->update([
-                    'status' => 'Sedang Direview Manager BD',
-                    'comment_review' => request('comment_review', 'Approved by Area Manager')
+                    'status' => 'Butuh Revisi',
+                    'comment_review' => request('comment_review')
                 ]);
 
                 return redirect()->route('store.index')->with('success', 'Store evaluation approved and forwarded to Business Development Manager');
@@ -138,9 +142,13 @@ class InputStoreController extends Controller
     {
         if (auth()->user()->role->role_name === 'Manager Business Development') {
             try {
+                request()->validate([
+                    'comment_review' => 'required|string'
+                ]);
+
                 $input->update([
-                    'status' => 'Selesai',
-                    'comment_review' => request('comment_review', 'Approved by Business Development Manager')
+                    'status' => 'Butuh Revisi',
+                    'comment_review' => request('comment_review')
                 ]);
 
                 return redirect()->route('store.index')->with('success', 'Store evaluation approved successfully');
@@ -158,61 +166,80 @@ class InputStoreController extends Controller
         try {
             $input = InputStore::findOrFail($id);
 
-            request()->validate([
-                'comment_review' => 'required|string'
+            $request = request();
+
+            \Log::debug('Received data:', $request->all());
+            $request->validate([
+                'comment_review' => 'required|string',
+                'approval_level' => 'required|string'
             ]);
 
-            $approvalLevel = request('approval_level');
+            $approvalLevel = $request->approval_level;
             $commentPrefix = $approvalLevel === 'area' 
                 ? '(Rejected by Area Manager) ' 
                 : '(Rejected by Business Development Manager) ';
 
             $input->update([
                 'status' => 'Butuh Revisi',
-                'comment_review' => $commentPrefix . request('comment_review')
+                'comment_review' => $commentPrefix . $request->comment_review
             ]);
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            \Log::error('Error fetching data in index: ' . $e->getMessage());
+            \Log::error('Error rejecting input: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menolak data.']);
         }
     }
 
     public function update(Request $request, $id)
-{
-    if (auth()->user()->role->role_name === 'Store Manager') {
-        try {
-            $storeInput = InputStore::findOrFail($id);
+    {
+        if (auth()->user()->role->role_name === 'Store Manager') {
+            try {
+                $storeInput = InputStore::findOrFail($id);
 
-            $validated = $request->validate([
-                'period' => 'required|date',
-                'aksesibilitas' => 'required|integer|between:1,4',
-                'visibilitas' => 'required|integer|min:0',
-                'lingkungan' => 'required|array',
-                'lingkungan.*' => 'integer|between:1,3',
-                'lalu_lintas' => 'required|integer|min:0',
-                'parkir_mobil' => 'required|integer|min:0',
-                'parkir_motor' => 'required|integer|min:0',
-                'comment_input' => 'nullable|string',
-                'comment_review' => 'nullable|string',
-            ]);
+                $validated = $request->validate([
+                    'period' => 'required|date_format:Y-m',
+                    'aksesibilitas' => 'required|integer|between:1,4',
+                    'visibilitas' => 'required|integer|min:0',
+                    'lingkungan' => 'required|array',
+                    'lingkungan.*' => 'integer|between:1,3',
+                    'lalu_lintas' => 'required|integer|min:0',
+                    'parkir_mobil' => 'required|integer|min:0',
+                    'parkir_motor' => 'required|integer|min:0',
+                    'comment_input' => 'nullable|string',
+                    'comment_review' => 'nullable|string',
+                ]);
 
-            // Ubah ini:
-            // $validated['lingkungan'] = implode(',', $validated['lingkungan']);
-            // Menjadi:
-            $validated['lingkungan'] = json_encode($validated['lingkungan']);
-            
-            $validated['status'] = 'Sedang Direview Manager Area';
+                // Ubah ini:
+                // $validated['lingkungan'] = implode(',', $validated['lingkungan']);
+                // Menjadi:
 
-            $storeInput->update($validated);
+                $visibilitasValue = (int)$validated['visibilitas'];
+                if ($visibilitasValue < 20) {
+                    $validated['visibilitas'] = 1;
+                } elseif ($visibilitasValue >= 20 && $visibilitasValue < 40) {
+                    $validated['visibilitas'] = 2;
+                } elseif ($visibilitasValue >= 40 && $visibilitasValue < 60) {
+                    $validated['visibilitas'] = 3;
+                } elseif ($visibilitasValue >= 60 && $visibilitasValue < 80) {
+                    $validated['visibilitas'] = 4;
+                } else {
+                    $validated['visibilitas'] = 5;
+                }
 
-            return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
-        } catch (\Exception $e) {
-            \Log::error('Error fetching data in index: ' . $e->getMessage());
-            return redirect()->back()->with('error', $e->getMessage());
+                $validated['period'] = $validated['period'] . '-15';
+                $validated['lingkungan'] = json_encode($validated['lingkungan']);
+                
+                $validated['status'] = 'Sedang Direview Manager Area';
+
+                $storeInput->update($validated);
+
+                return redirect()->route('store.index')->with('success', 'Store evaluation updated and resubmitted for review');
+            } catch (\Exception $e) {
+                \Log::error('Error fetching data in index: ' . $e->getMessage());
+                return redirect()->back()->with('error', $e->getMessage());
+            }
         }
+        abort(403, 'Unauthorized action.');
     }
-    abort(403, 'Unauthorized action.');
-}
 }

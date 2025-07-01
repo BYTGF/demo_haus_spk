@@ -225,6 +225,7 @@ class InputFinanceController extends Controller
                     ? ($validated['laba_bersih'] / $validated['penjualan']) * 100
                     : 0;
 
+                $validated['period'] = $validated['period'] . '-15';
                 $validated['status'] = 'Sedang Direview';
 
                 $finance->update($validated);

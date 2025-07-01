@@ -26,6 +26,7 @@ class InputStore extends Model
         'parkir_mobil',       // Pastikan ini ada
         'parkir_motor',       // Pastikan ini ada
         'comment_input',
+        'comment_review',
         'user_id',
         'status',
         'store_id'

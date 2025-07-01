@@ -57,8 +57,6 @@ class InputBDController extends Controller
         return response()->json($input);
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
@@ -156,6 +154,7 @@ class InputBDController extends Controller
                 $bdInput = InputBD::findOrFail($id);
 
                 $validated = $request->validate([
+                    'period' => 'required|date_format:Y-m',
                     'direct_competition' => 'required|integer|min:0',
                     'substitute_competition' => 'required|integer|min:0',
                     'indirect_competition' => 'required|integer|min:0',
@@ -163,6 +162,8 @@ class InputBDController extends Controller
                     'comment_review' => 'nullable|string',
                 ]);
 
+                $validated['period'] = $validated['period'] . '-15'; 
+                
                 $validated['status'] = 'Sedang Direview';
 
                 $bdInput->update($validated);

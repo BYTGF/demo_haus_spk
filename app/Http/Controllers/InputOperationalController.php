@@ -137,7 +137,7 @@ class InputOperationalController extends Controller
                 $operationalInput = InputOperational::findOrFail($id);
 
                 $validated = $request->validate([
-                    'period' => 'required|date',
+                    'period' => 'required|date_format:Y-m',
                     'gaji_upah' => 'required|integer|min:0',
                     'sewa' => 'required|integer|min:0',
                     'utilitas' => 'required|integer|min:0',
@@ -146,6 +146,8 @@ class InputOperationalController extends Controller
                     'comment_input' => 'nullable|string',
                     'comment_review' => 'nullable|string',
                 ]);
+
+                $validated['period'] = $validated['period'] . '-15';
 
                 $validated['status'] = 'Sedang Direview';
 

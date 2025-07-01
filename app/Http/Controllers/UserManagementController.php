@@ -36,7 +36,7 @@ class UserManagementController extends Controller
 
         User::create([
             'username' => $request->username,
-            'password' => Hash::make('Sueger'),
+            'password' => Hash::make('password'),
             'role_id' => $request->role_id,
             'area_id' => $request->area_id,
             'store_id' => $request->store_id,
