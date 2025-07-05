@@ -190,8 +190,13 @@ class StoreReviewController extends Controller
 
             $scoredStores = $scoredStores->map(function ($store) {
                 if ($store->data_complete) {
-                    $store->status = $store->final_score >= 0.49 ? 'Layak Buka' : 'Layak Tutup';
-                    $store->above_mean = $store->final_score >= 0.49;
+                    if($store->final_score <= 0.25){
+                        $store->status = "Layak Tutup";
+                    }else if($store->final_score > 0.25 && $store->final_score <= 0.60){
+                        $store->status = "Dapat Dievaluasi";
+                    }else{
+                        $store->status = "Layak Buka";
+                    }
                 }
                 return $store;
             });

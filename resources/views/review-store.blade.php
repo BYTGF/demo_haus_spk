@@ -44,7 +44,17 @@
             <td>{{ $s->store_name }}</td>
             {{-- <td>{{ $s->final_score }}</td> --}}
             <td>
-              <span class="badge bg-{{ 
+              {{-- @php
+                if($s->status == 'Layak Tutup'){
+                  $statusBadge = 'danger'
+                }else if($s->status == 'Dapat Dievaluasi'){
+                  $statusBadge = 'warning'
+                }else if($s->status == 'Dapat Dievaluasi'){
+                  $statusBadge = 'success'
+                }
+              @endphp --}}
+              <span class="badge bg-{{
+                   
                   $s->status == 'Layak Tutup' ? 'danger' : 
                   ($s->status == 'Layak Buka' ? 'success' : 'warning') 
               }}">
